@@ -1,0 +1,108 @@
+Fri Jun 27 17:46:36 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Fri Jun 27 17:47:06 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Fri Jun 27 17:53:23 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Fri Jun 27 17:56:39 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Mon Jun 30 11:07:57 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Mon Jun 30 11:58:24 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 4. The simulation is unstable. Time = 0.0080.
+
+Wed Jul 16 11:23:54 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 2. The simulation is unstable. Time = 0.0880.
+
+Wed Jul 16 11:38:33 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 2. The simulation is unstable. Time = 0.0880.
+
+Mon Sep 29 11:32:49 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 15:40:42 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 15:41:21 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 15:44:30 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 16M bytes. Time = 0.0000.
+
+Tue Sep 30 15:44:44 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 16M bytes. Time = 0.0000.
+
+Tue Sep 30 16:35:00 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 16:49:05 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 16:59:47 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 17:02:29 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 17:11:47 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 17:15:11 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 17:40:43 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Tue Sep 30 17:43:34 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 17M bytes. Time = 0.0000.
+
+Tue Sep 30 17:43:45 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 30. The simulation is unstable. Time = 0.7980.
+
+Tue Sep 30 17:43:46 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 17M bytes. Time = 0.0000.
+
+Tue Sep 30 17:44:25 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 16M bytes. Time = 0.0000.
+
+Tue Sep 30 17:46:05 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 16M bytes. Time = 0.0000.
+
+Tue Sep 30 17:46:50 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 16M bytes. Time = 0.0000.
+
+Fri Oct 10 15:15:31 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.2600.
+
+Fri Oct 10 15:16:15 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.5200.
+
+Fri Oct 10 15:18:25 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.5200.
+
+Fri Oct 10 21:50:01 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 12. The simulation is unstable. Time = 2.1460.
+
+Fri Oct 10 21:55:13 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.5140.
+
+Fri Oct 10 21:55:55 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.5140.
+
+Fri Oct 10 21:57:53 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.5140.
+
+Sun Oct 12 14:17:25 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Sun Oct 12 14:18:14 2025
+WARNING: Insufficient arena memory for the number of constraints generated. Increase arena memory allocation above 15M bytes. Time = 0.0000.
+
+Wed Oct 22 12:14:55 2025
+WARNING: Nan, Inf or huge value in QACC at DOF 6. The simulation is unstable. Time = 0.0500.
+

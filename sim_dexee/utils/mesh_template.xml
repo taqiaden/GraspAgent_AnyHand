@@ -1,0 +1,13 @@
+<mujoco model="mesh_template">
+
+  <compiler meshdir="assets"/>
+  <asset>
+  </asset>
+
+  <worldbody>
+    <body>
+      <freejoint/>
+    </body>
+  </worldbody>
+  
+</mujoco>

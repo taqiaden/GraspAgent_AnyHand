@@ -1,0 +1,40 @@
+<mujoco model="shadow dex-ee hand scene">
+  <include file="shadow_dexee_free.xml" />
+  <include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_40.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_572.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_358.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_456.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_401.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_279.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_90.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_136.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_8.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_559.xml" /><compiler meshdir="assets" />
+  <statistic extent=".5" center="0 0 0.1" />
+  <default>
+    <default class="object/visual">
+      <geom type="mesh" contype="0" conaffinity="0" density="100" />
+    </default>
+    <default class="object/collision">
+      <geom type="mesh" group="3" mass="0" />
+    </default>
+  </default>
+
+  <visual>
+    <headlight ambient=".3 .3 .3" diffuse=".6 .6 .6" specular="0 0 0" />
+    <map znear=".01" />
+    <scale forcewidth=".01" contactwidth=".06" contactheight=".01" jointwidth=".01" framelength=".3" framewidth=".01" />
+    <rgba haze="0.15 0.25 0.35 1" />
+    <quality shadowsize="8192" />
+    <global azimuth="-90" elevation="-20" offheight="600" />
+  </visual>
+
+
+
+
+
+
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2="1 1 1" width="512" height="3072" />
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="1 1 1" rgb2="1 1 1" markrgb="0.8 0.8 0.8" width="300" height="300" />
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
+  </asset>
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" />
+    <camera fovy="45" pos="0 0 1.2" quat="1 0 0 0" name="camera_1" />
+    <camera fovy="45" pos="0 0 0.5" quat="1 0 0 0" name="camera_2" />
+        <geom name="floor" pos="0 0 -0.1" size="10 10 0.05" type="plane" material="groundplane" friction="3 0.01 0.001" solimp="0.9 0.95 0.001" solref="0.02 5" />
+  </worldbody>
+</mujoco>
