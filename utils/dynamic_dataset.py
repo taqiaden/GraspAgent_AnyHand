@@ -1,5 +1,4 @@
 import os
-import pickle
 import random
 import re
 from collections import deque
@@ -18,8 +17,10 @@ elif where_am_i=='yumi':
 elif where_am_i=='yons-MS-7D99':
     # company computer
     pass
-else:
+elif where_am_i == 'taqiaden':
     root_dir=r'/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/taqiaden_hub/'
+else:
+    root_dir=r'./datasets/'
 
 
 class SynthesisedData:
@@ -171,7 +172,7 @@ class DynamicDataManagement:
             id =self.low_quality_samples_tracker.pop()
             path =self.folder_dir+str(id)+'.npz'
             obj.save_npz(path)
-            print(Fore.LIGHTMAGENTA_EX,'Replace data point, path :',path,f' , grasped_objects({obj.grasped_objects}), instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
+            # print(Fore.LIGHTMAGENTA_EX,'Replace data point, path :',path,f' , grasped_objects({obj.grasped_objects}), instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
         else:
             path =self.folder_dir+str(self.last_id+1)+'.npz'
             obj.save_npz(path)
@@ -180,14 +181,14 @@ class DynamicDataManagement:
 
             self.last_id=self.last_id+1
 
-            print(Fore.LIGHTMAGENTA_EX,'Save new data point, path :',path,f' , grasped_objects({obj.grasped_objects}),  instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
+            # print(Fore.LIGHTMAGENTA_EX,'Save new data point, path :',path,f' , grasped_objects({obj.grasped_objects}),  instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
 
     def update_old_record(self,obj:SynthesisedData):
         id=obj.id
         path = self.folder_dir + str(id) + '.npz'
         obj.save_npz(path)
 
-        print(Fore.LIGHTMAGENTA_EX,'Update dynamic data, path :',path,f' , grasped_objects({obj.grasped_objects}), instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
+        # print(Fore.LIGHTMAGENTA_EX,'Update dynamic data, path :',path,f' , grasped_objects({obj.grasped_objects}), instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
 
     def load_random_sample(self):
         for i in range(10):

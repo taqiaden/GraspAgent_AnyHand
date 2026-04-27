@@ -233,7 +233,7 @@ class MojocoMultiFingersEnv():
                                     self.obj_dict.pop(new_obj_id)
                                 continue
                     else: assert False
-                    print('Newly added object ID: ', new_obj_id, ' prob: ',prob)
+                    # print('Newly added object ID: ', new_obj_id, ' prob: ',prob)
                 else: new_obj_id=selected_index
 
                 self.objects.append(new_obj_id)

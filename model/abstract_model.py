@@ -47,10 +47,10 @@ class G(nn.Module):
             features = self.back_bone(standarized_depth_)
             features2 = self.back_bone2_(standarized_depth_)
 
-        print('G b1 max val= ', features.max().item(), 'mean:', features.mean().item(), ' std:',
-              features.std(dim=1).mean().item())
-        print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
-              features2.std(dim=1).mean().item())
+        # print('G b1 max val= ', features.max().item(), 'mean:', features.mean().item(), ' std:',
+        #       features.std(dim=1).mean().item())
+        # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
+        #       features2.std(dim=1).mean().item())
 
         '''sampler'''
         dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
@@ -85,9 +85,9 @@ class C(nn.Module):
         else:
             anchor = self.back_bone(cropped_local_point_clouds)
 
-        print('D max val= ', anchor.max().item(), 'mean:', anchor.mean().item(),
-              ' std:',
-              anchor.std(dim=1).mean().item())
+        # print('D max val= ', anchor.max().item(), 'mean:', anchor.mean().item(),
+        #       ' std:',
+        #       anchor.std(dim=1).mean().item())
 
         scores = self.decoder(anchor[:,None], pose)
 

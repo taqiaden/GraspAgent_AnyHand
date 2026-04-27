@@ -6,12 +6,9 @@ import open3d
 import torch
 import trimesh
 from utils.depth_map import depth_to_point_clouds, CameraInfo
-from utils.image_utils import view_image
-from utils.mesh_utils import construct_gripper_mesh_2
 from utils.pc_utils import numpy_to_o3d
 from utils.report_utils import distribution_summary
-from utils.rl.masked_categorical import MaskedCategorical
-from utils.pose_object import pose_7_to_transformation
+
 
 parallel_jaw_model= 'new_gripper.ply'
 

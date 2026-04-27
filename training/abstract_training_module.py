@@ -12,7 +12,6 @@ from kinematic_utils.path_check import kinematic_checker
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
 from utils.cuda_utils import cuda_memory_report
-from utils.loss.D_loss import binary_l1
 from utils.report_utils import progress_indicator
 from utils.rl.masked_categorical import MaskedCategorical
 from  utils.Online_clustering import OnlingClustering
@@ -23,6 +22,8 @@ import spconv.pytorch as spconv
 from torch_scatter import scatter_mean
 import numpy as np
 from utils.visualiztion import view_npy_open3d
+
+print_details=False
 
 bce_with_logits=nn.BCEWithLogitsLoss()
 
@@ -304,7 +305,7 @@ class AbstractGraspAgentTraining:
         self.gan.critic.zero_grad()
         self.gan.critic_optimizer.zero_grad()
 
-        print(Fore.LIGHTYELLOW_EX, f'd_loss={loss.item()}',
+        if print_details:print(Fore.LIGHTYELLOW_EX, f'd_loss={loss.item()}',
               Fore.RESET)
 
     def critic_gradient_clipping(self):
@@ -317,7 +318,7 @@ class AbstractGraspAgentTraining:
         decoder_norm = torch.nn.utils.clip_grad_norm_(params, max_norm=float('inf'))
 
         norm = torch.nn.utils.clip_grad_norm_(self.gan.critic.parameters(), max_norm=5.0)
-        print(Fore.LIGHTGREEN_EX, f' C  norm : {norm}, backbone_norm:{backbone_norm}, decoder_norm={decoder_norm}',
+        if print_details: print(Fore.LIGHTGREEN_EX, f' C  norm : {norm}, backbone_norm:{backbone_norm}, decoder_norm={decoder_norm}',
               Fore.RESET)
 
     def print_pairs_info(self, pairs, gripper_pose, gripper_pose_ref):
@@ -444,7 +445,7 @@ class AbstractGraspAgentTraining:
                 self.sampler_loss_statistics.loss = gripper_sampling_loss.item()
 
 
-        print(Fore.LIGHTYELLOW_EX,
+        if print_details: print(Fore.LIGHTYELLOW_EX,
               f'gripper_sampling_loss={gripper_sampling_loss.item()}, gripper_quality_loss_={gripper_quality_loss_.item()}, diversity_loss={diversity_loss.item()}',
               Fore.RESET)
 
@@ -489,7 +490,7 @@ class AbstractGraspAgentTraining:
 
                 if warning_flag: continue
                 if time.time() - start > 5 * s or self.skip_rate.val > 0.9:
-                    print(Fore.RED, f'quality policy exploration timeout', Fore.RESET)
+                    # print(Fore.RED, f'quality policy exploration timeout', Fore.RESET)
                     break
 
                 label = torch.ones_like(gripper_prediction_logits) if grasp_success else torch.zeros_like(gripper_prediction_logits)
@@ -582,7 +583,7 @@ class AbstractGraspAgentTraining:
         norm = torch.nn.utils.clip_grad_norm_(self.gan.generator.parameters(), max_norm=5.0)
 
 
-        print(Fore.LIGHTGREEN_EX, f' G norm : {norm}, backbone1:{norm1}, backbone2: {norm2}, ', Fore.RESET)
+        if print_details:print(Fore.LIGHTGREEN_EX, f' G norm : {norm}, backbone1:{norm1}, backbone2: {norm2}, ', Fore.RESET)
 
     def check_collision(self, target_point, target_pose, view=False):
         with torch.no_grad():
@@ -608,7 +609,7 @@ class AbstractGraspAgentTraining:
 
             initial_collision = contact_with_obj or contact_with_floor
 
-            if warning_flag: print(Fore.RED, f' ----------------------------- warning_flag', Fore.RESET)
+            if warning_flag and print_details: print(Fore.RED, f' ----------------------------- warning_flag', Fore.RESET)
 
 
             if grasp_success is not None:
@@ -645,7 +646,7 @@ class AbstractGraspAgentTraining:
 
         n = int(min(self.max_n, avaliable_iterations))
 
-        print(Fore.LIGHTBLACK_EX, '# Available candidates =', avaliable_iterations.item(), Fore.RESET)
+        if print_details:print(Fore.LIGHTBLACK_EX, '# Available candidates =', avaliable_iterations.item(), Fore.RESET)
 
         counter = 0
 
@@ -684,7 +685,7 @@ class AbstractGraspAgentTraining:
 
                 view_r = self.evaluate_grasp(
                     target_point, target_ref_pose, view=True, shake=True)
-                print(Fore.LIGHTCYAN_EX,
+                if print_details:print(Fore.LIGHTCYAN_EX,
                       f'return f1: {view_r}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
 
                 g_pairs.append((target_index, 1, 1))
@@ -711,7 +712,7 @@ class AbstractGraspAgentTraining:
             if warning_flag:
                 break
 
-            if t == 1 and self.skip_rate() > 0.9:
+            if t == 1 and self.skip_rate() > 0.9 and print_details:
                 print(
                     f' ref ---- {target_ref_pose}, {ref_success, ref_initial_collision, ref_n_grasp_contact, ref_self_collide}')
                 print()
@@ -818,7 +819,7 @@ class AbstractGraspAgentTraining:
                     # if target_index in synthesised_data_obj.target_indexes: continue
 
                     if len(self.loaded_synthesised_data.grasp_parameters[n])!=self.n_param:
-                        print(Fore.RED,f'old record has different pose shape', Fore.RESET)
+                        if print_details:print(Fore.RED,f'old record has different pose shape', Fore.RESET)
                         continue
 
                     if self.loaded_synthesised_data.grasped_objects[n] is None: continue
@@ -847,13 +848,13 @@ class AbstractGraspAgentTraining:
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.):
                         self.DDM.save_data_point(synthesised_data_obj)
                         if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
-                            print(Fore.GREEN,
+                            if print_details:print(Fore.GREEN,
                                   f'Add new sample, criteria ( ave_impo, ave_uniqueness): {ave_impo, ave_uniqueness} ',
                                   Fore.RESET)
 
                     else:
                         d_pairs=[]
-                        print(Fore.RED,
+                        if print_details:print(Fore.RED,
                               f'Ignore new sample, criteria ( ave_impo, ave_uniqueness): {ave_impo, ave_uniqueness} ',
                               Fore.RESET)
                 else:
@@ -873,7 +874,7 @@ class AbstractGraspAgentTraining:
                 c_Importance_too_confident = self.Ave_importance.upper_rejection_criteria(ave_impo, k=2.)
 
                 if len(self.DDM) >= self.max_scenes and (c_Uniquness or c_Importance_too_confident or c_Importance):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
-                    print(Fore.RED,
+                    if print_details:print(Fore.RED,
                           f'poor sample detected, criteria ( c_Importance, c_Uniquness,c_Importance_too_confident): {c_Importance, c_Uniquness,c_Importance_too_confident} ',
                           Fore.RESET)
                     self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
@@ -883,7 +884,7 @@ class AbstractGraspAgentTraining:
             self.skip_rate.update(1.)
 
             if self.loaded_synthesised_data is not None:
-                print(Fore.LIGHTMAGENTA_EX, 'Low quality sample detected, poor samples ', Fore.RESET)
+                if print_details:print(Fore.LIGHTMAGENTA_EX, 'Low quality sample detected, poor samples ', Fore.RESET)
 
                 self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
@@ -1040,7 +1041,7 @@ class AbstractGraspAgentTraining:
                 grasp_value=logits_to_probs(grasp_value_logits)
 
                 annealing_factor = (1 - grasp_value.detach()).clamp(min=self.skip_rate.val ** 2)
-                print(Fore.LIGHTYELLOW_EX,
+                if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
 
@@ -1091,38 +1092,29 @@ class AbstractGraspAgentTraining:
                                                                                                            self.n_param)
 
             if not self.train_policy_only and len(d_pairs) == self.batch_size:
-                print()
-                print(
-                    '------------------------------------------------step_Critic--------------------------------------------------------')
+
                 d_cropped_local_point_clouds = self.prepare_voxels(d_pairs, depth, pc, full_pointcloud)
                 # d_cropped_local_point_clouds=None
                 self.step_discriminator(d_cropped_local_point_clouds, depth,  gripper_pose, gripper_pose_ref, d_pairs)
-                self.print_pairs_info(d_pairs, gripper_pose, gripper_pose_ref)
+                if print_details:self.print_pairs_info(d_pairs, gripper_pose, gripper_pose_ref)
 
-                print()
                 self.skipped_last=False
             else:
                 self.skipped_last=True
 
             # if sampler_samples==batch_size:
             if not self.train_policy_only and len(g_pairs) == self.batch_size:
-                print()
-                print(
-                    '------------------------------------------------step_Policy_and_action--------------------------------------------------------')
+
                 g_cropped_local_point_clouds = self.prepare_voxels(g_pairs, depth, pc, full_pointcloud)
                 # g_cropped_local_point_clouds=None
                 self.step_policy(g_cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, gripper_pose_ref_pixel,
                                     g_pairs, latent_vector)
-                self.print_pairs_info(g_pairs, gripper_pose, gripper_pose_ref)
-                print()
+                if print_details:self.print_pairs_info(g_pairs, gripper_pose, gripper_pose_ref)
             # elif self.skip_rate.val>0.9:
             elif self.skip_rate.val < 0.5 or self.train_policy_only:
-                print()
-                print(
-                    '------------------------------------------------step_Policy--------------------------------------------------------')
+
                 self.step_policy(None, depth, clean_depth, floor_mask, pc, gripper_pose_ref_pixel, g_pairs,
                                     latent_vector)
-                print()
 
             if not self.train_policy_only and not (
                     (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) and not self.test_mode:
@@ -1146,14 +1138,11 @@ class AbstractGraspAgentTraining:
             self.critic_loss_statistics.print()
 
             # values = gripper_pose.permute(1, 0, 2, 3).flatten(1).detach()
-            try:
-                print(f'gripper_pose sample = {values[np.random.randint(0, values.shape[0])].cpu()}')
-            except Exception as e:
-                print('result view error', str(e))
+
             print(f'gripper_pose std = {torch.std(values, dim=0).cpu()}')
-            print(f'gripper_pose mean = {torch.mean(values, dim=0).cpu()}')
-            print(f'gripper_pose max = {torch.max(values, dim=0)[0].cpu()}')
-            print(f'gripper_pose min = {torch.min(values, dim=0)[0].cpu()}')
+            # print(f'gripper_pose mean = {torch.mean(values, dim=0).cpu()}')
+            # print(f'gripper_pose max = {torch.max(values, dim=0)[0].cpu()}')
+            # print(f'gripper_pose min = {torch.min(values, dim=0)[0].cpu()}')
 
             self.skip_rate.view()
 

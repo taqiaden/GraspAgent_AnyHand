@@ -108,12 +108,12 @@ class MovingRate():
             self.last_value=value
             self.counter+=1
 
-    def lower_rejection_criteria(self,x,k=2.0,report=True):
+    def lower_rejection_criteria(self,x,k=2.0,report=False):
         threshold=self.moving_rate-k*math.sqrt(self.var_x)
         if report: print(f'lower criteria for {self.name},',Fore.YELLOW,f' x={x}, moving average= {self.moving_rate}, threshold={threshold}',Fore.RESET)
         return x<threshold
 
-    def upper_rejection_criteria(self,x,k=2.0,report=True):
+    def upper_rejection_criteria(self,x,k=2.0,report=False):
         threshold=self.moving_rate+k*math.sqrt(self.var_x)
         if report: print(f'Upper criteria for {self.name},',Fore.YELLOW,f' x={x}, moving average= {self.moving_rate}, threshold={threshold}',Fore.RESET)
         return x>threshold

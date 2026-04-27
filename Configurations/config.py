@@ -8,6 +8,7 @@ import smbclient
 
 where_am_i = os.popen('hostname').read()
 where_am_i = re.sub(r"[\n\t\s]*", "", where_am_i)
+print(where_am_i)
 use_xyz= True
 
 home_dir = '/home/taqiaden/'
@@ -37,8 +38,10 @@ elif where_am_i=='yumi': #edge unit
 
 elif where_am_i=='yons-MS-7D99':
     check_points_directory=r'/home/yons/code/GraspAgent/check_points/'
-else:
+elif where_am_i=='taqiaden':
     check_points_directory=r'/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/taqiaden_hub/NSL_model_state/'
+else:
+    r'./check_points/'
 
 
 counter=0
