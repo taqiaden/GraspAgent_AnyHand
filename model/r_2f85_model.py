@@ -24,14 +24,14 @@ class R_2F85PoseSampler(nn.Module):
 
     def forward(self, features,depth ):
 
-        delta = self.delta(features,depth.detach())
+        delta = self.delta(features,depth)
 
         delta=F.tanh(delta)+self.biases[:,0:3]
 
-        alpha = self.alpha(features,torch.cat([depth,delta],dim=1).detach())
+        alpha = self.alpha(features,torch.cat([depth,delta],dim=1))
         alpha = F.normalize(alpha, dim=1)
 
-        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1).detach())
+        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1))
         beta = F.normalize(beta, dim=1)
 
 

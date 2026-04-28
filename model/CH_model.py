@@ -36,17 +36,18 @@ class CHPoseSampler(nn.Module):
     def forward(self, features,depth ):
 
         delta= self.delta(features, depth)
-        delta=F.tanh(delta)+self.biases[:,0:3]
+        # delta=F.tanh(delta)+self.biases[:,0:3]
 
-        alpha = self.alpha(features,torch.cat([depth,delta], dim=1).detach())
+        alpha = self.alpha(features,torch.cat([depth,delta], dim=1))
         alpha = F.normalize(alpha, dim=1)
 
-        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1).detach())
+        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1))
         beta = F.normalize(beta, dim=1)
 
 
-        fingers=self.fingers(features,torch.cat([alpha,delta,beta,depth], dim=1).detach())
-        fingers=F.tanh(fingers)+self.biases[:,3:]
+        fingers=self.fingers(features,torch.cat([alpha,delta,beta,depth], dim=1))
+        # fingers=F.tanh(fingers)+self.biases[:,3:]
+
 
         pose = torch.cat([alpha,beta,delta,fingers], dim=1)
 

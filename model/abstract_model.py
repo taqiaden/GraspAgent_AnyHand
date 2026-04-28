@@ -4,7 +4,8 @@ from  model.sparse_encoder import SparseEncoderIN
 from  model.Decoders import CriticDecoder, FilmModulatedDecoder
 from utils.NN_tools import replace_instance_with_groupnorm
 from  utils.model_init import init_weights_he_normal
-from model.resunet import res_unet
+from model.resunet import res_unet, add_spectral_norm_selective
+
 
 class G(nn.Module):
     def __init__(self,sampler_decoder,n_params):
@@ -22,14 +23,14 @@ class G(nn.Module):
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to('cuda')
 
-        self.value=FilmModulatedDecoder( 64, n_params, 1,
+        self.collision=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to('cuda')
 
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
         self.PoseSampler.apply(init_weights_he_normal)
         self.grasp_quality_.apply(init_weights_he_normal)
-        self.value.apply(init_weights_he_normal)
+        self.collision.apply(init_weights_he_normal)
 
     def forward(self, depth,  detach_backbone=False):
         max_ = 1.3
@@ -47,6 +48,8 @@ class G(nn.Module):
             features = self.back_bone(standarized_depth_)
             features2 = self.back_bone2_(standarized_depth_)
 
+
+
         # print('G b1 max val= ', features.max().item(), 'mean:', features.mean().item(), ' std:',
         #       features.std(dim=1).mean().item())
         # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
@@ -61,10 +64,10 @@ class G(nn.Module):
         '''policy'''
         grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
 
-        value = self.value(features2, detached_dense_grasp_pose)
+        collision = self.collision(features2.detach(), detached_dense_grasp_pose)
 
 
-        return dense_grasp_pose, grasp_quality_logits,features2,value
+        return dense_grasp_pose, grasp_quality_logits,features2,collision
 
 class C(nn.Module):
     def __init__(self,n_params):

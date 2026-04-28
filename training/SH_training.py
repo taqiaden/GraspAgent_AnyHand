@@ -62,7 +62,7 @@ def process_pose(target_point, target_pose, view=False):
 
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
-    def __init__(self, args,n_samples=None, epochs=1):
+    def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
                          test_mode=False, pose_interpolation=sh_pose_interpolation,
