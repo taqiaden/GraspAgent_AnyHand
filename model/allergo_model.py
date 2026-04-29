@@ -29,8 +29,6 @@ class ALlergoPoseSampler(nn.Module):
 
         delta = self.delta(features,depth)
 
-        delta=F.tanh(delta)+self.biases[:,0:3]
-
         alpha = self.alpha(features,torch.cat([depth,delta],dim=1))
         alpha = F.normalize(alpha, dim=1)
 
@@ -38,7 +36,6 @@ class ALlergoPoseSampler(nn.Module):
         beta = F.normalize(beta, dim=1)
 
         fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
-        fingers=F.tanh(fingers)+self.biases[:,3:]
 
         pose = torch.cat([alpha,beta,delta,fingers], dim=1) #28
 
