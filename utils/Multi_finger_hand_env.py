@@ -75,6 +75,8 @@ class MojocoMultiFingersEnv():
 
         self.root=root
         self.objects_path = root if objects_path is None else objects_path
+
+        print(self.objects_path )
         self.object_nums_all = len(os.listdir(self.objects_path+"/mesh/"))
         print(f'Available # objects: {self.object_nums_all}')
         self.tmp_xml='/'+key+'_tmp.xml'
@@ -208,11 +210,6 @@ class MojocoMultiFingersEnv():
         self.d.mocap_quat[0] = self.far_hand_quat
 
         self.d.qpos = self.far_hand_pos + self.far_hand_quat + self.default_finger_joints + self.objects_poses
-        # print('--------------------------------------------------------')
-        # print(self.d.qpos[3+7+len(self.default_finger_joints ):])
-        # for k in range(100):
-        #     mujoco.mj_step(self.m, self.d)
-        # print(self.d.qpos[3+7+len(self.default_finger_joints ):])
 
         self.save_simulation_state()
 

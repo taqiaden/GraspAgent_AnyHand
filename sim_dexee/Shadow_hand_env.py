@@ -12,7 +12,7 @@ from  utils.quat_operations import quat_rotate_vector, quat_between
 
 class ShadowHandEnv(MojocoMultiFingersEnv):
     def __init__(self,root,max_obj_per_scene=2,objects_path=None):
-        self.hand_xml_file = "shadow_dexee_free.xml"
+        self.hand_xml_file = "Shadow_dexee/shadow_dexee_free.xml"
         super().__init__(root=root,max_obj_per_scene=max_obj_per_scene,key='shadow_hand',objects_path=objects_path)
         self.root = root
         self.default_finger_joints = [  0, -1.4, 0, 0, 0, -1.4, 0, 0, 0, -1.4, 0, 0]
@@ -254,9 +254,9 @@ if __name__ == "__main__":
 
     # env.view_geom_names_and_ids()
 
-    # env.view_hand()
+    env.view_hand()
     env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)
-    env.view_geom_names_and_ids()
+    # env.view_geom_names_and_ids()
 
     print('test-------------------',env.last_hand_geom_id)
 

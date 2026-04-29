@@ -9,6 +9,7 @@ This repository is under construction. The final version will include a grasp po
 <div align="center">
   <img src="images/CH.png" alt="GraspAgent AnyHand Overview" width="800"/>
 </div>
+
 ### ShadowHand five fingers
 <div align="center">
   <img src="images/SH_5f.png" alt="GraspAgent AnyHand Overview" width="800"/>
