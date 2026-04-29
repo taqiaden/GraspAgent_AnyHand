@@ -100,14 +100,9 @@ class FilmModulatedDecoder(nn.Module):
         mid_c+=mid_c%2
 
         self.gamma = nn.Sequential(
-            nn.Conv2d(in_c1, in_c1, kernel_size=1),
-            activation,
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
-            nn.Tanh()
         ).to('cuda')
         self.beta = nn.Sequential(
-            nn.Conv2d(in_c1, in_c1, kernel_size=1),
-            activation,
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to('cuda')
 
@@ -139,8 +134,7 @@ class FilmModulatedDecoder(nn.Module):
             nn.Conv2d(max(32,3*out_c), out_c, kernel_size=1,bias=True)
         ).to('cuda')
 
-        self.d=add_spectral_norm_selective(self.d)
-        
+
     def forward(self, context, condition):
 
         condition = self.condition_proj(condition.detach())
