@@ -103,6 +103,8 @@ class AbstractGraspAgentTraining:
         self.view=False
         self.synthesizie_only=False
 
+        self.activate_grad_clipping=False
+
         self.check_kinematics=check_kinematics
 
         self.kinematics = kinematic_checker() if check_kinematics else None
@@ -289,7 +291,7 @@ class AbstractGraspAgentTraining:
 
         self.critic_loss_statistics.loss = loss.item()
 
-        self.critic_gradient_clipping()
+        if self.activate_grad_clipping: self.critic_gradient_clipping()
 
         self.gan.critic_optimizer.step()
 
@@ -308,7 +310,7 @@ class AbstractGraspAgentTraining:
 
         decoder_norm = torch.nn.utils.clip_grad_norm_(params, max_norm=float('inf'))
 
-        norm = torch.nn.utils.clip_grad_norm_(self.gan.critic.parameters(), max_norm=5.0)
+        norm = torch.nn.utils.clip_grad_norm_(self.gan.critic.parameters(), max_norm=1.0)
         if print_details: print(Fore.LIGHTGREEN_EX, f' C  norm : {norm}, backbone_norm:{backbone_norm}, decoder_norm={decoder_norm}',
               Fore.RESET)
 
@@ -370,10 +372,11 @@ class AbstractGraspAgentTraining:
             shake=False, check_kinematics=False,
             update_obj_prob=None)
 
-        label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
-            grasp_prediction_)
-        self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
-                                                                          grasp_prediction_.detach())
+        if not initial_collision:
+            label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
+                grasp_prediction_)
+            self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
+                                                                              grasp_prediction_.detach())
 
         dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=~floor_mask)
         grasp_target_index = dist.sample()
@@ -385,10 +388,11 @@ class AbstractGraspAgentTraining:
             shake=False, check_kinematics=False,
             update_obj_prob=None)
 
-        label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
-            grasp_prediction_)
-        self.sampled_grasp_quality_statistics.update_confession_matrix(label.detach(),
-                                                                           grasp_prediction_.detach())
+        if not initial_collision:
+            label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
+                grasp_prediction_)
+            self.sampled_grasp_quality_statistics.update_confession_matrix(label.detach(),
+                                                                               grasp_prediction_.detach())
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs,
                        latent_vector):
@@ -409,9 +413,9 @@ class AbstractGraspAgentTraining:
         masked_quality=probs.clone()
         masked_quality[floor_mask] = float('-inf')
 
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=True)
 
-        collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW)
+        collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
         self.supplemetary_statistics( masked_quality, pc, grasp_pose_PW,floor_mask)
 
@@ -433,7 +437,6 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
@@ -445,8 +448,7 @@ class AbstractGraspAgentTraining:
         loss = grasp_sampling_loss  + grasp_quality_loss_ +scatter_loss+collision_loss_
 
         loss.backward()
-
-        self.policy_gradient_clipping()
+        if self.activate_grad_clipping: self.policy_gradient_clipping()
 
         self.gan.generator_optimizer.step()
         self.gan.sampler_optimizer.step()
@@ -627,7 +629,7 @@ class AbstractGraspAgentTraining:
 
 
         selection_p = torch.rand_like(
-            grasp_quality)*grasp_quality.clamp(min=0.001)   if  len(self.DDM)<self.max_scenes else torch.rand_like(grasp_quality)
+            grasp_quality)*grasp_quality.clamp(min=0.001)  # if  len(self.DDM)<self.max_scenes else torch.rand_like(grasp_quality)
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
@@ -722,7 +724,6 @@ class AbstractGraspAgentTraining:
                         (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
 
             elif ref_success:
-
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 importance = 0.5*importance if importance is not None else grasp_quality[target_index].item()
                 all_pairs.append(
