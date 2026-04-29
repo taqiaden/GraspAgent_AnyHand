@@ -236,6 +236,7 @@ if __name__ == "__main__":
 
     env=R2F85Env(root=root_dir + "/hands_and_objects/")
     # env.view_geom_names_and_ids()
+    env.view_hand()
 
     # env.view_hand()
     env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)

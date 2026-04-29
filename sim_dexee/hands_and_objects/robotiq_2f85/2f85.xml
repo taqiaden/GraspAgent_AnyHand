@@ -149,10 +149,10 @@
     </body>
     </body>
         <body gravcomp="1" mocap="true" name="mocap" pos="0 0 0">
-      <geom conaffinity="0" contype="0" pos="0 0 0" rgba="0 0.5 0 0.7" size="0.005 0.005 0.005" type="box"></geom>
-      <geom conaffinity="0" contype="0" pos="0.1 0 0" rgba="1 0 0 0.3" size="0.1 0.005 0.005" type="box"></geom>
-      <geom conaffinity="0" contype="0" pos="0 0.1 0" rgba="0.035  0.586 0.953 1" size="0.005 0.1 0.005" type="box"></geom>
-      <geom conaffinity="0" contype="0" pos="0 0 0.3" rgba="0.035  0.586 0.953 1" size="0.005 0.005 0.3" type="box"></geom>
+<!--      <geom conaffinity="0" contype="0" pos="0 0 0" rgba="0 0.5 0 0.7" size="0.005 0.005 0.005" type="box"></geom>-->
+<!--      <geom conaffinity="0" contype="0" pos="0.1 0 0" rgba="1 0 0 0.3" size="0.1 0.005 0.005" type="box"></geom>-->
+<!--      <geom conaffinity="0" contype="0" pos="0 0.1 0" rgba="0.035  0.586 0.953 1" size="0.005 0.1 0.005" type="box"></geom>-->
+<!--      <geom conaffinity="0" contype="0" pos="0 0 0.3" rgba="0.035  0.586 0.953 1" size="0.005 0.005 0.3" type="box"></geom>-->
     </body>
   </worldbody>
 
