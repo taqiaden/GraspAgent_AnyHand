@@ -2,8 +2,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from model.utils import add_spectral_norm_selective
-
 
 class LayerNorm2D(nn.Module):
     def __init__(self,channels,elementwise_affine=True):

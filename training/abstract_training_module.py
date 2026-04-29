@@ -406,17 +406,9 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_x = cloned_quality_decoder(features, gripper_pose_x)
 
-        # grasp_quality_x = (grasp_quality_x - grasp_quality_x[
-        #     floor_mask.view(1, 1, 600, 600)].mean() + self.gan.generator.bias.item())*self.gan.generator.scale.item()
         grasp_quality_obj_x = grasp_quality_x[~floor_mask.view(1, 1, 600, 600)]
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
-
-        # mid_range = grasp_quality_obj_x.min().clamp(min=-0.5,max=0.5).item() + (
-        #             grasp_quality_obj_x.max().clamp(min=-0.5,max=0.5) - grasp_quality_obj_x.min().clamp(min=-0.5,max=0.5)).item() / 2
-
-        # P_loss = torch.relu(0.5 - grasp_quality_obj_x[grasp_quality_obj_x >= mid_range]).mean() if (grasp_quality_obj_x >= mid_range).any() else 0.
-        # N_loss = torch.relu(0.5+grasp_quality_obj_x[grasp_quality_obj_x < mid_range]).mean() if (grasp_quality_obj_x < mid_range).any() else 0.
 
         loss = torch.clamp(0.5 - torch.abs(grasp_quality_obj_x-0.5), min=0.).mean()
         return loss
@@ -456,16 +448,14 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-
-
-            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features, floor_mask)
+            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
