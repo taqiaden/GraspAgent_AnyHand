@@ -62,7 +62,7 @@ class decoder_block(nn.Module):
 
     def forward(self, inputs, skip):
         x = self.upsample(inputs)
-        x = torch.cat([x, skip], axis=1)
+        x = torch.cat([x, skip], dim=1)
         x = self.r(x)
         return x
 

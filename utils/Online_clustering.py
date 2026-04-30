@@ -395,7 +395,7 @@ if __name__ == "__main__":
         [ 0.5564,  0.1399,  0.8110, -0.1148]], device='cuda:0')
 
 
-    x=OnlingClustering(key_name= '_test', number_of_centers=16, vector_size=4, decay_rate=0.01,inti_centers=c,use_euclidean_dist=False,is_quat=True)
+    x=OnlingClustering(key_name= '_test', number_of_centers=16, vector_size=4, decay_rate=0.01,use_euclidean_dist=False,is_quat=True)
     x.update_rates=torch.tensor([12.490534782409668, 6.558574676513672, 7.700675964355469, 4.430337905883789, 5.927631378173828, 7.891852378845215, 4.233270645141602, 12.770530700683594, 0.007824794389307499, 4.7287678718566895, 8.21914005279541, 0.13321208953857422, 1.195000410079956, 0.03290238231420517, 6.711850166320801, 16.967897415161133]
 ,device='cuda:0')
     # x.update(torch.tensor([0.0962, 0.2420, 0.8080, -0.5285]).cuda())

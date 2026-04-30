@@ -6,6 +6,8 @@ import torch.nn.functional as F
 import mujoco
 import numpy as np
 import torch
+
+from Configurations.config import device
 from  kinematic_utils.path_check import  kinematic_checker
 from  training.sample_random_grasp import quat_between_batch
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv

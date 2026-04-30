@@ -1,4 +1,6 @@
 import torch.nn.functional as F
+
+from Configurations.config import device
 from  model.Decoders import  FilmModulatedDecoder
 from model.abstract_model import G, C
 import torch

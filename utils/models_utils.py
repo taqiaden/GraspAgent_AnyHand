@@ -157,7 +157,7 @@ def load_dictionary(file_name,wait=False):
                 c+=1
             else:
                 print(Fore.RED, f'Error while loading the checkpoint file: {str(e)}', Fore.RESET)
-                return
+                return None
 
 def load_optimizer_state(optimizer,optimizer_state_path):
     pretrained_dict = load_dictionary(optimizer_state_path)

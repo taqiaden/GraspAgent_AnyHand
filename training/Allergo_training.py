@@ -2,6 +2,8 @@ import argparse
 import configparser
 import os
 import torch.nn.functional as F
+
+from Configurations.config import device
 from  model.allergo_model import Allergo_model_key, Allergo_G, Allergo_D
 from  sim_dexee.allegro_hand_env import AllegroHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining

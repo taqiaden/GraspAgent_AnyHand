@@ -960,7 +960,7 @@ class MojocoMultiFingersEnv():
 if __name__ == "__main__":
     print(mujoco.__version__)
 
-    shadow_hand_env=MojocoMultiFingersEnv(obj_nums_in_scene=1,selected_idx=[6])
+    shadow_hand_env=MojocoMultiFingersEnv(obj_nums_in_scene=1)
     obj_pose=[0., 0., 0.]
     obj_quat=[1, 0, 0, 0]
     finger_joints=[0, -0.8, 0, 0, 0, -0.8, 0, 0, 0, -0.8, 0, 0]

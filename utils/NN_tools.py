@@ -1,6 +1,9 @@
 from torch import nn
 import torch.nn.functional as F
 
+from Configurations.config import device
+
+
 def get_auto_groupnorm(num_channels, max_groups=8,affine=True):
     # Find the largest number of groups <= max_groups that divides num_channels
     for g in reversed(range(1, max_groups + 1)):
