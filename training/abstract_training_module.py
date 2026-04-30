@@ -768,7 +768,7 @@ class AbstractGraspAgentTraining:
             hh = (counter / self.batch_size) ** 2
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
-            if len(d_pairs) < self.batch_size and not (ref_success and gen_success):
+            if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
                 margin=0 if gen_initial_collision or ref_initial_collision else 1-grasp_quality[target_index]
 
