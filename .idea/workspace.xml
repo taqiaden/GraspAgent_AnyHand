@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/SH_5F_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_5F_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/SH_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/resunet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/resunet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/NN_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/NN_tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Online_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Online_clustering.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/depth_map.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/depth_map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/models_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/models_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +28,10 @@
     &quot;accountId&quot;: &quot;575d3d9a-c63c-407d-8a57-bd13a7f97edc&quot;
   }
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
@@ -58,6 +53,7 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",

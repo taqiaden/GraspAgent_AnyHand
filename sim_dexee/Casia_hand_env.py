@@ -347,7 +347,6 @@ if __name__ == "__main__":
     env.view_geom_names_and_ids()
 
 
-    psoe2 = pose[0]
 
     kinematics = kinematic_checker()
     for i in range(1000):

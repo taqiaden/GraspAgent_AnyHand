@@ -44,4 +44,4 @@ cuda=12.6
 ```
 
 ## Final notes
-This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Instititute of Automation. The result are promising and open the door for generalizing and automating the grasp policy for any given robotic hand. Setting up a new hand to the pipeline usually takes few minutes and training last 1 to 3 days using a single cuda gpu. For more details or any request to costumize the code for your specific hand design please do not hesitate to contact me: taqiaden@gmail.com  , whatsapp : 00967 774 631 499
+This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. 

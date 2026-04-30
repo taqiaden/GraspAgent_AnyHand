@@ -1,6 +1,6 @@
 <mujoco model="shadow dex-ee hand scene">
-  <include file="hand_s.xml" />
-  <include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_238.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_349.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_41.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_1.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_377.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_240.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_288.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_186.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_306.xml" /><include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_24.xml" /><compiler meshdir="assets" />
+  <include file="CasiaHand/hand_s.xml" />
+  <include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_258.xml" /><compiler meshdir="assets" />
   <statistic extent=".5" center="0 0 0.1" />
   <default>
     <default class="object/visual">
