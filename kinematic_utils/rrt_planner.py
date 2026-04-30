@@ -42,12 +42,8 @@ planning_joint_names = [
 joint_limits = [(-2 * np.pi, 2 * np.pi)] * len(planning_joint_names)
 import os
 
-if where_am_i == 'chaoyun-server':  # server
-    urdf_path = '/home/taqiaden/GraspAgent/GraspAgent_2/kinematic_utils/cr7_robot_right_server.urdf'
-else:
-    urdf_path = '/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_robot_right_local.urdf'
-# urdf_path='/home/yons/workspace/work_grasp/DOBOT_6Axis_ROS2_V4/cra_description/urdf/cr7_robot_left.urdf'
-urdf_path = r'/kinematic_utils/cr7_robot_right_server.urdf'
+
+urdf_path = r'/kinematic_utils/cr7_robot_right.urdf'
 
 
 class RRTConnectPlanner:
@@ -525,3 +521,4 @@ if __name__ == "__main__":
                 break
 
     p.disconnect()
+
