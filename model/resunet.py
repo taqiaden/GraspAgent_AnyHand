@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import spectral_norm
 
+from Configurations.config import device
 from utils.models_utils import number_of_parameters
 
 
@@ -39,7 +40,7 @@ class residual_block(nn.Module):
         """ Shortcut Connection (Identity Mapping) """
         self.s = nn.Conv2d(in_c, out_c, kernel_size=1, padding=0, stride=stride) if skip else None
 
-        self.scale=1. if scale is None else nn.Parameter(torch.tensor(scale, dtype=torch.float32, device='cuda'), requires_grad=True)
+        self.scale=1. if scale is None else nn.Parameter(torch.tensor(scale, dtype=torch.float32, device=device), requires_grad=True)
 
     def forward(self, inputs):
         x = self.b1(inputs)
@@ -69,9 +70,9 @@ def get_auto_groupnorm(num_channels, max_groups=8,affine=True):
     # Find the largest number of groups <= max_groups that divides num_channels
     for g in reversed(range(1, max_groups + 1)):
         if num_channels % g == 0:
-            return nn.GroupNorm(num_groups=g, num_channels=num_channels, affine=affine).to('cuda')
+            return nn.GroupNorm(num_groups=g, num_channels=num_channels, affine=affine).to(device)
     # fallback to LayerNorm behavior
-    return nn.GroupNorm(num_groups=1, num_channels=num_channels, affine=affine).to('cuda')
+    return nn.GroupNorm(num_groups=1, num_channels=num_channels, affine=affine).to(device)
 def add_spectral_norm_selective(model, layer_types=(nn.Conv3d,nn.Conv2d,nn.Conv1d, nn.Linear,spconv.SparseConv3d)):
     for name, layer in model.named_children():
         if isinstance(layer, layer_types):
@@ -128,9 +129,9 @@ class res_unet(nn.Module):
         add_spectral_norm_selective(self.r4)
 
     def GN_on_decoder(self,max_groups=16):
-        self.d1 = decoder_block(512, 256,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to('cuda')
-        self.d2 = decoder_block(256, 128,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to('cuda')
-        self.d3 = decoder_block(128, 64,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to('cuda')
+        self.d1 = decoder_block(512, 256,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to(device)
+        self.d2 = decoder_block(256, 128,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to(device)
+        self.d3 = decoder_block(128, 64,None,True,relu_negative_slope=self.relu_negative_slope,activation=self.activation,IN_affine=False,scale=self.scale).to(device)
 
         replace_instance_with_groupnorm(self.d1, max_groups=max_groups)
         replace_instance_with_groupnorm(self.d2, max_groups=max_groups)
@@ -138,11 +139,11 @@ class res_unet(nn.Module):
 
     def IN_on_decoder(self):
         self.d1 = decoder_block(512, 256, None, True, relu_negative_slope=self.relu_negative_slope,
-                                activation=self.activation, IN_affine=False, scale=self.scale).to('cuda')
+                                activation=self.activation, IN_affine=False, scale=self.scale).to(device)
         self.d2 = decoder_block(256, 128, None, True, relu_negative_slope=self.relu_negative_slope,
-                                activation=self.activation, IN_affine=False, scale=self.scale).to('cuda')
+                                activation=self.activation, IN_affine=False, scale=self.scale).to(device)
         self.d3 = decoder_block(128, 64, None, True, relu_negative_slope=self.relu_negative_slope,
-                                activation=self.activation, IN_affine=False, scale=self.scale).to('cuda')
+                                activation=self.activation, IN_affine=False, scale=self.scale).to(device)
 
     def forward(self, inputs):
         """ Encoder 1 """
@@ -262,8 +263,8 @@ class ResNet(nn.Module):
         return output
 
 if __name__ == "__main__":
-    inputs = torch.randn((2, 4, 480, 712)).to('cuda')
-    model = res_unet(4).to('cuda')
+    inputs = torch.randn((2, 4, 480, 712)).to(device)
+    model = res_unet(4).to(device)
     # with torch.no_grad():
     y = model(inputs)
     p=number_of_parameters(model)

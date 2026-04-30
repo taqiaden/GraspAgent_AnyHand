@@ -178,7 +178,7 @@ def depth_to_mesh_grid(camera,normalize=True):
         if normalize:
             xmap=xmap/camera.width
             ymap=ymap/camera.height
-        xymap=torch.stack([xmap,ymap]).to('cuda')#.transpose(1,2)
+        xymap=torch.stack([xmap,ymap]).to(device)#.transpose(1,2)
 
     return xymap
 

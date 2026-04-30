@@ -8,6 +8,8 @@ from colorama import Fore
 from matplotlib import pyplot as plt
 from torch import nn
 import torch.nn.functional as F
+
+from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
@@ -154,8 +156,8 @@ class AbstractGraspAgentTraining:
 
         self.skipped_last=True
 
-        approach_centers = torch.tensor([[0., 1., 0],[0., -1., 0],[1., 0, 0],[-1., 0, 0],[0., 0, -1]], device='cuda')
-        beta_centers=torch.tensor([[0., 1],[0., -1],[1., 0],[-1., 0]], device='cuda')
+        approach_centers = torch.tensor([[0., 1., 0],[0., -1., 0],[1., 0, 0],[-1., 0, 0],[0., 0, -1]], device=device)
+        beta_centers=torch.tensor([[0., 1],[0., -1],[1., 0],[-1., 0]], device=device)
         # Repeat approach_centers n_beta times
         alpha_repeated = approach_centers.repeat_interleave(beta_centers.shape[0] , dim=0)  # (20, 3)
         # Tile beta_centers n_alpha times
@@ -438,9 +440,9 @@ class AbstractGraspAgentTraining:
 
         self.supplemetary_statistics( masked_quality, pc, grasp_pose_PW,floor_mask)
 
-        scatter_loss=torch.tensor([0.],device='cuda')
-        grasp_sampling_loss=torch.tensor([0.],device='cuda')
-        contrast_loss=torch.tensor([0.],device='cuda')
+        scatter_loss=torch.tensor([0.],device=device)
+        grasp_sampling_loss=torch.tensor([0.],device=device)
+        contrast_loss=torch.tensor([0.],device=device)
         if len(pairs) == self.batch_size:
             grasp_sampling_loss = self.get_generator_loss(cropped_local_point_clouds,
                                                             depth, clean_depth, grasp_pose, grasp_pose_ref,
@@ -481,7 +483,7 @@ class AbstractGraspAgentTraining:
 
     def get_grasp_quality_loss(self,probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
 
-        grasp_quality_loss_ = torch.tensor(0., device='cuda')
+        grasp_quality_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
         positive_counter = 0
@@ -539,7 +541,7 @@ class AbstractGraspAgentTraining:
 
     def get_grasp_collision_loss(self,probs,grasp_collision_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
 
-        grasp_collision_loss_ = torch.tensor(0., device='cuda')
+        grasp_collision_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
         positive_counter = 0
@@ -1041,7 +1043,7 @@ class AbstractGraspAgentTraining:
         # torch.save(floor_mask, 'floor_mask_ch_tmp')
         # exit()
 
-        latent_vector = torch.randn((1, 8, depth.shape[0], depth.shape[1]), device='cuda')
+        latent_vector = torch.randn((1, 8, depth.shape[0], depth.shape[1]), device=device)
 
         for k in range(self.iter_per_scene):
 

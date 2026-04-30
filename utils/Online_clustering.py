@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 from colorama import Fore
 
+from Configurations.config import device
 from  utils.quat_operations import quaternion_angular_distance, quaternion_pairwise_angular_distance, \
     combine_quaternions
 def z_score(data):
@@ -93,7 +94,7 @@ class OnlingClustering():
         if os.path.exists(self.save_path+'_metrics'):
             return torch.load(self.save_path+'_metrics')
         else:
-            return torch.zeros((10,),device='cuda')
+            return torch.zeros((10,),device=device)
 
     def load(self,inti_centers=None):
         if os.path.exists(self.save_path):
@@ -111,11 +112,11 @@ class OnlingClustering():
         if os.path.exists(self.save_path+'_update_rates'):
             val=torch.load(self.save_path+'_update_rates')
 
-            if val.shape[0]!=self.centers.shape[0] or val.ndim!=1: val=torch.zeros((self.centers.shape[0],),device='cuda')
+            if val.shape[0]!=self.centers.shape[0] or val.ndim!=1: val=torch.zeros((self.centers.shape[0],),device=device)
             return val
         else:
             if self.centers is None: return None
-            return torch.zeros((self.centers.shape[0],),device='cuda')
+            return torch.zeros((self.centers.shape[0],),device=device)
 
     def save(self):
         if not self.static:

@@ -303,13 +303,13 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
         return grasped_obj
 
 def sample_quat(size,f=0.5,ref_quat=None):
-    ref_quat = torch.tensor([[0., 1., 0., 0.]],device='cuda') if ref_quat is None else ref_quat
+    ref_quat = torch.tensor([[0., 1., 0., 0.]],device=device) if ref_quat is None else ref_quat
 
-    beta_quat=torch.zeros((size,4),device='cuda')
-    beta_quat[:,[0,3]]=torch.randn((size, 2), device='cuda')
+    beta_quat=torch.zeros((size,4),device=device)
+    beta_quat[:,[0,3]]=torch.randn((size, 2), device=device)
     beta_quat = F.normalize(beta_quat, dim=-1)
 
-    approach=(torch.rand((10000, 3), device='cuda'))
+    approach=(torch.rand((10000, 3), device=device))
 
     approach[:,[0,2]]=2*(approach[:,[0,2]]-0.5)
     U=approach[:,1]
@@ -327,7 +327,7 @@ def sample_quat(size,f=0.5,ref_quat=None):
     approach[:, :2]*=f
     approach = F.normalize(approach, dim=-1)
 
-    approach_quat=quat_between_batch(torch.tensor([0.0, 1.0, 0.0],device='cuda'),approach)
+    approach_quat=quat_between_batch(torch.tensor([0.0, 1.0, 0.0],device=device),approach)
     approach_quat = F.normalize(approach_quat, dim=-1)
 
     quat=bulk_quat_mul(beta_quat,ref_quat)

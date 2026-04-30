@@ -4,8 +4,31 @@
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Configurations/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/Configurations/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kinematic_utils/rrt_planner.py" beforeDir="false" afterPath="$PROJECT_DIR$/kinematic_utils/rrt_planner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/dynamic_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/dynamic_dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/CH_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CH_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Decoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Decoders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SH_5F_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_5F_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SH_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/abstract_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/abstract_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/allergo_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/allergo_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/r_2f85_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/r_2f85_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/resunet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/resunet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/sparse_encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/sparse_encoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/CH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/CH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/sample_random_grasp.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/sample_random_grasp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/NN_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/NN_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Online_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Online_clustering.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/depth_map.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/depth_map.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/pc_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/pc_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/positional_encoding.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/positional_encoding.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +97,7 @@
       <workItem from="1777539258293" duration="480000" />
       <workItem from="1777539851534" duration="52000" />
       <workItem from="1777539964672" duration="676000" />
-      <workItem from="1777540654629" duration="885000" />
+      <workItem from="1777540654629" duration="1884000" />
     </task>
     <task id="LOCAL-00001" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -100,7 +123,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777540740812</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777541544959</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1777541544959</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,6 +142,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="by taqiaden, portable" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777541511449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
+    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777542357830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
   </component>
 </project>

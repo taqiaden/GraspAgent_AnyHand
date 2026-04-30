@@ -1,10 +1,11 @@
 import torch
 from torch import nn
+
+from Configurations.config import device
 from  model.sparse_encoder import SparseEncoderIN
 from  model.Decoders import CriticDecoder, FilmModulatedDecoder
-from utils.NN_tools import replace_instance_with_groupnorm
 from  utils.model_init import init_weights_he_normal
-from model.resunet import res_unet, add_spectral_norm_selective
+from model.resunet import res_unet
 
 
 class G(nn.Module):
@@ -12,19 +13,19 @@ class G(nn.Module):
         super().__init__()
         self.back_bone = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
                                   relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False,
-                                  activate_skip=False).to('cuda')
+                                  activate_skip=False).to(device)
 
         self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to('cuda')
+                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
 
 
         self.PoseSampler = sampler_decoder
 
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
-        activation=nn.SiLU(),  normalize=True).to('cuda')
+        activation=nn.SiLU(),  normalize=True).to(device)
 
         self.collision=FilmModulatedDecoder( 64, n_params, 1,
-        activation=nn.SiLU(),  normalize=True).to('cuda')
+        activation=nn.SiLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
@@ -73,9 +74,9 @@ class C(nn.Module):
     def __init__(self,n_params):
         super().__init__()
 
-        self.back_bone = SparseEncoderIN().to('cuda')
+        self.back_bone = SparseEncoderIN().to(device)
 
-        self.decoder = CriticDecoder(in_c1=512 , in_c2=n_params  ).to('cuda')
+        self.decoder = CriticDecoder(in_c1=512 , in_c2=n_params  ).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
         self.decoder.apply(init_weights_he_normal)

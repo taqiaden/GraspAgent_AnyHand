@@ -1,11 +1,8 @@
 import torch.nn.functional as F
-from  model.Decoders import CriticDecoder, FilmModulatedDecoder
+
+from Configurations.config import device
+from  model.Decoders import  FilmModulatedDecoder
 from model.abstract_model import G, C
-from  model.sparse_encoder import SparseEncoderIN
-from  utils.NN_tools import replace_instance_with_groupnorm
-from  utils.model_init import init_weights_he_normal
-from  utils.positional_encoding import PositionalEncoding_2d, LearnableRBFEncoding2D
-from model.resunet import res_unet
 import torch
 import torch.nn as nn
 
@@ -20,17 +17,12 @@ class CHPoseSampler(nn.Module):
         super().__init__()
 
 
-        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
-        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 1+3+3, out_c=2,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
-        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=1+5+3, out_c=3,activation=nn.SiLU(),normalize=False).to(
-            'cuda')
+        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 1+3+3, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
+        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=1+5+3, out_c=3,activation=nn.SiLU(),normalize=False).to(device)
 
-        self.delta=FilmModulatedDecoder(in_c1=64, in_c2=1, out_c=3, activation=nn.SiLU(),normalize=False).to(
-            'cuda')
+        self.delta=FilmModulatedDecoder(in_c1=64, in_c2=1, out_c=3, activation=nn.SiLU(),normalize=False).to(device)
 
-        self.biases = nn.Parameter(torch.tensor([0.]*6, dtype=torch.float32, device='cuda'), requires_grad=True).reshape(1,-1,1,1)
 
 
     def forward(self, features,depth ):

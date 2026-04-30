@@ -272,8 +272,8 @@ if __name__ == "__main__":
 
     env.manual_view(pos=shifted_point,quat=quat,fingers=None)
 
-    # approach_ref = torch.tensor([0.0, 0., 1.0], device='cuda')
-    # quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device='cuda')).cpu().tolist()
+    # approach_ref = torch.tensor([0.0, 0., 1.0], device=device)
+    # quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device)).cpu().tolist()
     print(quat)
     # quat=[1,0,0,0]
     # env.check_collision(hand_pos=shifted_point, hand_quat=quat,view=True)
