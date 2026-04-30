@@ -38,7 +38,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/base_link0.STL" />
+          filename="cr7_speed/base_link0.STL" />
       </geometry>
       <material
         name="">
@@ -52,7 +52,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/base_link0.STL" />
+          filename="cr7_speed/base_link0.STL" />
       </geometry>
     </collision>
   </link>
@@ -84,7 +84,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J1.STL" />
+          filename="cr7_speed/J1.STL" />
       </geometry>
       <material
         name="">
@@ -98,7 +98,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J1.STL" />
+          filename="cr7_speed/J1.STL" />
       </geometry>
     </collision>
   </link>
@@ -142,7 +142,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J2.STL" />
+          filename="cr7_speed/J2.STL" />
       </geometry>
       <material
         name="">
@@ -156,7 +156,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J2.STL" />
+          filename="cr7_speed/J2.STL" />
       </geometry>
     </collision>
   </link>
@@ -200,7 +200,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J3.STL" />
+          filename="cr7_speed/J3.STL" />
       </geometry>
       <material
         name="">
@@ -214,7 +214,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J3.STL" />
+          filename="cr7_speed/J3.STL" />
       </geometry>
     </collision>
   </link>
@@ -258,7 +258,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J4.STL" />
+          filename="cr7_speed/J4.STL" />
       </geometry>
       <material
         name="">
@@ -272,7 +272,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J4.STL" />
+          filename="cr7_speed/J4.STL" />
       </geometry>
     </collision>
   </link>
@@ -316,7 +316,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J5.STL" />
+          filename="cr7_speed/J5.STL" />
       </geometry>
       <material
         name="">
@@ -330,7 +330,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J5.STL" />
+          filename="cr7_speed/J5.STL" />
       </geometry>
     </collision>
   </link>
@@ -374,7 +374,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J6.STL" />
+          filename="cr7_speed/J6.STL" />
       </geometry>
       <material
         name="">
@@ -388,7 +388,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/J6.STL" />
+          filename="cr7_speed/J6.STL" />
       </geometry>
     </collision>
   </link>
@@ -462,7 +462,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/hand_base_link.STL" />
+          filename="cr7_speed/hand_base_link.STL" />
       </geometry>
       <material
         name="">
@@ -476,7 +476,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/hand_base_link.STL" />
+          filename="cr7_speed/hand_base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -510,7 +510,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint1_link.STL" />
+          filename="cr7_speed/RLF_joint1_link.STL" />
       </geometry>
       <material
         name="">
@@ -524,7 +524,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint1_link.STL" />
+          filename="cr7_speed/RLF_joint1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -568,7 +568,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint2_link.STL" />
+          filename="cr7_speed/RLF_joint2_link.STL" />
       </geometry>
       <material
         name="">
@@ -582,7 +582,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint2_link.STL" />
+          filename="cr7_speed/RLF_joint2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -626,7 +626,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint3_link.STL" />
+          filename="cr7_speed/RLF_joint3_link.STL" />
       </geometry>
       <material
         name="">
@@ -640,7 +640,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RLF_joint3_link.STL" />
+          filename="cr7_speed/RLF_joint3_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -684,7 +684,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint1_link.STL" />
+          filename="cr7_speed/RRF_joint1_link.STL" />
       </geometry>
       <material
         name="">
@@ -698,7 +698,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint1_link.STL" />
+          filename="cr7_speed/RRF_joint1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -742,7 +742,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint2_link.STL" />
+          filename="cr7_speed/RRF_joint2_link.STL" />
       </geometry>
       <material
         name="">
@@ -756,7 +756,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint2_link.STL" />
+          filename="cr7_speed/RRF_joint2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -800,7 +800,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint3_link.STL" />
+          filename="cr7_speed/RRF_joint3_link.STL" />
       </geometry>
       <material
         name="">
@@ -814,7 +814,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RRF_joint3_link.STL" />
+          filename="cr7_speed/RRF_joint3_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -858,7 +858,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint1_link.STL" />
+          filename="cr7_speed/RMF_joint1_link.STL" />
       </geometry>
       <material
         name="">
@@ -872,7 +872,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint1_link.STL" />
+          filename="cr7_speed/RMF_joint1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -916,7 +916,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint2_link.STL" />
+          filename="cr7_speed/RMF_joint2_link.STL" />
       </geometry>
       <material
         name="">
@@ -930,7 +930,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint2_link.STL" />
+          filename="cr7_speed/RMF_joint2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -974,7 +974,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint3_link.STL" />
+          filename="cr7_speed/RMF_joint3_link.STL" />
       </geometry>
       <material
         name="">
@@ -988,7 +988,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RMF_joint3_link.STL" />
+          filename="cr7_speed/RMF_joint3_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1032,7 +1032,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint1_link.STL" />
+          filename="cr7_speed/RFF_joint1_link.STL" />
       </geometry>
       <material
         name="">
@@ -1046,7 +1046,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint1_link.STL" />
+          filename="cr7_speed/RFF_joint1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1090,7 +1090,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint2_link.STL" />
+          filename="cr7_speed/RFF_joint2_link.STL" />
       </geometry>
       <material
         name="">
@@ -1104,7 +1104,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint2_link.STL" />
+          filename="cr7_speed/RFF_joint2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1148,7 +1148,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint3_link.STL" />
+          filename="cr7_speed/RFF_joint3_link.STL" />
       </geometry>
       <material
         name="">
@@ -1162,7 +1162,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RFF_joint3_link.STL" />
+          filename="cr7_speed/RFF_joint3_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1206,7 +1206,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint1_link.STL" />
+          filename="cr7_speed/RTh_joint1_link.STL" />
       </geometry>
       <material
         name="">
@@ -1220,7 +1220,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint1_link.STL" />
+          filename="cr7_speed/RTh_joint1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1264,7 +1264,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint2_link.STL" />
+          filename="cr7_speed/RTh_joint2_link.STL" />
       </geometry>
       <material
         name="">
@@ -1278,7 +1278,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint2_link.STL" />
+          filename="cr7_speed/RTh_joint2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1322,7 +1322,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint3_link.STL" />
+          filename="cr7_speed/RTh_joint3_link.STL" />
       </geometry>
       <material
         name="">
@@ -1336,7 +1336,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_speed/RTh_joint3_link.STL" />
+          filename="cr7_speed/RTh_joint3_link.STL" />
       </geometry>
     </collision>
   </link>

@@ -3,6 +3,8 @@ import torch
 from torch import nn
 from torch.nn.utils import spectral_norm
 
+from Configurations.config import device
+
 
 def add_spectral_norm_selective(model, layer_types=(nn.Conv3d,nn.Conv2d,nn.Conv1d, nn.Linear)):
     for name, layer in model.named_children():
@@ -22,7 +24,7 @@ def replace_activations(module, old_act, new_act):
 class sine(nn.Module):
     def __init__(self, w0=1.0):
         super().__init__()
-        self.w0 = nn.Parameter(torch.tensor(w0, dtype=torch.float32, device='cuda'), requires_grad=True)
+        self.w0 = nn.Parameter(torch.tensor(w0, dtype=torch.float32, device=device), requires_grad=True)
 
     def forward(self,x):
         x=torch.sin(x*self.w0)

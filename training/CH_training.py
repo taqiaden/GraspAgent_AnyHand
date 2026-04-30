@@ -2,6 +2,8 @@ import argparse
 import configparser
 import os
 import torch.nn.functional as F
+
+from Configurations.config import device
 from  model.CH_model import CH_model_key, CH_D, CH_G
 from sim_dexee.Casia_hand_env import CasiaHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining
@@ -24,9 +26,9 @@ def process_pose(target_point, target_pose, view=False):
     alpha = F.normalize(alpha, p=2, dim=0, eps=1e-8)
     beta = F.normalize(beta, p=2, dim=0, eps=1e-8)
 
-    approach_ref=torch.tensor([0.866, -0.5, 0],device='cuda')
+    approach_ref=torch.tensor([0.866, -0.5, 0],device=device)
 
-    default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.],device='cuda'))
+    default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.],device=device))
     quat=grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
 
     fingers = target_pose[5+3:].cpu().numpy().tolist()

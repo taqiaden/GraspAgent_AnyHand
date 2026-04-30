@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SH_5F_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_5F_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SH_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SH_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/resunet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/resunet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/NN_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/NN_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Online_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Online_clustering.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/depth_map.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/depth_map.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/models_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/models_utils.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;taqiaden&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/taqiaden/GraspAgent_AnyHand.git&quot;,
+    &quot;accountId&quot;: &quot;575d3d9a-c63c-407d-8a57-bd13a7f97edc&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3D3ejxcwb7HFH2WtznRPqj7KuwM" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.CH_training.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-024ed6589d45-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.23567.174" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="" />
+      <created>1777515343998</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1777515343998</updated>
+      <workItem from="1777533200954" duration="951000" />
+      <workItem from="1777535001466" duration="856000" />
+      <workItem from="1777538397494" duration="159000" />
+      <workItem from="1777538598994" duration="638000" />
+      <workItem from="1777539258293" duration="480000" />
+      <workItem from="1777539851534" duration="52000" />
+      <workItem from="1777539964672" duration="676000" />
+      <workItem from="1777540654629" duration="2692000" />
+    </task>
+    <task id="LOCAL-00001" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777532010850</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1777532010850</updated>
+    </task>
+    <task id="LOCAL-00002" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777538450432</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1777538450433</updated>
+    </task>
+    <task id="LOCAL-00003" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777540740812</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1777540740812</updated>
+    </task>
+    <task id="LOCAL-00004" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777541544959</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1777541544959</updated>
+    </task>
+    <task id="LOCAL-00005" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777542606707</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1777542606707</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="by taqiaden, portable" />
+    <option name="LAST_COMMIT_MESSAGE" value="by taqiaden, portable" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777542357830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
+  </component>
+</project>

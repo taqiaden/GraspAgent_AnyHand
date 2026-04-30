@@ -2,6 +2,9 @@ import math
 
 import numpy as np
 import torch
+
+from Configurations.config import device
+
 torch_version = tuple(int(v) for v in torch.__version__.split('.')[:2])
 
 def transform_to_camera_frame(pc, reverse=False):
@@ -178,7 +181,7 @@ def depth_to_mesh_grid(camera,normalize=True):
         if normalize:
             xmap=xmap/camera.width
             ymap=ymap/camera.height
-        xymap=torch.stack([xmap,ymap]).to('cuda')#.transpose(1,2)
+        xymap=torch.stack([xmap,ymap]).to(device)#.transpose(1,2)
 
     return xymap
 

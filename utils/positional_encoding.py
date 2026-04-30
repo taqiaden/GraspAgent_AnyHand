@@ -5,8 +5,8 @@ import torch.nn.functional as F
 class LearnableRBFEncoding2D(nn.Module):
     def __init__(self, num_centers=16, init_sigma=0.1):
         super().__init__()
-        self.centers = nn.Parameter(torch.linspace(0, 1, num_centers)).to('cuda')
-        self.log_sigma = nn.Parameter(torch.log(torch.tensor(init_sigma))).to('cuda')
+        self.centers = nn.Parameter(torch.linspace(0, 1, num_centers)).to(device)
+        self.log_sigma = nn.Parameter(torch.log(torch.tensor(init_sigma))).to(device)
 
 
     def forward(self, x):
@@ -45,7 +45,7 @@ def depth_sin_cos_encoding(depth, n_freqs=5, max_freq=10.0):
     return encoding
 
 class LearnableRBFEncoding1d(nn.Module):
-    def __init__(self, num_centers=16, init_sigma=0.1, device='cuda'):
+    def __init__(self, num_centers=16, init_sigma=0.1, device=device):
         super().__init__()
         self.num_centers = num_centers
         self.register_parameter(
@@ -141,8 +141,8 @@ class LearnableBins(nn.Module):
         widths = torch.ones(N)
         self.width_params = nn.Parameter(widths)
 
-        self.min_val = nn.Parameter(torch.tensor(min_val, dtype=torch.float32, device='cuda'), requires_grad=True)
-        self.max_val = nn.Parameter(torch.tensor(max_val, dtype=torch.float32, device='cuda'), requires_grad=True)
+        self.min_val = nn.Parameter(torch.tensor(min_val, dtype=torch.float32, device=device), requires_grad=True)
+        self.max_val = nn.Parameter(torch.tensor(max_val, dtype=torch.float32, device=device), requires_grad=True)
         self.N = N
 
         self.ini_bin_size = (max_val - min_val) / N
@@ -186,8 +186,8 @@ class EncodedScaler(nn.Module):
         super().__init__()
         self.sparsemax = Sparsemax(dim=1)
         self.N = N
-        self.edges = LearnableBins(min_val, max_val, self.N).to('cuda')
-        self.scale = nn.Parameter(torch.tensor(0., dtype=torch.float32, device='cuda'), requires_grad=True)
+        self.edges = LearnableBins(min_val, max_val, self.N).to(device)
+        self.scale = nn.Parameter(torch.tensor(0., dtype=torch.float32, device=device), requires_grad=True)
 
     def forward(self, scaler_logits):
         scaler_p = self.sparsemax(scaler_logits )

@@ -1,26 +1,11 @@
 import os
 import random
-import re
 from collections import deque
 
 import numpy as np
 from colorama import Fore
 
-where_am_i = os.popen('hostname').read()
-where_am_i = re.sub(r"[\n\t\s]*", "", where_am_i)
-root_dir=None
-if where_am_i=='chaoyun-server': # server
-    root_dir = r'/home/taqiaden/'
-elif where_am_i=='yumi':
-    #yumi edge unit
-    pass
-elif where_am_i=='yons-MS-7D99':
-    # company computer
-    pass
-elif where_am_i == 'taqiaden':
-    root_dir=r'/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/taqiaden_hub/'
-else:
-    root_dir=r'./datasets/'
+root_dir=r'./datasets/'
 
 
 class SynthesisedData:

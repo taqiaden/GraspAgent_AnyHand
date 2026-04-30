@@ -4,7 +4,7 @@ import time
 
 from Configurations.config import where_am_i
 
-full_joint_names=[
+full_joint_names = [
     "world2arm_fixed",
     "joint1",
     "joint2",
@@ -30,7 +30,7 @@ full_joint_names=[
     "RLF_joint2",
     "RLF_joint3",
 ]
-planning_joint_names=[
+planning_joint_names = [
     "joint1",
     "joint2",
     "joint3",
@@ -39,27 +39,26 @@ planning_joint_names=[
     "joint6",
 ]
 # urdf文件标定偏差量
-joint_limits = [(-2*np.pi, 2*np.pi)] * len(planning_joint_names)
+joint_limits = [(-2 * np.pi, 2 * np.pi)] * len(planning_joint_names)
+import os
 
-if where_am_i=='chaoyun-server': # server
-    urdf_path = '/home/taqiaden/GraspAgent/GraspAgent_2/kinematic_utils/cr7_robot_right_server.urdf'
-else:
-    urdf_path='/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent/GraspAgent_2/kinematic_utils/cr7_robot_right_local.urdf'
-# urdf_path='/home/yons/workspace/work_grasp/DOBOT_6Axis_ROS2_V4/cra_description/urdf/cr7_robot_left.urdf'
+current_dir = os.path.dirname(__file__)
+urdf_path = os.path.join(current_dir, "cr7_robot_right.urdf")
+
 
 class RRTConnectPlanner:
     def __init__(
-        self,
-        urdf_path=urdf_path,
-        full_joint_names=full_joint_names,
-        planning_joint_names=planning_joint_names,
-        joint_limits=joint_limits,
-        obstacle_pos=None,
-        obstacle_radius=0.0,
-        obstacle_config_data=None,
-        outer_init_flag:bool=False,
-        remaining_obj_id_list:list=None,
-        cam2base_matrix:np.array=None,
+            self,
+            urdf_path=urdf_path,
+            full_joint_names=full_joint_names,
+            planning_joint_names=planning_joint_names,
+            joint_limits=joint_limits,
+            obstacle_pos=None,
+            obstacle_radius=0.0,
+            obstacle_config_data=None,
+            outer_init_flag: bool = False,
+            remaining_obj_id_list: list = None,
+            cam2base_matrix: np.array = None,
     ):
         p.setGravity(0, 0, -9.8)
         # 更严格的穿透检测
@@ -76,20 +75,19 @@ class RRTConnectPlanner:
         p.resetDebugVisualizerCamera(
             cameraDistance=0.7,
             cameraYaw=-45,
-            cameraPitch=-30, #俯仰
+            cameraPitch=-30,  # 俯仰
             cameraTargetPosition=[-0.5, 0, 0.1]
         )
-        
-    
-        #设置手部关节角度
-        hand_idxs=[9,10,11,12,13,14,15,16,17,18]
-        hand_angle=np.zeros(len(hand_idxs))
-        hand_angle=np.array(
-            [0, 0, 0, 0,   #大拇指
-            0, 0, 0, 
-            0, 0, 0]
+
+        # 设置手部关节角度
+        hand_idxs = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+        hand_angle = np.zeros(len(hand_idxs))
+        hand_angle = np.array(
+            [0, 0, 0, 0,  # 大拇指
+             0, 0, 0,
+             0, 0, 0]
         )
-        for hand_idx,angle in zip(hand_idxs,hand_angle):
+        for hand_idx, angle in zip(hand_idxs, hand_angle):
             p.resetJointState(self.robot, hand_idx, angle)
         # p.resetJointState(self.robot, 8, 1.5)
         # max_force=500
@@ -105,10 +103,8 @@ class RRTConnectPlanner:
         self.obstacle = None
         self.obstacles_idxs = []
         self.scene_obstacles_idxs = []
-        self.object_obstacles_idxs =[]
-        self.attached_objects = [] 
-
-
+        self.object_obstacles_idxs = []
+        self.attached_objects = []
 
         # 试验台立柱
         pillar_half_extents = [0.03, 0.10, 0.9]
@@ -124,7 +120,7 @@ class RRTConnectPlanner:
             basePosition=pillar_pos,
         )
         self.obstacles_idxs.append(pid)
-        #立柱相机
+        # 立柱相机
         cam_half_extents = [0.04, 0.065, 0.025]
         cam_pos = [0.16, 0, 0.51]
         col = p.createCollisionShape(p.GEOM_BOX, halfExtents=cam_half_extents)
@@ -138,13 +134,13 @@ class RRTConnectPlanner:
             basePosition=cam_pos,
         )
         self.obstacles_idxs.append(cid)
-        
+
         # # 桌面
         # table_half_extents = [1, 1, 0.01]
         # table_pos = [0, 0, -0.011]
         # 桌面高度应该是0.064（基座坐标系）
 
-        table_half_extents = [0.5, 1, 0.062]#0.065-0.068 实际桌面高度0.05+0.01
+        table_half_extents = [0.5, 1, 0.062]  # 0.065-0.068 实际桌面高度0.05+0.01
         table_pos = [-0.6, 0, -0.01]
 
         col = p.createCollisionShape(p.GEOM_BOX, halfExtents=table_half_extents)
@@ -158,7 +154,7 @@ class RRTConnectPlanner:
             basePosition=table_pos,
         )
         self.obstacles_idxs.append(tid)
-        
+
         for _ in range(10):
             p.stepSimulation()
 
@@ -181,11 +177,11 @@ class RRTConnectPlanner:
     def connect_object_to_end_effector(self, object_id, ee_link_index=7):
         """
         将抓取的物体连接到机器人的末端执行器上，模拟抓取效果
-        
+
         Args:
             object_id: 物体在PyBullet中的ID
             ee_link_index: 末端执行器链接索引，默认为7
-        
+
         Returns:
             constraint_id: 创建的约束ID，可用于后续移除约束
         """
@@ -207,13 +203,16 @@ class RRTConnectPlanner:
 
         # 记录已附着的物体
         self.attached_objects.append(object_id)
- 
-        print("连接id",constraint_id)
+
+        print("连接id", constraint_id)
         return constraint_id
+
     def get_object_idx(self):
         return self.object_obstacles_idxs
+
     def get_zip_object_idx(self):
         return self.real2sim_zip
+
     def sample(self):
         return np.array([np.random.uniform(l, h) for l, h in self.joint_limits])
 
@@ -245,22 +244,22 @@ class RRTConnectPlanner:
             # p.stepSimulation()
 
         if self.obstacle and p.getClosestPoints(
-            self.robot, self.obstacle, distance=0.0
+                self.robot, self.obstacle, distance=0.0
         ):
             return False
         for oid in self.obstacles_idxs:
             if p.getClosestPoints(self.robot, oid, distance=0.0):
                 return False
-            
+
         # 添加自碰撞检测
         # 获取所有链接的索引
         link_indices = list(range(p.getNumJoints(self.robot)))
-        known_links=[(8,12),(8,15),(8,18),(8,21),(12,15),(15,18)]
+        known_links = [(8, 12), (8, 15), (8, 18), (8, 21), (12, 15), (15, 18)]
         # 检查自碰撞 - 排除相邻链接
         for i in range(len(link_indices)):
             for j in range(i + 2, len(link_indices)):  # i+2 跳过直接相邻的链接
                 # 特殊处理: 跳过某些已知的非碰撞链接对
-                if (i,j) in known_links or (j,i) in known_links:
+                if (i, j) in known_links or (j, i) in known_links:
                     continue
                 # 这里可以根据具体机器人结构调整
                 closest_points = p.getClosestPoints(
@@ -297,13 +296,13 @@ class RRTConnectPlanner:
         return list(reversed(path))
 
     def plan(
-        self,
-        q_start,
-        q_goal,
-        static_full,
-        max_iters=5000,
-        step_size=0.2,
-        goal_thresh=0.1,
+            self,
+            q_start,
+            q_goal,
+            static_full,
+            max_iters=5000,
+            step_size=0.2,
+            goal_thresh=0.1,
     ):
         tree_s = [(q_start.copy(), None)]
         tree_g = [(q_goal.copy(), None)]
@@ -369,18 +368,21 @@ def simplify_path(path, static_full, planner, n_checks=20):
         simplified.append(path[j])
         i = j
     return simplified
+
+
 def get_object_position(self, object_id):
     """
     获取物体当前的位置
-    
+
     Args:
         object_id: 物体在PyBullet中的ID
-    
+
     Returns:
         position: 物体的[x, y, z]坐标位置
     """
     pos, _ = p.getBasePositionAndOrientation(object_id)
     return list(pos)
+
 
 def smooth_trajectory(traj_time, dt=1 / 240.0):
     """
@@ -407,11 +409,12 @@ def smooth_trajectory(traj_time, dt=1 / 240.0):
     result.append((qs[-1], t_end))
     return result
 
+
 def plan_path(
-        planner:RRTConnectPlanner=None,
+        planner: RRTConnectPlanner = None,
         q_start=None,
         q_goal=None,
-        ):
+):
     # 获取当前所有关节静态状态
     static_full = []
     for name in full_joint_names:
@@ -445,31 +448,32 @@ def plan_path(
 
     # 1. 先对原始离散路径做剪枝，去除多余绕行
     pruned_path = simplify_path(raw_path, static_full, planner, n_checks=20)
-    
+
     # 2. 时间参数化
     traj_time = planner.time_parameterize(pruned_path, max_velocity=1)
 
-    # print(traj_time[-2:])    
+    # print(traj_time[-2:])
     # 3. 等时线性插值生成 240Hz 平滑轨迹
-    smooth_traj = smooth_trajectory(traj_time, dt=4/ 240.0)
+    smooth_traj = smooth_trajectory(traj_time, dt=4 / 240.0)
     # print(smooth_traj[-2:])
-    path=[]
+    path = []
     for q, _ in smooth_traj:
-        q=q*180/np.pi
+        q = q * 180 / np.pi
         # print(f"time={_:.2f}, q={q}")
         path.append(q)
     return smooth_traj, path
+
 
 if __name__ == "__main__":
     vis = True
     if vis:
         p.connect(p.GUI)
-    else :
+    else:
         p.connect(p.DIRECT)
     planner = RRTConnectPlanner()
 
     if vis:
-        q=np.deg2rad([268, -35, -70, 30, 2.5, -30])
+        q = np.deg2rad([268, -35, -70, 30, 2.5, -30])
         # q=np.deg2rad([186, 5, -115, 75, 74, -83.5])
         for name, angle in zip(planning_joint_names, q):
             idx = planner.joint_name_to_index[name]
@@ -477,25 +481,25 @@ if __name__ == "__main__":
         p.stepSimulation()
         input("静态展示机械臂")
         exit()
-    
-    #出发与目标关节配置
-    q_start=np.array([268, -35, -70, 30, 2.5, -30])
-    q_goal= np.array([242.88754, 8.176451, -143.289046, 100.310021, 67.362005, -15.370145])
-    q_start=np.deg2rad(q_start)
-    q_goal=np.deg2rad(q_goal)
 
-    #输出规划好的运动路径
-    smooth_traj, _ = plan_path(planner,q_start,q_goal)
+    # 出发与目标关节配置
+    q_start = np.array([268, -35, -70, 30, 2.5, -30])
+    q_goal = np.array([242.88754, 8.176451, -143.289046, 100.310021, 67.362005, -15.370145])
+    q_start = np.deg2rad(q_start)
+    q_goal = np.deg2rad(q_goal)
+
+    # 输出规划好的运动路径
+    smooth_traj, _ = plan_path(planner, q_start, q_goal)
 
     if vis:
         # 设置相机视角，便于观察
         p.resetDebugVisualizerCamera(
             cameraDistance=1.46,
             cameraYaw=-87,
-            cameraPitch=-35, #俯仰
+            cameraPitch=-35,  # 俯仰
             cameraTargetPosition=[0.4, -0.15, -0.42]
         )
-    path = [q[0]*180/np.pi for q in smooth_traj]
+    path = [q[0] * 180 / np.pi for q in smooth_traj]
 
     print(path[-2:])
     print(len(path))
@@ -511,9 +515,10 @@ if __name__ == "__main__":
                         idx = planner.joint_name_to_index[name]
                         p.resetJointState(planner.robot, idx, angle)
                     p.stepSimulation()
-                    time.sleep(8/240)
+                    time.sleep(8 / 240)
                 time.sleep(1)
             except KeyboardInterrupt:
                 break
 
     p.disconnect()
+

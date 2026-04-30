@@ -279,8 +279,8 @@ if __name__ == "__main__":
 
     env.manual_view(pos=shifted_point,quat=quat,fingers=None)
 
-    # approach_ref = torch.tensor([0.0, 0., 1.0], device='cuda')
-    # quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device='cuda')).cpu().tolist()
+    # approach_ref = torch.tensor([0.0, 0., 1.0], device=device)
+    # quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device)).cpu().tolist()
     print(quat)
     # quat=[1,0,0,0]
 
@@ -288,9 +288,9 @@ if __name__ == "__main__":
     alpha = F.normalize(torch.tensor([0.5,0.5,-1.]).cuda(), p=2, dim=0, eps=1e-8)
     beta = F.normalize(torch.tensor([-1.,1.]).cuda(), p=2, dim=0, eps=1e-8)
 
-    approach_ref = torch.tensor([0.0, 0., 1.0], device='cuda')
+    approach_ref = torch.tensor([0.0, 0., 1.0], device=device)
 
-    default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device='cuda'))
+    default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device))
     quat = grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
 
     env.check_collision(hand_pos=shifted_point, hand_quat=quat,hand_fingers=[0,0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0],view=True)

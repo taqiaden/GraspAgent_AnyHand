@@ -68,18 +68,18 @@ def random_down_sampling(point_data,number_of_points):
 
 def random_transformation(pc):
     # random shift
-    shift=torch.rand(size=(1,3)).to('cuda')-0.5
+    shift=torch.rand(size=(1,3)).to(device)-0.5
     shift[:,2]/=5
     transformed_pc=pc-shift
     #random rotation
     rotation=R.random().as_matrix()
-    rotation=torch.from_numpy(rotation).to('cuda')[None,None,:,:]
+    rotation=torch.from_numpy(rotation).to(device)[None,None,:,:]
     transformed_pc=rotation*transformed_pc[:,:,:,None]
     transformed_pc=transformed_pc.sum(-2).float()
     return transformed_pc
 def random_transition(pc):
     # random shift
-    shift=torch.rand(size=(1,3)).to('cuda')-0.5
+    shift=torch.rand(size=(1,3)).to(device)-0.5
     shift[:, 0:2] /= 2
     shift[:,2]/=4
     transitioned_pc=pc-shift

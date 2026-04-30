@@ -6,7 +6,6 @@ from colorama import Fore
 from kinematic_utils.ik_cr7 import cr7_ik
 from kinematic_utils.rrt_planner import *
 
-
 class kinematic_checker():
     def __init__(self):
         p.connect(p.DIRECT)  # initialize this only once, not every time

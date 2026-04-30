@@ -1,4 +1,6 @@
 import torch.nn.functional as F
+
+from Configurations.config import device
 from  model.Decoders import  FilmModulatedDecoder
 from model.abstract_model import G, C
 import torch
@@ -10,20 +12,14 @@ class SHPoseSampler(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
+        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
-        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
+        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.gamma = FilmModulatedDecoder(in_c1=64, in_c2= 7+2, out_c=2,activation=nn.SiLU(), normalize=False).to(
-            'cuda')
-        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9+2, out_c=18,activation=nn.SiLU(),normalize=False).to(
-            'cuda')
+        self.gamma = FilmModulatedDecoder(in_c1=64, in_c2= 7+2, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
+        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9+2, out_c=18,activation=nn.SiLU(),normalize=False).to(device)
 
-        self.biases = nn.Parameter(torch.tensor([0.]*23, dtype=torch.float32, device='cuda'), requires_grad=True).reshape(1,-1,1,1)
 
 
     def forward(self, features,depth ):
