@@ -2,7 +2,6 @@ import argparse
 import configparser
 import os
 import torch.nn.functional as F
-
 from Configurations.config import device
 from  model.CH_model import CH_model_key, CH_D, CH_G
 from sim_dexee.Casia_hand_env import CasiaHandEnv
@@ -55,9 +54,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
 
-
 def train_N_grasp_GAN(args,n=1):
-
     Train_grasp_GAN = TrainGraspGAN(args)
     torch.cuda.empty_cache()
 
