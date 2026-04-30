@@ -40,8 +40,10 @@ planning_joint_names = [
 ]
 # urdf文件标定偏差量
 joint_limits = [(-2 * np.pi, 2 * np.pi)] * len(planning_joint_names)
+import os
 
-urdf_path = r'/kinematic_utils/cr7_robot_right.urdf'
+current_dir = os.path.dirname(__file__)
+urdf_path = os.path.join(current_dir, "cr7_robot_right.urdf")
 
 
 class RRTConnectPlanner:

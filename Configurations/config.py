@@ -8,7 +8,7 @@ import smbclient
 
 where_am_i = os.popen('hostname').read()
 where_am_i = re.sub(r"[\n\t\s]*", "", where_am_i)
-print(where_am_i)
+
 use_xyz= True
 
 home_dir = '/home/taqiaden/'
