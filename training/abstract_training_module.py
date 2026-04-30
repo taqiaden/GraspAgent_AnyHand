@@ -863,7 +863,6 @@ class AbstractGraspAgentTraining:
                                                     Fore.RESET)
 
                     else:
-                        d_pairs=[]
                         if print_details:print(Fore.RED,
                               f'Ignore new sample, criteria ( ave_impo, ave_uniqueness): {ave_impo, ave_uniqueness} ',
                               Fore.RESET)
