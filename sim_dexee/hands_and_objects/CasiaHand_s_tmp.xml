@@ -1,6 +1,6 @@
 <mujoco model="shadow dex-ee hand scene">
   <include file="CasiaHand/hand_s.xml" />
-  <include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_258.xml" /><compiler meshdir="assets" />
+  <include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_73.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_535.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_224.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_239.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_223.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_569.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_360.xml" /><include file="/home/taqiaden/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_467.xml" /><compiler meshdir="assets" />
   <statistic extent=".5" center="0 0 0.1" />
   <default>
     <default class="object/visual">
