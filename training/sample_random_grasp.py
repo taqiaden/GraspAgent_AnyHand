@@ -584,7 +584,7 @@ def generate_random_Allergo_poses(size):
 
     '''thumb'''
     fingers_[:,12:13]=1-torch.rand((size, 1), device=device)**2
-    fingers_[:,13:14]=torch.rand((size, 1), device=device)**2
+    fingers_[:,13:14]=torch.rand((size, 1), device=device)
     fingers_[:,14:15]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,15:16]=torch.rand((size, 1), device=device)
 
@@ -624,19 +624,10 @@ def allergo_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,a
 
     ref_pose[:,2]=torch.clip(ref_pose[:,2],max=0.)
 
-    # ref_pose[:,-1]=torch.clip(ref_pose[:,-1],0,1)
-    # ref_pose[:,5:5+3]=torch.clip(ref_pose[:,5:5+3],-1,1)
 
-    # sampling_ratios = torch.clip(annealing_factor,0.01,0.99)
     annealing_factor[annealing_factor>0.5]=1.0
 
     sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (annealing_factor * torch.rand_like(ref_pose)+1e-4))
-    # r=torch.rand_like(ref_pose)
-    # r[:,0:5]/=2
-    # sampling_ratios=sampling_ratios*r
-    # sampling_ratios=sampling_ratios.repeat(1,9,1,1)
-    # sampling_ratios[:,-1]=1-sampling_ratios[:,-1]
-    # sampling_ratios[:,3:5]/=2
 
     sampled_pose=generate_random_Allergo_poses(ref_pose[0,0].numel()).reshape(600,600,24).permute(2,0,1)[None,...]
 
@@ -644,11 +635,9 @@ def allergo_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,a
 
     assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
 
-    # max_angle_rad=2*np.pi*tou
     sampled_pose[:, 0:3] = F.normalize(sampled_pose[:, 0:3], dim=1)
     sampled_pose[:, 3:5] = F.normalize(sampled_pose[:, 3:5], dim=1)
 
-    # sampled_pose[:,-1]=torch.clamp(sampled_pose[:,-1],min=0.0,max=0.99)
 
     return sampled_pose
 

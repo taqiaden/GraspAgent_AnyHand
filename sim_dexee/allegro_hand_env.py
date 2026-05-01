@@ -3,7 +3,11 @@ import time
 import mujoco
 import numpy as np
 import torch
+
+from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
+from utils.quat_operations import quat_between, grasp_frame_to_quat
+
 
 class AllegroHandEnv(MojocoMultiFingersEnv):
     def __init__(self,root,max_obj_per_scene=2,objects_path=None):
@@ -20,7 +24,6 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         self.d.mocap_quat[0] = hand_quat
 
         self.d.qpos =hand_pos + hand_quat + self.default_finger_joints+ self.objects_poses
-
 
         mujoco.mj_step(self.m, self.d)
 
@@ -132,13 +135,8 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
 
         if obj_pose is None: obj_pose = self.objects_poses
 
-        in_scope = True#max(hand_fingers) <= 1. and min(hand_fingers) >= 0.
+        in_scope = True
 
-
-        # if not in_scope: hand_fingers = torch.clamp(torch.tensor(hand_fingers), min=0.01, max=0.99).tolist()
-        grasped_obj = None
-
-        warning_flag = False
 
         self.d.time = 0.0
         self.d.mocap_pos[0] = hand_pos
@@ -235,9 +233,7 @@ if __name__ == "__main__":
     root_dir = os.getcwd()  # current working directory
 
     env=AllegroHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/")
-    # env.view_geom_names_and_ids()
 
-    # env.view_hand()
     env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)
     env.view_geom_names_and_ids()
 
@@ -249,5 +245,15 @@ if __name__ == "__main__":
     target_point = torch.tensor([.0, 0., 0.1]).cuda()
     target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).cuda()
 
+    alpha=torch.tensor([0.,0.,-1]).to(device)
+    beta=torch.tensor([1.,0.]).to(device)
+    import torch.nn.functional as F
+    alpha = F.normalize(alpha, p=2, dim=0, eps=1e-8)
+    beta = F.normalize(beta, p=2, dim=0, eps=1e-8)
 
-    env.manual_view()
+    approach_ref = torch.tensor([0.0, 0., 1.0], device=device)
+
+    default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device))
+    quat = grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
+
+    env.manual_view(pos=[.0, 0., 0.1],quat=quat)

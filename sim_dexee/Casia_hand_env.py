@@ -358,23 +358,20 @@ if __name__ == "__main__":
 
         from  training.CH_training import process_pose
         while True:
-            psoe2[-1]=psoe2[-1]+0.5
-            quat, fingers, shifted_point = process_pose(torch.tensor([0,0,0.5]), psoe2, view=True)
 
             shifted_point = np.array([-268.7269, -616.4493, 400.9593]) / 1000
             # shifted_point[0:2]*=0
             rpy = np.deg2rad([100.7061, -74.7654, -101.8784])
             # quat = trimesh.transformations.quaternion_from_euler(*rpy)
-            quat=np.array(quat)
 
             # fingers[0]=1.
             # fingers[1]=1.
             # fingers[2]=1.
             fingers=[1,1,1.]
 
-            env.manual_view(pos=shifted_point.tolist(), quat=quat.tolist(), fingers=fingers)
+            env.manual_view(pos=shifted_point.tolist(), quat=[0,1,0,0], fingers=fingers)
 
-            env.passive_viewer(pos=shifted_point.tolist(), quat=quat.tolist(),fingers=fingers)
+            # env.passive_viewer(pos=shifted_point.tolist(), quat=quat.tolist(),fingers=fingers)
 
             # for i in range(3):
             #     k=7+i

@@ -650,8 +650,7 @@ class AbstractGraspAgentTraining:
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
 
-        selection_p = torch.rand_like(
-            grasp_quality)*grasp_quality.clamp(min=0.001)  # if  len(self.DDM)<self.max_scenes else torch.rand_like(grasp_quality)
+        selection_p = torch.rand_like(grasp_quality)
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()

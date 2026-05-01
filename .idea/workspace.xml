@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +44,10 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Allergo_training.executor": "Run",
     "Python.CH_training.executor": "Run",
+    "Python.Casia_hand_env.executor": "Run",
+    "Python.allegro_hand_env.executor": "Run",
     "Python.r_2f85_training.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -83,7 +85,7 @@
       <workItem from="1777539258293" duration="480000" />
       <workItem from="1777539851534" duration="52000" />
       <workItem from="1777539964672" duration="676000" />
-      <workItem from="1777540654629" duration="5719000" />
+      <workItem from="1777540654629" duration="2692000" />
     </task>
     <task id="LOCAL-00001" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -127,21 +129,37 @@
     </task>
     <task id="LOCAL-00006" summary="by taqiaden, portable">
       <option name="closed" value="true" />
-      <created>1777543494115</created>
+      <created>1777552666619</created>
       <option name="number" value="00006" />
       <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
-      <updated>1777543494115</updated>
+      <updated>1777552666619</updated>
     </task>
     <task id="LOCAL-00007" summary="by taqiaden, portable">
       <option name="closed" value="true" />
-      <created>1777553751832</created>
+      <created>1777552697070</created>
       <option name="number" value="00007" />
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1777553751832</updated>
+      <updated>1777552697070</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777554326882</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1777554326882</updated>
+    </task>
+    <task id="LOCAL-00009" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777627161242</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1777627161242</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -152,7 +170,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="by taqiaden, portable" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777553719540" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
-    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$r_2f85_training.coverage" NAME="r_2f85_training Coverage Results" MODIFIED="1777563870964" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
+    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777542357830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
   </component>
 </project>
