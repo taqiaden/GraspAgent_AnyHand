@@ -12,52 +12,6 @@ from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
 
-def process_fingers(target_pose_):
-    fingers = target_pose_[5+3: ]
-
-    ''''''
-    fingers[1:2]*=1.806
-    fingers[1:2]-=0.196
-
-    fingers[2:3]*=1.884
-    fingers[2:3]-=0.174
-
-    fingers[3:4]*=1.847
-    fingers[3:4]-=0.227
-
-    ''''''
-    fingers[5:6]*=1.806
-    fingers[5:6]-=0.196
-
-    fingers[6:7]*=1.884
-    fingers[6:7]-=0.174
-
-    fingers[7:8]*=1.847
-    fingers[7:8]-=0.227
-
-    ''''''
-
-    fingers[9:10]*=1.806
-    fingers[9:10]-=0.196
-
-    fingers[10:11]*=1.884
-    fingers[10:11]-=0.174
-
-    fingers[11:12]*=1.847
-    fingers[11:12]-=0.227
-
-    '''thumb'''
-    fingers[11:12]*=1.137
-    fingers[11:12]+=0.263
-
-    fingers[12:13]*=1.265
-    fingers[12:13]-=0.105
-
-    fingers[13:14]*=1.882
-    fingers[13:14]-=0.162
-
-
-    return fingers
 
 def process_pose(target_point, target_pose, view=False):
     target_pose_ = target_pose.clone()
@@ -78,10 +32,8 @@ def process_pose(target_point, target_pose, view=False):
     default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device))
     quat = grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
 
-    fingers = process_fingers(target_pose_).cpu().tolist()
 
     assert all(x == x for x in quat), f"quat contains NaN, {quat, alpha, beta}"
-    assert all(x == x for x in fingers), f"fingers contains NaN, {fingers}"
 
     if view:
         print()
@@ -91,10 +43,9 @@ def process_pose(target_point, target_pose, view=False):
 
         print('target_pose: ', target_pose)
 
-        print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat, fingers, target_point_.tolist()
+    return quat, None, target_point_.tolist()
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,epochs=1):
@@ -106,8 +57,6 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
 
 def train_N_grasp_GAN(args,n=1):
-    lr = 1e-5
-
     Train_grasp_GAN = TrainGraspGAN(args)
     torch.cuda.empty_cache()
 

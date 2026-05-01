@@ -2,14 +2,12 @@ import argparse
 import configparser
 import os
 import torch.nn.functional as F
-
 from Configurations.config import device
 from  model.allergo_model import Allergo_model_key, Allergo_G, Allergo_D
 from  sim_dexee.allegro_hand_env import AllegroHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining
 from  training.sample_random_grasp import allergo_pose_interpolation
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
-from utils. check_point_conventions import GANWrapper
 from utils. cuda_utils import cuda_memory_report
 import torch
 
@@ -48,14 +46,18 @@ def process_fingers(target_pose_):
     fingers[11:12]-=0.227
 
     '''thumb'''
-    fingers[11:12]*=1.137
-    fingers[11:12]+=0.263
 
-    fingers[12:13]*=1.265
-    fingers[12:13]-=0.105
+    fingers[12:13]*=1.137
+    fingers[12:13]+=0.263
 
-    fingers[13:14]*=1.882
-    fingers[13:14]-=0.162
+    fingers[13:14]*=1.265
+    fingers[13:14]-=0.105
+
+    fingers[14:15]*=1.829
+    fingers[14:15]-=0.189
+
+    fingers[15:16]*=1.882
+    fingers[15:16]-=0.162
 
 
     return fingers
@@ -107,10 +109,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
                          test_mode=False,pose_interpolation=allergo_pose_interpolation,
                          process_pose=process_pose,n_param=24)
 
-
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
-
-
 
 def train_N_grasp_GAN(args,n=1):
     lr = 1e-5
@@ -121,11 +120,6 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        # fix_weight_scales(Train_grasp_GAN.gan.generator.grasp_collision_)
-        # exit()
-        # scale_all_weights(Train_grasp_GAN.gan.generator.back_bone_,5)
-        # Train_grasp_GAN.export_check_points()
-        # exit()
         Train_grasp_GAN.begin(iterations=10)
 
 def read_config(path):
@@ -182,8 +176,6 @@ def get_args():
 
 if __name__ == "__main__":
     args = get_args()
-
-    # Normalize filename (avoid config.ini.ini)
     config_path = args.config
     if not config_path.lower().endswith(".ini"):
         config_path += ".ini"

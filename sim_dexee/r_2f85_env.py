@@ -21,7 +21,6 @@ class R2F85Env(MojocoMultiFingersEnv):
 
         self.d.qpos =hand_pos + hand_quat + self.default_finger_joints+ self.objects_poses
 
-
         mujoco.mj_step(self.m, self.d)
 
         '''check initial contact'''
@@ -135,11 +134,6 @@ class R2F85Env(MojocoMultiFingersEnv):
         in_scope = True#max(hand_fingers) <= 1. and min(hand_fingers) >= 0.
 
 
-        # if not in_scope: hand_fingers = torch.clamp(torch.tensor(hand_fingers), min=0.01, max=0.99).tolist()
-        grasped_obj = None
-
-        warning_flag = False
-
         self.d.time = 0.0
         self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat
@@ -148,7 +142,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         # except:
         #     print(len(self.default_finger_joints),' ',len(hand_pos),' ',len(hand_quat),' ',len(obj_pose),' ',len(self.objects))
         #     assert False
-        self.d.ctrl = hand_fingers
+        self.d.ctrl = [0]
         mujoco.mj_step(self.m, self.d)
         self.static_view(1000)
 
@@ -158,7 +152,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         delta=[0, 0, 0.003]
         # decoded_fingers=self.close_grip(hand_fingers)
         # max_fingers=self.max_finger_ctrl()
-        self.d.ctrl = hand_fingers
+        self.d.ctrl = [255]
         shake_amp = .003
         shake_f = 20  # Hz
 
