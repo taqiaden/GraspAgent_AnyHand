@@ -6,14 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/allegro_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/allegro_hand_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/sample_random_grasp.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/sample_random_grasp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777554326882</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777627161242</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1777627161242</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
