@@ -18,7 +18,6 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         self.default_finger_joints = [  0, -1.4, 0, 0, 0, -1.4, 0, 0, 0, -1.4, 0, 0]
         self.default_ctrl = None
 
-        # self.last_hand_geom_id=101
 
         self.contact_pads_geom_ids=[[23,28,34],[55,60,66],[87,92,98]] # (pad1,pad2,pad3)
 

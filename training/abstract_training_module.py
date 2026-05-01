@@ -8,7 +8,6 @@ from colorama import Fore
 from matplotlib import pyplot as plt
 from torch import nn
 import torch.nn.functional as F
-
 from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid

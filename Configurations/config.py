@@ -53,4 +53,3 @@ while os.path.split(os.getcwd())[-1]!=solution_name:
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-

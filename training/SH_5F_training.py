@@ -86,7 +86,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,  epochs=1 ):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D,  epochs=epochs ,model_key=SH_model_key,
-                         test_mode=False,pose_interpolation=sh_5F_pose_interpolation,
+                         test_mode=True,pose_interpolation=sh_5F_pose_interpolation,
                          process_pose=process_pose,n_param=28)
 
 
