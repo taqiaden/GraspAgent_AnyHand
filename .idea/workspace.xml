@@ -6,20 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/allegro_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/allegro_hand_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,7 +50,6 @@
     "Python.CH_training.executor": "Run",
     "Python.Casia_hand_env.executor": "Run",
     "Python.allegro_hand_env.executor": "Run",
-    "Python.margin.executor": "Run",
     "Python.r_2f85_training.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -168,7 +161,47 @@
       <option name="project" value="LOCAL" />
       <updated>1777627161242</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777628872926</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1777628872927</updated>
+    </task>
+    <task id="LOCAL-00011" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777632901488</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1777632901488</updated>
+    </task>
+    <task id="LOCAL-00012" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777633282078</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1777633282078</updated>
+    </task>
+    <task id="LOCAL-00013" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777633353182</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1777633353182</updated>
+    </task>
+    <task id="LOCAL-00014" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777633844504</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1777633844504</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -178,9 +211,18 @@
     <MESSAGE value="by taqiaden, portable" />
     <option name="LAST_COMMIT_MESSAGE" value="by taqiaden, portable" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/training/sample_random_grasp.py</url>
+          <line>8</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$CH_training.coverage" NAME="CH_training Coverage Results" MODIFIED="1777542357830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
-    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$margin.coverage" NAME="margin Coverage Results" MODIFIED="1777647938825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/GraspAgent_AnyHand$r_2f85_training.coverage" NAME="r_2f85_training Coverage Results" MODIFIED="1777629611241" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/training" />
   </component>
 </project>
