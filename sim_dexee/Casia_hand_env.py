@@ -1,4 +1,6 @@
-import math
+import os
+
+os.environ["MUJOCO_GL"] = "osmesa"
 import os
 import re
 import time
@@ -89,10 +91,6 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
             if sum(cumulative)>4: return False
 
         return True
-
-
-
-
 
     def check_graspness(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None):
         self.restore_simulation_state()
@@ -340,6 +338,7 @@ def sample_quat(size,f=0.5,ref_quat=None):
     return quat
 
 if __name__ == "__main__":
+
     root_dir = os.getcwd()  # current working directory
 
     env=CasiaHandEnv(root=root_dir +  "/sim_dexee/hands_and_objects/",max_obj_per_scene=5,is_tendon_control=False)

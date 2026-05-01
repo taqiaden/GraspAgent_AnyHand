@@ -42,7 +42,7 @@ elif where_am_i=='yons-MS-7D99':
 elif where_am_i=='taqiaden':
     check_points_directory=r'/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/taqiaden_hub/NSL_model_state/'
 else:
-    r'./check_points/'
+    check_points_directory=r'./check_points/'
 
 
 counter=0

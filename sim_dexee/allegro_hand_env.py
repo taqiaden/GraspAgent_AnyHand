@@ -3,7 +3,6 @@ import time
 import mujoco
 import numpy as np
 import torch
-
 from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
 from utils.quat_operations import quat_between, grasp_frame_to_quat
@@ -242,8 +241,8 @@ if __name__ == "__main__":
     # env.passive_viewer(pos=[0.0, 0.0, 0.2],quat=[.0, 1., 0., 0.],ctrl=None)
     depth, pointcloud, floor_mask = env.get_scene_preception()
 
-    target_point = torch.tensor([.0, 0., 0.1]).cuda()
-    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).cuda()
+    target_point = torch.tensor([.0, 0., 0.1]).to(device)
+    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).to(device)
 
     alpha=torch.tensor([0.,0.,-1]).to(device)
     beta=torch.tensor([1.,0.]).to(device)

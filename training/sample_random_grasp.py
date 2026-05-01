@@ -24,11 +24,11 @@ def generate_random_beta_dist_widh( size):
     sampled_beta = F.normalize(sampled_beta, dim=1)
 
     # sampled_dist = torch.distributions.LogNormal(loc=-1.337, scale=0.791)
-    # sampled_dist = sampled_dist.sample((size, 1)).cuda()
+    # sampled_dist = sampled_dist.sample((size, 1)).to(device)
     sampled_dist = torch.rand((size, 1), device=device)**2
 
     # sampled_width = torch.distributions.LogNormal(loc=-1.312, scale=0.505)
-    # sampled_width = 1. - sampled_width.sample((size, 1)).cuda()
+    # sampled_width = 1. - sampled_width.sample((size, 1)).to(device)
     sampled_width=1-torch.rand((size, 1), device=device)**2
 
     sampled_pose = torch.cat([sampled_approach, sampled_beta, sampled_dist, sampled_width], dim=1)
@@ -468,7 +468,7 @@ def sample_vectors(n,dim_c,values):
 def generate_random_CH_poses(size):
 
     # values = torch.tensor([-1., 0., 1.])
-    # alpha_=sample_vectors(size,3,values).cuda()
+    # alpha_=sample_vectors(size,3,values).to(device)
     alpha_ = torch.randn((size,3),device=device)
     alpha_[:, -1] = -1*torch.abs(alpha_[:, -1])
     # alpha_[:, 0:2]=alpha_[:, 0:2]*torch.abs(alpha_[:, 0:2]**1)
@@ -479,18 +479,18 @@ def generate_random_CH_poses(size):
     # beta_[:,1]=beta_[:,1].abs()*-1
 
     # values = torch.tensor([-1., 0., 1.])
-    # beta_=sample_vectors(size,2,values).cuda()
+    # beta_=sample_vectors(size,2,values).to(device)
     beta_ = F.normalize(beta_, dim=-1)
 
     # values = torch.tensor([-0.5, 0.,0.2, 0.5])
-    # fingers_=sample_vectors(size,3,values).cuda()
+    # fingers_=sample_vectors(size,3,values).to(device)
 
     delta = torch.randn((size, 3), device=device)/2
     delta[:,0:2]/=3
     delta[:,-1]-=0.5
 
     # values = torch.tensor([ 0.,0.3,0.5,0.7, 1.])
-    # transition_=sample_vectors(size, 1, values).cuda()
+    # transition_=sample_vectors(size, 1, values).to(device)
     fingers = torch.randn((size, 3), device=device)+0.5
 
     sampled_pose = torch.cat([alpha_,beta_, delta, fingers], dim=1)
@@ -506,7 +506,7 @@ def generate_random_SH_poses(size):
     beta_ = random_unit_circle(size)
     beta_ = F.normalize(beta_, dim=-1)
 
-    fingers_ = beta_peak_intensity_tensor(size, 3, torch.tensor([0.,0,0]).cuda(),[-0.5,0.5], peak_intensity=10.0)
+    fingers_ = beta_peak_intensity_tensor(size, 3, torch.tensor([0.,0,0]).to(device),[-0.5,0.5], peak_intensity=10.0)
 
     delta = torch.randn((size, 3), device=device)
     
@@ -525,16 +525,16 @@ def generate_random_SH_3F_poses(size):
     gamma = torch.randn((size,2),device=device)/3
 
     s = 1-torch.rand((size, 4), device=device)**2
-    b=beta_peak_intensity_tensor(size, 5, torch.tensor([0.6,1.3,1.3,1.3,1.3]).cuda(),[-0.262,1.57], peak_intensity=10.0)
+    b=beta_peak_intensity_tensor(size, 5, torch.tensor([0.6,1.3,1.3,1.3,1.3]).to(device),[-0.262,1.57], peak_intensity=10.0)
 
     fingers_ = torch.randn((size, 18), device=device)/3
 
-    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).cuda(),[-1.05,1.05], peak_intensity=10.0)
+    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).to(device),[-1.05,1.05], peak_intensity=10.0)
     fingers_[:,0:1]=(torch.rand((size, 1), device=device)-0.5)*2*1.05
 
     fingers_[:, 1:2]=(1-torch.rand((size, 1), device=device)**2)*1.2
 
-    fingers_[:, 3:4] =beta_peak_intensity_tensor(size, 1, torch.tensor([0.698]).cuda(),[-.7,0.7], peak_intensity=10.0)
+    fingers_[:, 3:4] =beta_peak_intensity_tensor(size, 1, torch.tensor([0.698]).to(device),[-.7,0.7], peak_intensity=10.0)
     # fingers_[:, 3:4] =(torch.rand((size, 1), device=device)-0.5)*2*0.698
     fingers_[:, 4] = b[:,0]
 
@@ -569,7 +569,7 @@ def generate_random_Allergo_poses(size):
 
     fingers_ = torch.rand((size, 16), device=device)-0.5
 
-    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).cuda(),[-1.05,1.05], peak_intensity=10.0)
+    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).to(device),[-1.05,1.05], peak_intensity=10.0)
     fingers_[:,1:2]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,2:3]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,3:4]=torch.rand((size, 1), device=device)
@@ -800,7 +800,7 @@ def pose_interpolation1d( gripper_pose, objects_mask,annealing_factor=0.99):
 
 if __name__ == "__main__":
 
-    r=beta_peak_intensity_tensor(1000, 3, torch.tensor([0,-1,1]).cuda(),[-2,2], peak_intensity=30.0)
+    r=beta_peak_intensity_tensor(1000, 3, torch.tensor([0,-1,1]).to(device),[-2,2], peak_intensity=30.0)
     data=r[:,0].cpu().numpy()
     import matplotlib.pyplot as plt
     plt.figure(figsize=(10, 6))
