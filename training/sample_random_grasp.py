@@ -1,13 +1,7 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch import tensor
-
 from Configurations.config import device
-from  hands_config.sh_config import fingers_range, fingers_min, fingers_max
-from  utils.Online_clustering import OnlingClustering
-from  utils.quat_operations import bulk_quat_mul, signed_cosine_distance
-
 
 def generate_random_beta_dist_widh( size):
     sampled_approach = (torch.rand((size, 2), device=device) - 0.5)  # *1.5
@@ -23,206 +17,15 @@ def generate_random_beta_dist_widh( size):
     sampled_beta = (torch.rand((size, 2), device=device) - 0.5) * 2
     sampled_beta = F.normalize(sampled_beta, dim=1)
 
-    # sampled_dist = torch.distributions.LogNormal(loc=-1.337, scale=0.791)
-    # sampled_dist = sampled_dist.sample((size, 1)).cuda()
+
     sampled_dist = torch.rand((size, 1), device=device)**2
 
-    # sampled_width = torch.distributions.LogNormal(loc=-1.312, scale=0.505)
-    # sampled_width = 1. - sampled_width.sample((size, 1)).cuda()
+
     sampled_width=1-torch.rand((size, 1), device=device)**2
 
     sampled_pose = torch.cat([sampled_approach, sampled_beta, sampled_dist, sampled_width], dim=1)
 
     return sampled_pose
-
-
-
-def pose_interpolation( gripper_pose, objects_mask,annealing_factor,tou=1.):
-    assert objects_mask.sum() > 0
-
-    ref_pose = gripper_pose.detach().clone()
-
-    ref_pose[:, 5:] = torch.clamp(ref_pose[:,5:], 0.01, 0.99)
-
-    sampling_ratios = torch.clip(annealing_factor,0.01,0.99)
-
-    sampled_pose = generate_random_beta_dist_widh(ref_pose[:,  0].numel()).reshape(480,-1,7).permute(2,0,1)[None,...]
-
-    # sampling_ratios = 1/(1+((1-annealing_factor)*torch.rand_like(ref_pose)) /(annealing_factor*torch.rand_like(ref_pose)))
-    # sampling_ratios2 = 1/(1+((1-p2)*torch.rand_like(ref_pose[:,5:])) /(p2*torch.rand_like(ref_pose[:,5:])))
-    # sampling_ratios=torch.cat([sampling_ratios1,sampling_ratios2],dim=1)
-
-    # sampled_pose[:, 0:3] =clip_vectors_angle_batch(sampled_pose[:, 0:3] ,ref_pose[:, 0:3] ,np.pi/2)
-    # sampled_pose[:, 3:5] =clip_vectors_angle_batch_2d(sampled_pose[:, 3:5] ,ref_pose[:, 3:5] ,np.pi/2)
-    # sampled_pose[:, 5:]=clip_scalars_batch(sampled_pose[:, 5:],ref_pose[:, 5:],max_dist=0.5)
-
-    sampled_pose = sampled_pose.detach().clone() * sampling_ratios + (1 - sampling_ratios) * ref_pose
-    assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampled_pose.min()}, {ref_pose.min()}, {sampled_pose.max()}, {ref_pose.max()}'
-
-    # max_angle_rad=2*np.pi*tou
-
-
-    sampled_pose[:, 0:3] = F.normalize(sampled_pose[:, 0:3], dim=1)
-    sampled_pose[:, 3:5] = F.normalize(sampled_pose[:, 3:5], dim=1)
-
-
-    sampled_pose[:, 5:] = torch.clamp(sampled_pose[:, 5:], 0.01, 0.99)
-
-    return sampled_pose
-
-
-def clip_scalars_batch(A, B, max_dist):
-    """
-    Clip each element of A so that the distance to B <= max_dist.
-    Operates element-wise independently.
-
-    Args:
-        A: Tensor [B, dim, H, W]
-        B: Tensor [B, dim, H, W]
-        max_dist: float
-
-    Returns:
-        A_clipped: Tensor [B, dim, H, W]
-    """
-    # Element-wise difference
-    diff = A - B
-
-    # Clip each element independently
-    diff_clipped = diff.clamp(min=-max_dist, max=max_dist)
-
-    # Reconstruct clipped tensor
-    A_clipped = B + diff_clipped
-    return A_clipped
-
-def clip_vectors_angle_batch_2d(A, B, max_angle_rad):
-    """
-    Clip batch of 2D vectors A so that angle with B <= max_angle_rad.
-    Supports [n, 2] or [B, 2, H, W]
-    """
-    is_4d = A.ndim == 4
-    if is_4d:
-        BATCH, VEC_DIM, H, W = A.shape
-        A_flat = A.permute(0, 2, 3, 1).reshape(-1, 2)
-        B_flat = B.permute(0, 2, 3, 1).reshape(-1, 2)
-    else:
-        A_flat = A
-        B_flat = B
-
-    # Normalize
-    A_norm = A_flat / A_flat.norm(dim=1, keepdim=True).clamp(min=1e-8)
-    B_norm = B_flat / B_flat.norm(dim=1, keepdim=True).clamp(min=1e-8)
-
-    # Cosine of angles
-    cos_theta = (A_norm * B_norm).sum(dim=1).clamp(-1.0, 1.0)
-    angles = torch.acos(cos_theta)
-
-    # Mask: need to clip
-    outside_mask = angles > max_angle_rad
-
-    A_clipped_flat = A_flat.clone()
-
-    if outside_mask.any():
-        A_out = A_norm[outside_mask]
-        B_out = B_norm[outside_mask]
-
-        # Compute rotation matrix for 2D
-        # Angle to rotate: clipped_angle = max_angle_rad
-        # Determine sign of rotation (cross product scalar in 2D)
-        cross = B_out[:, 0]*A_out[:, 1] - B_out[:, 1]*A_out[:, 0]
-        sign = torch.sign(cross).unsqueeze(1)  # +1 or -1
-
-        max_angle_rad_tensor = torch.tensor(max_angle_rad, device=A.device, dtype=A.dtype)
-
-        cos_clip = torch.cos(max_angle_rad_tensor)
-        sin_clip = torch.sin(max_angle_rad_tensor)
-
-        # Rotation matrix application
-        x_new = cos_clip * B_out[:, 0] - sign[:,0] * sin_clip * B_out[:, 1]
-        y_new = sign[:,0] * sin_clip * B_out[:, 0] + cos_clip * B_out[:, 1]
-        v_rot = torch.stack([x_new, y_new], dim=1)
-
-        # Scale to original magnitude
-        A_mag = A_flat[outside_mask].norm(dim=1, keepdim=True)
-        v_rot = v_rot / v_rot.norm(dim=1, keepdim=True).clamp(min=1e-8) * A_mag
-
-        A_clipped_flat[outside_mask] = v_rot
-
-    # Reshape back if 4D
-    if is_4d:
-        A_clipped = A_clipped_flat.reshape(BATCH, H, W, 2).permute(0, 3, 1, 2)
-    else:
-        A_clipped = A_clipped_flat
-
-    return A_clipped
-def clip_vectors_angle_batch(A, B, max_angle_rad):
-    """
-    Clip batch of vectors A so that angle with B <= max_angle_rad.
-    Supports shapes [n, vec_dim] or [B, vec_dim, H, W].
-
-    Args:
-        A: Tensor of shape [n, vec_dim] or [B, vec_dim, H, W]
-        B: Tensor of same shape as A
-        max_angle_rad: float, max allowed angle in radians
-
-    Returns:
-        A_clipped: same shape as A
-    """
-    original_shape = A.shape
-    vec_dim = A.shape[1] if A.ndim == 2 else A.shape[1]
-
-    # Flatten spatial dimensions if necessary
-    if A.ndim == 4:  # [B, vec_dim, H, W]
-        BATCH, VEC_DIM, H, W = A.shape
-        A_flat = A.permute(0, 2, 3, 1).reshape(-1, VEC_DIM)
-        B_flat = B.permute(0, 2, 3, 1).reshape(-1, VEC_DIM)
-    else:
-        A_flat = A
-        B_flat = B
-
-    # Normalize
-    A_norm = A_flat / A_flat.norm(dim=1, keepdim=True).clamp(min=1e-8)
-    B_norm = B_flat / B_flat.norm(dim=1, keepdim=True).clamp(min=1e-8)
-
-    # Compute angles
-    cos_theta = (A_norm * B_norm).sum(dim=1).clamp(-1.0, 1.0)
-    angles = torch.acos(cos_theta)
-
-    # Masks
-    outside_mask = angles > max_angle_rad
-
-    # Prepare output
-    A_clipped_flat = A_flat.clone()
-
-    if outside_mask.any():
-        A_out = A_norm[outside_mask]
-        B_out = B_norm[outside_mask]
-
-        # Rotation axis (cross product)
-        axis = torch.cross(B_out, A_out)
-        axis_norm = axis.norm(dim=1, keepdim=True)
-        axis = torch.where(axis_norm > 1e-8, axis / axis_norm, torch.zeros_like(axis))
-
-        # Convert max_angle_rad to tensor if needed
-        max_angle_rad_tensor = torch.tensor(max_angle_rad, device=A.device, dtype=A.dtype)
-        cos_clip = torch.cos(max_angle_rad_tensor)
-        sin_clip = torch.sin(max_angle_rad_tensor)
-
-        # Rodrigues formula
-        v_rot = B_out * cos_clip + torch.cross(axis, B_out) * sin_clip
-
-        # Scale to original magnitude
-        A_mag = A_flat[outside_mask].norm(dim=1, keepdim=True)
-        v_rot = v_rot / v_rot.norm(dim=1, keepdim=True).clamp(min=1e-8) * A_mag
-
-        A_clipped_flat[outside_mask] = v_rot
-
-    # Reshape back if necessary
-    if A.ndim == 4:
-        A_clipped = A_clipped_flat.reshape(BATCH, H, W, VEC_DIM).permute(0, 3, 1, 2)
-    else:
-        A_clipped = A_clipped_flat
-
-    return A_clipped
 
 def beta_peak_intensity_tensor(n, c, centers, data_range, peak_intensity=30.0):
     """
@@ -303,154 +106,6 @@ def quat_between_batch(v_from, v_to):
     quat = quat / torch.norm(quat, dim=1, keepdim=True)
     return quat
 
-def sample_sh_quat(size):
-    ref_quat = torch.tensor([[0., 1., 0., 0.]],device=device)
-
-    beta_quat=torch.zeros((size,4),device=device)
-    beta_quat[:,[0,3]]=torch.randn((size, 2), device=device)
-    beta_quat = F.normalize(beta_quat, dim=-1)
-
-    approach=torch.rand((size, 3), device=device)-0.5
-    approach[:,-1]=torch.abs(approach[:,-1]*2)
-    approach[:, :2]*=0.5
-    approach = F.normalize(approach, dim=-1)
-
-    approach_quat=quat_between_batch(torch.tensor([0.0, 0.0, 1.0],device=device),approach)
-    approach_quat = F.normalize(approach_quat, dim=-1)
-
-    quat=bulk_quat_mul(beta_quat,ref_quat)
-
-    quat=bulk_quat_mul(approach_quat,quat)
-    quat = F.normalize(quat, dim=-1)
-
-    return quat
-
-def sample_ch_quat(size):
-    ref_quat = torch.tensor([[1., 1., 0., 0.]],device=device)
-
-    beta_quat=torch.zeros((size,4),device=device)
-    beta_quat[:,[0,3]]=torch.randn((size, 2), device=device)
-    beta_quat = F.normalize(beta_quat, dim=-1)
-
-    approach=(torch.rand((size, 3), device=device))
-
-    approach[:,[0,2]]=2*(approach[:,[0,2]]-0.5)
-    U=approach[:,1]
-    k=2
-    approach[:, 1] = (1 + torch.sign(2*U - 1) * torch.abs(2*U - 1) ** (1 / (k + 1))) / 2 # this is the CDF inversion of the Probability function defined as (x/0.5-1)^k
-    approach = F.normalize(approach, dim=-1)
-
-    approach_quat=quat_between_batch(torch.tensor([0.0, 1.0, 0.0],device=device),approach)
-    approach_quat = F.normalize(approach_quat, dim=-1)
-
-    quat=bulk_quat_mul(beta_quat,ref_quat)
-
-    quat=bulk_quat_mul(approach_quat,quat)
-    quat = F.normalize(quat, dim=-1)
-
-    return quat
-
-
-def sample_from_two(A, B, ratio_of_A):
-    """
-    Select rows from A or B based on probability p.
-
-    Args:
-        A (torch.Tensor): tensor of shape [n, 4]
-        B (torch.Tensor): tensor of shape [n, 4]
-        p (float or torch.Tensor): probability of selecting from A
-                                   (if tensor, must be shape [n] or [n,1])
-
-    Returns:
-        torch.Tensor: selected tensor of shape [n, 4]
-    """
-    n = A.shape[0]
-
-    # Convert scalar p to tensor if needed
-    if not torch.is_tensor(ratio_of_A):
-        p = torch.full((n,), ratio_of_A, device=A.device)
-    if p.dim() == 1:
-        p = p.unsqueeze(1)  # [n,1]
-
-    # Random uniform draw per sample
-    rand = torch.rand(n, 1, device=A.device)
-
-    # Boolean mask where to pick from A
-    mask = (rand < p).float()  # [n,1]
-
-    # Select entire rows from A or B
-    result = mask * A + (1 - mask) * B
-    return result
-
-def rand_unit_quaternion(n=1, device=device, dtype=torch.float32):
-    """
-    Generate n uniformly-distributed *unit* quaternions.
-    Output shape: (n, 4)  [w, x, y, z]
-    """
-    u1, u2, u3 = torch.rand(3, n, device=device, dtype=dtype)
-    q = torch.empty(n, 4, device=device, dtype=dtype)
-    q[:, 0] = torch.sqrt(1 - u1) * torch.sin(2 * torch.pi * u2)
-    q[:, 1] = torch.sqrt(1 - u1) * torch.cos(2 * torch.pi * u2)
-    q[:, 2] = torch.sqrt(u1)     * torch.sin(2 * torch.pi * u3)
-    q[:, 3] = torch.sqrt(u1)     * torch.cos(2 * torch.pi * u3)
-    return q
-
-def sample_closets_quat(base_quat,quat_centers,noise_rate=0.,noise=None):
-    dots = torch.abs(torch.matmul(base_quat, quat_centers.t()))
-    closest_idx = torch.argmax(dots, dim=1)
-    q_assigned = quat_centers[closest_idx]
-
-    noise=rand_unit_quaternion(n=q_assigned.shape[0]) if noise is None else noise
-    noise = F.normalize(noise, dim=-1)
-
-    # if noise_rate > 0:
-    samples = q_assigned*(1-noise_rate) +   noise* noise_rate
-
-    samples = F.normalize(samples, dim=-1)
-
-    return samples
-
-def nearest_replace(x: torch.Tensor, y: torch.Tensor,noise_rate=0.,noise=None) -> torch.Tensor:
-    """
-    x : [N, 3]  – query points
-    y : [M, 3]  – code-book
-    return : [N, 3] – for every row in x pick the closest row in y (L2)
-    """
-    # pairwise squared distances: [N, M]
-    dist = (x.unsqueeze(1) - y.unsqueeze(0)).pow(2).sum(dim=2)
-    # index of nearest neighbour in y for every x
-    idx = dist.argmin(dim=1)          # [N]
-
-    result=y[idx]
-
-    r=torch.randn_like(result) if noise is None else noise
-    result = result *(1-noise_rate) + noise_rate*(r)
-
-    return result
-
-def nearest_replace_cosine(x: torch.Tensor, y: torch.Tensor,
-                           noise_rate= 0.,
-                           noise= None) -> torch.Tensor:
-    """
-    x : [N, 3]  – query points
-    y : [M, 3]  – code-book
-    return : [N, 3] – for every row in x pick the closest row in y (COSINE)
-    """
-    x_n = F.normalize(x, dim=1)
-    y_n = F.normalize(y, dim=1)
-
-    # cosine similarity: [N, M]
-    sim = x_n @ y_n.T
-
-    # cosine distance = 1 - similarity
-    idx = sim.argmax(dim=1)   # max similarity = min distance
-
-    result=y[idx]
-
-    r=torch.randn_like(result) if noise is None else noise
-    result = result *(1-noise_rate) + noise_rate*(r)
-    return result
-
 def random_unit_circle(n):
     # sample angles uniformly in [0, 2π)
     theta = 2 * torch.pi * torch.rand(n,device=device)
@@ -460,10 +115,6 @@ def random_unit_circle(n):
     y = torch.sin(theta)
 
     return torch.stack([x, y], dim=-1)
-def sample_vectors(n,dim_c,values):
-    r=values.shape[0]
-    idx = torch.randint(0, r, (n, dim_c))
-    return values[idx]
 
 def generate_random_CH_poses(size):
 
@@ -613,8 +264,7 @@ def generate_random_r_2f85_poses(size):
 
     return sampled_pose
 
-
-def allergo_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,alpha=None,beta=None,fingers=None,transition=None,tou=1.):
+def allergo_pose_interpolation( gripper_pose, annealing_factor):
 
     ref_pose = gripper_pose.detach().clone()
 
@@ -641,7 +291,7 @@ def allergo_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,a
 
     return sampled_pose
 
-def r_2f85_interpolation( gripper_pose, annealing_factor,taxonomies=None,alpha=None,beta=None,fingers=None,transition=None,tou=1.):
+def r_2f85_interpolation( gripper_pose, annealing_factor):
 
     ref_pose = gripper_pose.detach().clone()
 
@@ -671,7 +321,7 @@ def r_2f85_interpolation( gripper_pose, annealing_factor,taxonomies=None,alpha=N
 
     return sampled_pose
 
-def ch_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,alpha=None,beta=None,fingers=None,transition=None,tou=1.):
+def ch_pose_interpolation( gripper_pose, annealing_factor):
 
     ref_pose = gripper_pose.detach().clone()
 
@@ -708,7 +358,8 @@ def ch_pose_interpolation( gripper_pose, annealing_factor,taxonomies=None,alpha=
     # sampled_pose[:,-1]=torch.clamp(sampled_pose[:,-1],min=0.0,max=0.99)
 
     return sampled_pose
-def sh_3F_pose_interpolation( gripper_pose, annealing_factor):
+
+def sh_5F_pose_interpolation( gripper_pose, annealing_factor):
 
     ref_pose = gripper_pose.detach().clone()
     n=ref_pose.shape[1]
@@ -768,35 +419,6 @@ def sh_pose_interpolation( gripper_pose, annealing_factor):
 
     return sampled_pose
 
-def pose_interpolation1d( gripper_pose, objects_mask,annealing_factor=0.99):
-    assert objects_mask.sum() > 0
-
-    ref_pose = gripper_pose.detach().clone()[0]
-
-    ref_pose[:, 5:] = torch.clamp(ref_pose[:,5:], 0.01, 0.99)
-
-    annealing_factor = max(min(annealing_factor,1.),0.0)
-    p1=annealing_factor#**2
-    p2=annealing_factor**0.5
-
-
-    print(f'p1= {p1}')
-
-    sampled_pose = generate_random_beta_dist_widh(ref_pose[:,  0].numel())
-
-    sampling_ratios1 = 1/(1+((1-p1)*torch.rand_like(ref_pose[:,0:5])) /(p1*torch.rand_like(ref_pose[:,0:5])+1e-5))
-    sampling_ratios2 = 1/(1+((1-p2)*torch.rand_like(ref_pose[:,5:])) /(p2*torch.rand_like(ref_pose[:,5:])+1e-5))
-    sampling_ratios=torch.cat([sampling_ratios1,sampling_ratios2],dim=1)
-
-    sampled_pose = sampled_pose.detach().clone() * sampling_ratios + (1 - sampling_ratios) * ref_pose
-    assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios1.min()}, {sampled_pose.min()}, {ref_pose.min()}, {sampling_ratios1.max()}, {sampled_pose.max()}, {ref_pose.max()}, {p1}'
-
-    sampled_pose[:, 3:5] = F.normalize(sampled_pose[:, 3:5], dim=1)
-    sampled_pose[:, 0:3] = F.normalize(sampled_pose[:, 0:3], dim=1)
-
-    sampled_pose[:, 5:] = torch.clamp(sampled_pose[:, 5:], 0.01, 0.99)
-
-    return sampled_pose[None,...]
 
 if __name__ == "__main__":
 

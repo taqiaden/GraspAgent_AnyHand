@@ -8,7 +8,7 @@ from Configurations.config import device
 from  model.SH_5F_model import SH_model_key, SH_G, SH_D
 from  sim_dexee.Shadow_hand_five_fingers_env import ShadowHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining
-from  training.sample_random_grasp import  sh_3F_pose_interpolation
+from  training.sample_random_grasp import  sh_5F_pose_interpolation
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. check_point_conventions import GANWrapper
 from utils. IO_utils import custom_print
@@ -86,7 +86,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,  epochs=1 ):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D,  epochs=epochs ,model_key=SH_model_key,
-                         test_mode=False,pose_interpolation=sh_3F_pose_interpolation,
+                         test_mode=False,pose_interpolation=sh_5F_pose_interpolation,
                          process_pose=process_pose,n_param=28)
 
 
