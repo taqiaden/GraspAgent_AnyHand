@@ -69,11 +69,8 @@ def process_pose(target_point, target_pose, view=False):
 
     target_point_=target_point_+delta
 
-    # quat = target_pose_[:4].cpu().tolist()
     alpha = target_pose_[:3]
-    # alpha[-1]=torch.clip(alpha[-1],max=0.)
 
-    # beta=half_way_unit_vector(target_pose_[3:5])
     beta = target_pose_[3:5]
 
     alpha = F.normalize(alpha, p=2, dim=0, eps=1e-8)
@@ -112,8 +109,6 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
 
 def train_N_grasp_GAN(args,n=1):
-    lr = 1e-5
-
     Train_grasp_GAN = TrainGraspGAN(args)
     torch.cuda.empty_cache()
 

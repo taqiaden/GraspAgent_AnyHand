@@ -606,7 +606,7 @@ class AbstractGraspAgentTraining:
 
         return self.sim_env.check_collision(hand_pos=shifted_point, hand_quat=quat, hand_fingers=fingers, view=view)
 
-    def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=True,
+    def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
                        update_obj_prob=None):
         grasped_obj = None
         with torch.no_grad():
@@ -629,7 +629,9 @@ class AbstractGraspAgentTraining:
 
             if grasp_success is not None:
                 if grasp_success and not contact_with_obj and not contact_with_floor:
-                    plan_found = self.kinematics.kinematic_plan_exist(quat, shifted_point) if check_kinematics else True
+                    if check_kinematics:
+                        plan_found = self.kinematics.kinematic_plan_exist(quat, shifted_point)
+                    else: plan_found=True
                     return grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj
 
         return False, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, None, grasped_obj
@@ -780,7 +782,6 @@ class AbstractGraspAgentTraining:
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
 
                 g_pairs.append((target_index, k, margin, target_point))
-
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
