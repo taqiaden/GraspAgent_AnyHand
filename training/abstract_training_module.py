@@ -741,7 +741,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else grasp_quality[target_index].item()
+                importance = 0.5*importance if importance is not None else 0.11
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
 
@@ -770,7 +770,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
-                margin=0 if ref_initial_collision or gen_initial_collision else 1-grasp_quality[target_index]
+                margin=0 if ref_initial_collision or gen_initial_collision else (1-torch.abs(grasp_quality[target_index]-0.5)*2)**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -1067,6 +1067,7 @@ class AbstractGraspAgentTraining:
                         pose = self.loaded_synthesised_data.grasp_parameters[t]
 
                         pose = torch.tensor(pose).to(device)
+
 
                         if pose.shape==grasp_pose_ref[index].shape:
 
