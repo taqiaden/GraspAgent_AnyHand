@@ -8,7 +8,6 @@ from colorama import Fore
 from matplotlib import pyplot as plt
 from torch import nn
 import torch.nn.functional as F
-
 from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
@@ -827,7 +826,7 @@ class AbstractGraspAgentTraining:
 
                     if self.loaded_synthesised_data.grasped_objects[n] is None: continue
                     U_alpha_beta_score = self.approach_beta_clusters.get_uniqueness_score(
-                        torch.tensor(self.loaded_synthesised_data.grasp_parameters[n][0:5]).cuda()).item()
+                        torch.tensor(self.loaded_synthesised_data.grasp_parameters[n][0:5]).to(device)).item()
 
 
                     synthesised_data_obj.target_indexes.append(target_index)
@@ -1004,22 +1003,22 @@ class AbstractGraspAgentTraining:
         # approach[:,2]-=1
         # approach[~floor_mask]=-obj_normals
         # approach=approach.transpose().reshape(3,600,600)
-        # approach=torch.from_numpy(approach).cuda()
+        # approach=torch.from_numpy(approach).to(device)
 
         # view_npy_open3d(pc)
         full_objects_pc = self.sim_env.get_obj_point_clouds(view=False)
         full_pointcloud = np.vstack([pc[floor_mask], full_objects_pc])
 
-        floor_mask = torch.from_numpy(floor_mask).cuda()
+        floor_mask = torch.from_numpy(floor_mask).to(device)
 
         # full_pointcloud=None
         # view_npy_open3d(full_pointcloud)
-        full_pointcloud = torch.from_numpy(full_pointcloud).cuda()
+        full_pointcloud = torch.from_numpy(full_pointcloud).to(device)
 
-        clean_depth = torch.from_numpy(depth).cuda()  # [600.600]
-        depth = torch.from_numpy(depth).cuda()  # [600.600]
+        clean_depth = torch.from_numpy(depth).to(device)  # [600.600]
+        depth = torch.from_numpy(depth).to(device)  # [600.600]
 
-        # pc = torch.from_numpy(pc).cuda()
+        # pc = torch.from_numpy(pc).to(device)
 
         # view_npy_open3d(pc)
         # depth=clean_depth
@@ -1029,13 +1028,13 @@ class AbstractGraspAgentTraining:
 
         # depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600))
         # pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
-        pc = torch.from_numpy(pc).cuda()
+        pc = torch.from_numpy(pc).to(device)
         # view_npy_open3d(pc.cpu().numpy())
 
         # view_npy_open3d(pc.cpu().numpy())
         # return
         # torch.save(depth, 'depth_ch_tmp')
-        # floor_mask = torch.from_numpy(floor_mask).cuda()
+        # floor_mask = torch.from_numpy(floor_mask).to(device)
         # torch.save(floor_mask, 'floor_mask_ch_tmp')
         # exit()
 
@@ -1067,7 +1066,7 @@ class AbstractGraspAgentTraining:
                         index = self.loaded_synthesised_data.target_indexes[t]
                         pose = self.loaded_synthesised_data.grasp_parameters[t]
 
-                        pose = torch.tensor(pose).cuda()
+                        pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
 

@@ -18,7 +18,6 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         self.default_finger_joints = [  0, -1.4, 0, 0, 0, -1.4, 0, 0, 0, -1.4, 0, 0]
         self.default_ctrl = None
 
-        # self.last_hand_geom_id=101
 
         self.contact_pads_geom_ids=[[23,28,34],[55,60,66],[87,92,98]] # (pad1,pad2,pad3)
 
@@ -263,8 +262,8 @@ if __name__ == "__main__":
     # env.passive_viewer(pos=[0.0, 0.0, 0.2],quat=[.0, 1., 0., 0.],ctrl=None)
     depth, pointcloud, floor_mask = env.get_scene_preception()
 
-    target_point = torch.tensor([.0, 0., 0.1]).cuda()
-    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).cuda()
+    target_point = torch.tensor([.0, 0., 0.1]).to(device)
+    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).to(device)
 
     from  training.SH_training import process_pose
 

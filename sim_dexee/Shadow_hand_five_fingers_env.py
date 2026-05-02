@@ -270,8 +270,8 @@ if __name__ == "__main__":
     # env.passive_viewer(pos=[0.0, 0.0, 0.2],quat=[.0, 1., 0., 0.],ctrl=None)
     depth, pointcloud, floor_mask = env.get_scene_preception()
 
-    target_point = torch.tensor([.0, 0., 0.1]).cuda()
-    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).cuda()
+    target_point = torch.tensor([.0, 0., 0.1]).to(device)
+    target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).to(device)
 
     from  training.SH_training import process_pose
 
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     # quat=[1,0,0,0]
 
     import torch.nn.functional as F
-    alpha = F.normalize(torch.tensor([0.5,0.5,-1.]).cuda(), p=2, dim=0, eps=1e-8)
-    beta = F.normalize(torch.tensor([-1.,1.]).cuda(), p=2, dim=0, eps=1e-8)
+    alpha = F.normalize(torch.tensor([0.5,0.5,-1.]).to(device), p=2, dim=0, eps=1e-8)
+    beta = F.normalize(torch.tensor([-1.,1.]).to(device), p=2, dim=0, eps=1e-8)
 
     approach_ref = torch.tensor([0.0, 0., 1.0], device=device)
 

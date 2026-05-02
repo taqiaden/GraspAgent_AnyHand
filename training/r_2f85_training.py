@@ -2,7 +2,6 @@ import argparse
 import configparser
 import os
 import torch.nn.functional as F
-
 from Configurations.config import device
 from model.r_2f85_model import R_2F85_D, R_2F85_G, R_2F85_model_key
 from sim_dexee.r_2f85_env import R2F85Env
@@ -11,7 +10,6 @@ from  training.sample_random_grasp import r_2f85_interpolation
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
-
 
 def process_pose(target_point, target_pose, view=False):
     target_pose_ = target_pose.clone()
@@ -51,7 +49,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,epochs=1):
 
         super().__init__(args=args,sampler_policy_model=R_2F85_G,critic_model=R_2F85_D,  epochs=epochs ,model_key=R_2F85_model_key,
-                         test_mode=False,pose_interpolation=r_2f85_interpolation,
+                         test_mode=True,pose_interpolation=r_2f85_interpolation,
                          process_pose=process_pose,n_param=8)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
