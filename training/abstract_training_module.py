@@ -771,7 +771,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
-                margin= 1-grasp_quality[target_index]
+                margin=0 if ref_initial_collision or gen_initial_collision else 1-grasp_quality[target_index]
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
