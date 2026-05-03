@@ -919,6 +919,122 @@ class MojocoMultiFingersEnv():
                 if time_until_next_step > 0:
                     time.sleep(time_until_next_step)
 
+    def extract_mesh_files(self):
+        tree = ET.parse(self.root+self.hand_xml_file)
+        root = tree.getroot()
+
+        # get meshdir
+        compiler = root.find("compiler")
+        meshdir = compiler.get("meshdir") if compiler is not None else ""
+
+        base_dir = os.path.dirname(self.root+self.hand_xml_file)
+
+        mesh_files = {}
+
+        for mesh in root.findall(".//asset/mesh"):
+            file = mesh.get("file")
+
+            if file:
+                print(file)
+                print(meshdir)
+                print(base_dir)
+                full_path = os.path.join(base_dir, meshdir, file)
+
+                # use filename as key (since no name provided)
+                name = os.path.splitext(file)[0]
+
+                mesh_files[name] = full_path
+
+        return mesh_files
+
+    def load_hand_meshes(self,mesh_files):
+        meshes = {
+            name: trimesh.load(path)
+            for name, path in mesh_files.items()
+        }
+        return meshes
+
+    def trimesh_view(self, meshes, transforms):
+        import trimesh
+
+        scene = trimesh.Scene()
+
+        for name, mesh in meshes.items():
+            if name not in transforms:
+                continue
+
+            for T, mesh_id in transforms[name]:  # ✅ loop over all instances
+
+                m_copy = mesh.copy()
+
+                # scale
+                scale = self.m.mesh_scale[mesh_id]
+                m_copy.apply_scale(scale)
+
+                # transform
+                m_copy.apply_transform(T)
+
+                scene.add_geometry(m_copy)
+
+        scene.show()
+
+
+
+    def get_geom_transforms(self):
+        transforms = {}
+
+        from scipy.spatial.transform import Rotation as R
+
+        def quat_to_mat(q):
+            # MuJoCo format: [w, x, y, z]
+            return R.from_quat([q[1], q[2], q[3], q[0]]).as_matrix()
+
+        for i in range(self.m.ngeom):
+            mesh_id = self.m.geom_dataid[i]
+            if mesh_id < 0:
+                continue
+
+            mesh_name = mujoco.mj_id2name(
+                self.m, mujoco.mjtObj.mjOBJ_MESH, mesh_id
+            )
+
+            # 🌍 world transform
+            T_world = np.eye(4)
+            T_world[:3, :3] = self.d.geom_xmat[i].reshape(3, 3)
+            T_world[:3, 3] = self.d.geom_xpos[i]
+
+            # 🔥 ADD THIS: local geom transform
+            T_local = np.eye(4)
+            T_local[:3, :3] = quat_to_mat(self.m.geom_quat[i])
+            T_local[:3, 3] = self.m.geom_pos[i]
+
+            # ❗ combine (THIS is the fix)
+            T = T_world @ T_local
+
+            if mesh_name not in transforms:
+                transforms[mesh_name] = []
+
+            transforms[mesh_name].append((T, mesh_id))
+
+        return transforms
+
+    def get_link_transforms(self):
+        transforms = {}
+
+        for i in range(self.m.nbody):
+            name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_BODY, i)
+
+            pos = self.d.xpos[i]  # (3,)
+            mat = self.d.xmat[i].reshape(3, 3)  # (3x3 rotation)
+
+            T = np.eye(4)
+            T[:3, :3] = mat
+            T[:3, 3] = pos
+
+            transforms[name] = T
+
+        return transforms
+
     def passive_viewer(self,pos=None,quat=None,delta_pos=None,ctrl=None,fingers=None):
         self.restore_simulation_state()
 

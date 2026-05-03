@@ -13,7 +13,7 @@ from Configurations.config import device
 from  kinematic_utils.path_check import  kinematic_checker
 from  training.sample_random_grasp import quat_between_batch
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
-from  utils.quat_operations import quat_rotate_vector, quat_mul, bulk_quat_mul, quat_between
+from  utils.quat_operations import bulk_quat_mul
 
 def next_video_name(dir_path=".", prefix="simulation", ext=".mp4"):
     os.makedirs(dir_path, exist_ok=True)
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
     env=CasiaHandEnv(root=root_dir +  "/sim_dexee/hands_and_objects/",max_obj_per_scene=5,is_tendon_control=False)
 
-    env.view_geom_names_and_ids()
+    # env.view_geom_names_and_ids()
 
 
 
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     for i in range(1000):
         # env.prepare_obj_mesh()
         # env.initialize()
-        env.drop_new_obj(selected_index=258,obj_pose=[0, 0.3, 0.2],obj_quat=[1,0,0,0], stablize=True)
+        # env.drop_new_obj(selected_index=258,obj_pose=[0, 0.3, 0.2],obj_quat=[1,0,0,0], stablize=True)
 
 
 
@@ -367,6 +367,7 @@ if __name__ == "__main__":
             # fingers[1]=1.
             # fingers[2]=1.
             fingers=[1,1,1.]
+
 
             env.manual_view(pos=shifted_point.tolist(), quat=[0,1,0,0], fingers=fingers)
 

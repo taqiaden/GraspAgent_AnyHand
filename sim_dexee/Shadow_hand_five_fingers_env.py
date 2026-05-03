@@ -173,7 +173,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         #     assert False
         self.d.ctrl = self.decode_finger_ctrl(hand_fingers)
         mujoco.mj_step(self.m, self.d)
-        self.static_view(1000)
+        # self.static_view(1000)
 
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         # self.static_view(1000)
@@ -219,6 +219,14 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                         np.sin(phase + 4.2)
                     ])
                     self.d.mocap_pos[0] += shake
+                elif i>500:
+                    while viewer.is_running():
+                        viewer.opt.flags[
+                            mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1  # shows the contact points in the simulation (where objects touch)
+                        viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CAMERA] = 0  # shows camera frustums if enabled
+                        # Render continuously
+                        viewer.sync()
+                        time.sleep(1)
 
                 mujoco.mj_step(self.m, self.d)
                 viewer.sync()
@@ -250,7 +258,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         grasped_obj=self.get_grasped_obj()
         print(f'grasped_obj: {grasped_obj}')
 
-        if grasp_success:self.static_view(1000)
+        # if grasp_success:self.static_view(1000)
 
         return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact,self_collide,None
 
