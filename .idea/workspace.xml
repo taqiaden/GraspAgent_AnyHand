@@ -5,89 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/RFF-joint1-link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/RFF-joint2-link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/RFF-joint3-link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/base_link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/hand_s.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j1_0.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j1_1.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j1_2.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j1_3.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j2_0.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j2_1.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j2_2.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j2_3.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j3_1.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/j3_2.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/nail.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_0.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_1.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_11.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_12.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_15.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_18.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_2.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_3.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/part_5.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/tip.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/Asm-MRH-F-Mid-Visual,00+MagTac,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/Asm-MRH-F-Prox-Visual,00+Magtac,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/Asm-MRH-HB1-Visual,00-Plastic.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/Asm-MRH-HB1-Visual,00-Puck.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Distal-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Distal-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-J0Link-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Mid-MagTac-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Mid-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Prox-MagTac-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Prox-Visual,00-Lid.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Prox-Visual,00-Main.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-F-Prox-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-Main-Cover-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-MainALU-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-PulleyBlock1-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-S-Cover-L-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-S-Cover-R-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-TB-Lid-Logo-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-TB-Lid-White-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/MRH-FB-TB-Main-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/Asm-MRH-F-Mid-Visual,00+MagTac,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/Asm-MRH-F-Prox-Visual,00+Magtac,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/Asm-MRH-HB1-Visual,00-Plastic.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/Asm-MRH-HB1-Visual,00-Puck.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Distal-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Distal-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-J0Link-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Mid-MagTac-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Mid-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Prox-MagTac-Sensor-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Prox-Visual,00-Lid.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Prox-Visual,00-Main.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-F-Prox-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-Main-Cover-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-MainALU-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-PulleyBlock1-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-S-Cover-L-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-S-Cover-R-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-TB-Lid-Logo-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-TB-Lid-White-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/MRH-FB-TB-Main-Visual,00.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/r3_config1_base.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/r3_config1_base_col.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/r3_finger_base.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/assets/r3_finger_base_col.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/r3_config1_base.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/r3_config1_base_col.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/r3_finger_base.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/r3_finger_base_col.stl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/scene.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee_free.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,6 +49,7 @@
     &quot;Python.Allergo_training.executor&quot;: &quot;Run&quot;,
     &quot;Python.CH_training.executor&quot;: &quot;Run&quot;,
     &quot;Python.Casia_hand_env.executor&quot;: &quot;Run&quot;,
+    &quot;Python.SH_training.executor&quot;: &quot;Run&quot;,
     &quot;Python.allegro_hand_env.executor&quot;: &quot;Run&quot;,
     &quot;Python.r_2f85_training.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -436,7 +358,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777641971602</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1777777659223</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1777777659223</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
