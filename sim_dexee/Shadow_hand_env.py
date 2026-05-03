@@ -26,7 +26,6 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
 
     def  decode_finger_ctrl(self,fingers):
         return [fingers[0]*1.746-0.873, -1.4, 0, fingers[1]*1.746-0.873, -1.4, 0, fingers[2]*1.746-0.873, -1.4, 0]
-        return [fingers[0]*1.746-0.873, -1.4, 0, fingers[1]*1.746-0.873, -1.4, 0, fingers[2]*1.746-0.873, -1.4, 0]
 
     def  close_grip(self,fingers):
         return [fingers[0]*1.746-0.873, 0.785, 0.5, fingers[1]*1.746-0.873, 0.785, 0.5, fingers[2]*1.746-0.873, 0.785 , 0.5]
