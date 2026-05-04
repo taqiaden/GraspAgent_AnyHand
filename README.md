@@ -7,7 +7,7 @@ This repository is under construction. The final version will include a grasp po
       <img src='https://img.shields.io/badge/Paper-arXiv-green?style=plastic&logo=arXiv&logoColor=green' alt='Paper'>
     </a>
     <a href='https://dataset'>
-      <img src='https://img.shields.io/badge/Paper-PDF-red?style=plastic&logo=adobeacrobatreader&logoColor=red' alt='Dataset'>
+      <img src='https://img.shields.io/badge/Dataset-Download-blue?style=plastic&logo=databricks&logoColor=white' alt='Dataset'>
     </a>
 </p>
 
