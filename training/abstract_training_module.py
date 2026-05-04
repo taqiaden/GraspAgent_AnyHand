@@ -728,20 +728,16 @@ class AbstractGraspAgentTraining:
                 print(
                     f' gen ---- {target_generated_pose}, {gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide}')
 
-
             if gen_success:
-
-
                 importance = max(0.01,
                                  grasp_quality[target_index].item())
-
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_PW[target_index], importance, gen_grasped_obj))
 
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else 0.11
+                importance = 0.5*importance if importance is not None else max(0.01,1-grasp_quality[target_index].item())
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
 
@@ -770,7 +766,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
-                margin=0 if ref_initial_collision or gen_initial_collision else (1-torch.abs(grasp_quality[target_index]-0.5)*2)**2
+                margin=0 if ref_initial_collision or gen_initial_collision else (1-grasp_quality[target_index])
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
