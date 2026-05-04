@@ -2,6 +2,15 @@
 # GraspAgent_AnyHand
 This repository is under construction. The final version will include a grasp policy learning for five hands, namely, Shadow hand five fingers, Shadow hand three fingers, Allegro hand, Robotica 2f85, and CasiaHand.
 
+<p align="center">
+    <a href='https://paper'>
+      <img src='https://img.shields.io/badge/Paper-arXiv-green?style=plastic&logo=arXiv&logoColor=green' alt='Paper'>
+    </a>
+    <a href='https://dataset'>
+      <img src='https://img.shields.io/badge/Paper-PDF-red?style=plastic&logo=adobeacrobatreader&logoColor=red' alt='Dataset'>
+    </a>
+</p>
+
 <div align="center">
   <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview" width="800"/>
 </div>
