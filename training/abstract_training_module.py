@@ -44,6 +44,44 @@ def logits_to_probs(logits):
     return F.sigmoid(logits)
     # return torch.clamp(logits,0,1)
 
+def weighted_repulsive_loss_log_vectorized(x, w, eps=1e-6):
+    """
+    Fully vectorized per-channel repulsive loss.
+    x: [N, C] - N points, C channels
+    w: [N] - point weights
+    """
+    N, C = x.shape
+
+    # Subsample if too many points
+    if N > 1000:
+        idx = torch.randperm(N, device=x.device)[:1000]
+        x = x[idx]
+        w = w[idx]
+        N = 1000
+
+    # Normalize weights
+    w = w / (w.sum() + eps)
+    pairwise_weights = w[:, None] * w[None, :]  # [N, N]
+    pairwise_weights = pairwise_weights / (pairwise_weights.sum() + eps)
+
+    # Compute pairwise differences for all channels at once
+    diff = x[:, None, :] - x[None, :, :]  # [N, N, C]
+
+
+    # Repulsive term: -log(distance) per channel
+    repulsive_per_channel = -torch.log(eps+diff.abs() )  # [N, N, C]
+
+    # Apply weights (broadcasting over channels)
+    weighted_repulsion = pairwise_weights[:, :, None] * repulsive_per_channel  # [N, N, C]
+
+    # Sum over pairs, then average over channels
+    # Exclude self-pairs (diagonal) if desired
+    mask = ~torch.eye(N, dtype=torch.bool, device=x.device)
+    weighted_repulsion = weighted_repulsion * mask[:, :, None]
+
+    loss = weighted_repulsion.sum() / (mask.sum() * C + eps)
+
+    return loss
 
 def weighted_scatter_loss(x, w,eps=1e-6):
 
@@ -68,8 +106,6 @@ def weighted_scatter_loss(x, w,eps=1e-6):
     loss=-weighted_diff.sum()/(w.sum()*x.shape[1]+eps)
 
     return loss
-
-
 
 def visualize_depth_with_flat_index(depth, i):
     """
@@ -449,12 +485,17 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
+
+            scatter_loss += weighted_repulsive_loss_log_vectorized(grasp_pose[:,5:].reshape(self.n_param-5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+                pairs) == self.batch_size else torch.tensor(
+                [0.], device=grasp_pose.device)
+
 
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
 
@@ -733,12 +774,12 @@ class AbstractGraspAgentTraining:
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_PW[target_index], importance, gen_grasped_obj))
 
-
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else max(0.01,1-grasp_quality[target_index].item())
-                all_pairs.append(
-                    (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
+                importance = 0.5*importance if importance is not None else max(0.01,grasp_quality[target_index].item())
+                if importance>0.1:
+                    all_pairs.append(
+                        (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
 
                 if ref_grasped_obj in sampled_obj_ids:
                     if len(self.loaded_synthesised_data) > 0: continue
@@ -874,13 +915,12 @@ class AbstractGraspAgentTraining:
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                c_Importance = self.Ave_importance.lower_rejection_criteria(ave_impo, k=2.,report=print_details)
+                c_N_samples = self.Ave_samples_per_scene.lower_rejection_criteria(ave_samples, k=2.,report=print_details)
                 c_Uniqueness = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.,report=print_details)
-                # c_Importance_too_confident = self.Ave_importance.upper_rejection_criteria(ave_impo, k=2.)
 
-                if len(self.DDM) >= self.max_scenes and c_Uniqueness:# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if len(self.DDM) >= self.max_scenes and (c_Uniqueness or c_N_samples):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.RED,
-                          f'poor sample detected, criteria ( c_Importance, c_Uniqueness): {c_Importance, c_Uniqueness},  ( ave_impo, ave_uniqueness): {ave_impo, ave_uniqueness} ',
+                          f'poor sample detected, criteria ( c_N_samples, c_Uniqueness): {c_N_samples, c_Uniqueness},  ( ave_samples, ave_uniqueness): {ave_samples, ave_uniqueness} ',
                           Fore.RESET)
                     self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
