@@ -33,7 +33,6 @@ def process_pose(target_point, target_pose, view=False):
 
     alpha=target_pose_[:3]
 
-
     beta=target_pose_[3:5]
 
     alpha = F.normalize(alpha, p=2, dim=0, eps=1e-8)
@@ -59,9 +58,7 @@ def process_pose(target_point, target_pose, view=False):
         print('fingers: ',fingers)
         print('target_point_: ',target_point_)
 
-
     return quat,fingers,target_point_.tolist()
-
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
@@ -69,8 +66,6 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
                          test_mode=True, pose_interpolation=sh_pose_interpolation,
                          process_pose=process_pose, n_param=11)
-
-
 
         root_dir = os.getcwd()  # current working directory
 

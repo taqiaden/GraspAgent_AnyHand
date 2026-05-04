@@ -233,13 +233,12 @@ if __name__ == "__main__":
 
     env=AllegroHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/")
 
-    env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)
-    env.view_geom_names_and_ids()
+    # env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)
+    # env.view_geom_names_and_ids()
 
-    print('test-------------------',env.last_hand_geom_id)
 
     # env.passive_viewer(pos=[0.0, 0.0, 0.2],quat=[.0, 1., 0., 0.],ctrl=None)
-    depth, pointcloud, floor_mask = env.get_scene_preception()
+    # depth, pointcloud, floor_mask = env.get_scene_preception()
 
     target_point = torch.tensor([.0, 0., 0.1]).to(device)
     target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).to(device)
@@ -254,5 +253,6 @@ if __name__ == "__main__":
 
     default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device))
     quat = grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
+
 
     env.manual_view(pos=[.0, 0., 0.1],quat=quat)

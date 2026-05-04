@@ -103,7 +103,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
-                         test_mode=False,pose_interpolation=allergo_pose_interpolation,
+                         test_mode=True,pose_interpolation=allergo_pose_interpolation,
                          process_pose=process_pose,n_param=24)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)

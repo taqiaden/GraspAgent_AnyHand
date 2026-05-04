@@ -702,7 +702,6 @@ class AbstractGraspAgentTraining:
                 d_pairs.append((target_index, 1, 1))
                 return d_pairs, g_pairs, 1
 
-
             ref_success, ref_initial_collision, ref_n_grasp_contact, ref_self_collide, stable_ref_grasp, warning_flag, ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
                 target_point, target_ref_pose, view=False, shake=False, update_obj_prob=None, check_kinematics=self.check_kinematics)
 
