@@ -2,6 +2,10 @@
 # GraspAgent_AnyHand
 This repository is under construction. The final version will include a grasp policy learning for five hands, namely, Shadow hand five fingers, Shadow hand three fingers, Allegro hand, Robotica 2f85, and CasiaHand.
 
+<div align="center">
+  <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview" width="800"/>
+</div>
+
 ## Installation
 ### Prerequisites
 The following pakages version are used during the development of this repository:
@@ -49,4 +53,4 @@ Except for CasiaHand which was designed in our Lab, all hands are brought from t
 
 
 ## Final notes
-This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. 
+This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. If you have any question please do not hesitate to contact me: [taqiaden](taqiaden@gmail.com), Whastapp: 00967 774 631 499, Wechat: taqiaden
