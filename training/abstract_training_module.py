@@ -44,46 +44,50 @@ def logits_to_probs(logits):
     return F.sigmoid(logits)
     # return torch.clamp(logits,0,1)
 
-def weighted_repulsive_loss_log_vectorized(x, w, eps=1e-6):
-    """
-    Fully vectorized per-channel repulsive loss.
-    x: [N, C] - N points, C channels
-    w: [N] - point weights
-    """
-    N, C = x.shape
+def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
+    N, M = x.shape
 
-    # Subsample if too many points
+    if N > 1000:
+        idx = torch.randperm(N, device=x.device)[:1000]
+        # idx = torch.topk(w, 1000).indices
+        x = x[idx]
+        w = w[idx]
+
+    w = w / (w.sum() + eps)
+    w = w[:, None] * w[None, :]
+
+    diff = x[:, None, :] - x[None, :, :]
+    dist = diff.abs()
+
+    # Repulsion only within radius r0, decays linearly
+    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)
+
+    loss = (w[:,:,None] * repulsion).sum()/ (w.sum()*x.shape[1] + eps)
+
+    return loss
+
+def delta_weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
+    N, M = x.shape
+
     if N > 1000:
         idx = torch.randperm(N, device=x.device)[:1000]
         x = x[idx]
         w = w[idx]
-        N = 1000
 
-    # Normalize weights
     w = w / (w.sum() + eps)
-    pairwise_weights = w[:, None] * w[None, :]  # [N, N]
-    pairwise_weights = pairwise_weights / (pairwise_weights.sum() + eps)
+    w = w[:, None] * w[None, :]
 
-    # Compute pairwise differences for all channels at once
-    diff = x[:, None, :] - x[None, :, :]  # [N, N, C]
+    diff = x[:, None, :] - x[None, :, :]
+    dist = torch.sqrt((diff ** 2).sum(dim=-1) + eps)
 
+    # Repulsion only within radius r0, decays linearly
+    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)
 
-    # Repulsive term: -log(distance) per channel
-    repulsive_per_channel = -torch.log(eps+diff.abs() )  # [N, N, C]
-
-    # Apply weights (broadcasting over channels)
-    weighted_repulsion = pairwise_weights[:, :, None] * repulsive_per_channel  # [N, N, C]
-
-    # Sum over pairs, then average over channels
-    # Exclude self-pairs (diagonal) if desired
-    mask = ~torch.eye(N, dtype=torch.bool, device=x.device)
-    weighted_repulsion = weighted_repulsion * mask[:, :, None]
-
-    loss = weighted_repulsion.sum() / (mask.sum() * C + eps)
+    loss = (w * repulsion).sum() / (w.sum() + eps)
 
     return loss
 
-def weighted_scatter_loss(x, w,eps=1e-6):
+def orientation_weighted_scatter_loss(x, w,eps=1e-6):
 
     N, M = x.shape
 
@@ -485,16 +489,16 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            scatter_loss += weighted_repulsive_loss_log_vectorized(grasp_pose[:,5:].reshape(self.n_param-5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
-                pairs) == self.batch_size else torch.tensor(
-                [0.], device=grasp_pose.device)
+            # scatter_loss += delta_weighted_scatter_loss(grasp_pose[:,5:8].reshape(3, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+            #     pairs) == self.batch_size else torch.tensor(
+            #     [0.], device=grasp_pose.device)
 
 
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
@@ -776,7 +780,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else max(0.01,grasp_quality[target_index].item())
+                importance = 0.5*importance if importance is not None else max(0.01,1-grasp_quality[target_index].item())
                 if importance>0.1:
                     all_pairs.append(
                         (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
