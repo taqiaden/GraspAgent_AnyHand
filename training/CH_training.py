@@ -49,7 +49,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args, sampler_policy_model=CH_G,critic_model=CH_D,epochs=epochs ,model_key=CH_model_key,
-                         test_mode=True,pose_interpolation=ch_pose_interpolation,
+                         test_mode=False,pose_interpolation=ch_pose_interpolation,
                          process_pose=process_pose,n_param=11,check_kinematics=True)
 
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)

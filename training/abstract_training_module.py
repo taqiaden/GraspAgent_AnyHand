@@ -43,7 +43,6 @@ def logits_to_probs(logits):
     # return torch.clamp(logits + 0.5, 0, 1)
     return F.sigmoid(logits)
     # return torch.clamp(logits,0,1)
-
 def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
     N, M = x.shape
 
@@ -53,16 +52,38 @@ def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
         x = x[idx]
         w = w[idx]
 
-    # w = w / (w.sum() + eps)
+    w = w / (w.sum() + eps)
+    # w = w[:, None] * w[None, :]
+
+    diff = x[:, None, :] - x[None, :, :].detach()
+    dist = diff.abs()*w[None,:,None]
+    dist=dist.sum(dim=1)
+    dist=dist*w[:,None]
+    loss=-dist.sum()/M
+    # Repulsion only within radius r0, decays linearly
+
+
+    return loss
+
+def weighted_scatter_loss2(x, w, r0=1.0, eps=1e-6):
+    N, M = x.shape
+
+    if N > 1000:
+        idx = torch.randperm(N, device=x.device)[:1000]
+        # idx = torch.topk(w, 1000).indices
+        x = x[idx]
+        w = w[idx]
+
+    w = w / (w.sum() + eps)
     w = w[:, None] * w[None, :]
 
     diff = x[:, None, :] - x[None, :, :]
     dist = diff.abs()
 
     # Repulsion only within radius r0, decays linearly
-    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)
+    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)**2
 
-    loss = (w[:,:,None] * repulsion).sum()/ (w.numel())
+    loss = (w[:,:,None] * repulsion).sum()/ (w.sum()*x.shape[1]+eps)
 
     return loss
 
@@ -489,7 +510,7 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach().clamp(min=0.1))*2)**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
             # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],w=weight) if len(
