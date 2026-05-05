@@ -53,7 +53,7 @@ def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
         x = x[idx]
         w = w[idx]
 
-    w = w / (w.sum() + eps)
+    # w = w / (w.sum() + eps)
     w = w[:, None] * w[None, :]
 
     diff = x[:, None, :] - x[None, :, :]
@@ -62,7 +62,7 @@ def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
     # Repulsion only within radius r0, decays linearly
     repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)
 
-    loss = (w[:,:,None] * repulsion).sum()/ (w.sum()*x.shape[1] + eps)
+    loss = (w[:,:,None] * repulsion).sum()/ (w.numel())
 
     return loss
 
