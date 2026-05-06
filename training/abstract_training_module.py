@@ -18,7 +18,6 @@ from utils.rl.masked_categorical import MaskedCategorical
 from  utils.Online_clustering import OnlingClustering
 from  utils.dynamic_dataset import DynamicDataManagement, SynthesisedData
 from utils.training_satatistics import MovingRate, TrainingTracker
-from torch.distributions import Categorical
 import spconv.pytorch as spconv
 from torch_scatter import scatter_mean
 import numpy as np
@@ -43,6 +42,7 @@ def logits_to_probs(logits):
     # return torch.clamp(logits + 0.5, 0, 1)
     return F.sigmoid(logits)
     # return torch.clamp(logits,0,1)
+
 def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
     N, M = x.shape
 
@@ -53,82 +53,15 @@ def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
         w = w[idx]
 
     w = w / (w.sum() + eps)
-    # w = w[:, None] * w[None, :]
 
     diff = x[:, None, :] - x[None, :, :].detach()
-    dist = diff.abs()*w[None,:,None]
+    dist = diff.abs()
+    mask=dist>r0
+    dist = dist*w[None,:,None]
+    dist[mask]*=0.
     dist=dist.sum(dim=1)
     dist=dist*w[:,None]
     loss=-dist.sum()/M
-    # Repulsion only within radius r0, decays linearly
-
-
-    return loss
-
-def weighted_scatter_loss2(x, w, r0=1.0, eps=1e-6):
-    N, M = x.shape
-
-    if N > 1000:
-        idx = torch.randperm(N, device=x.device)[:1000]
-        # idx = torch.topk(w, 1000).indices
-        x = x[idx]
-        w = w[idx]
-
-    w = w / (w.sum() + eps)
-    w = w[:, None] * w[None, :]
-
-    diff = x[:, None, :] - x[None, :, :]
-    dist = diff.abs()
-
-    # Repulsion only within radius r0, decays linearly
-    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)**2
-
-    loss = (w[:,:,None] * repulsion).sum()/ (w.sum()*x.shape[1]+eps)
-
-    return loss
-
-def delta_weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
-    N, M = x.shape
-
-    if N > 1000:
-        idx = torch.randperm(N, device=x.device)[:1000]
-        x = x[idx]
-        w = w[idx]
-
-    w = w / (w.sum() + eps)
-    w = w[:, None] * w[None, :]
-
-    diff = x[:, None, :] - x[None, :, :]
-    dist = torch.sqrt((diff ** 2).sum(dim=-1) + eps)
-
-    # Repulsion only within radius r0, decays linearly
-    repulsion = torch.clamp(1.0 - dist / (r0 + eps), min=0.0)
-
-    loss = (w * repulsion).sum() / (w.sum() + eps)
-
-    return loss
-
-def orientation_weighted_scatter_loss(x, w,eps=1e-6):
-
-    N, M = x.shape
-
-    if N > 1000:
-        idx = torch.randperm(N, device=x.device)[:1000]
-        # get_grasp_collision_losss, idx = torch.topk(w, 1000)
-        x = x[idx]
-        w=w[idx]
-
-    w=w/(w.sum()+eps)
-
-    w=w[:,None]*w[None,:]
-
-    diff=x[:,None,:]-x[None,:,:]
-
-    dist=diff**2
-
-    weighted_diff=w[:,:,None]*dist
-
-    loss=-weighted_diff.sum()/(w.sum()*x.shape[1]+eps)
 
     return loss
 
