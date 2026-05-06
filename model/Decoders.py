@@ -16,6 +16,39 @@ class LayerNorm2D(nn.Module):
         x=x.permute(0,3,1,2)
         return x
 
+class PoseSampler(nn.Module):
+    def __init__(self,n_joint=0):
+        super().__init__()
+
+        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+
+        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
+
+        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.SiLU(),normalize=False).to(device) if n_joint>0 else None
+
+
+
+    def forward(self, features,depth ):
+
+        delta = self.delta(features,depth)
+
+        alpha = self.alpha(features,torch.cat([depth,delta],dim=1))
+        alpha = F.normalize(alpha, dim=1)
+
+        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1))
+        beta = F.normalize(beta, dim=1)
+
+
+        if self.fingers is not None:
+            fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
+
+            pose = torch.cat([alpha,beta,delta,fingers], dim=1)
+        else:
+            pose = torch.cat([alpha,beta,delta], dim=1)
+
+        return pose
+
 
 class MahalanobisDistance(nn.Module):
     def __init__(self, dim=64, out_dim=None, normalize=False):
