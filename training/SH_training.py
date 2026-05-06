@@ -76,6 +76,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 def train_N_grasp_GAN(args,n=1):
 
     Train_grasp_GAN = TrainGraspGAN(args)
+
     torch.cuda.empty_cache()
 
     for i in range(n):

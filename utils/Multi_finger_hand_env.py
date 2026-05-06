@@ -63,8 +63,6 @@ def draw_point(viewer, pos, radius=0.02, rgba=[1, 0, 0, 1]):
     )
     viewer.user_scn.ngeom = 1
 
-
-
 class MojocoMultiFingersEnv():
     def __init__(self,obj_nums_in_scene=3,root = "shadow_dexee/" ,max_obj_per_scene=2,key="",objects_path=None):
         super().__init__()
@@ -121,6 +119,28 @@ class MojocoMultiFingersEnv():
         self.max_obj_score=1.0
 
         assert len(self.obj_dict)<=self.object_nums_all, f'{len(self.obj_dict)}, {self.object_nums_all}'
+
+    def plt_obj_dict_statistics(self):
+        import matplotlib.pyplot as plt
+
+        prob_dict = {
+            "id1": 0.1,
+            "id2": 0.5,
+            "id3": 0.8,
+            "id4": 0.3,
+            "id5": 0.9,
+        }
+
+        # Extract probability values
+        prob_values = list(self.obj_dict.values())
+
+        # Plot histogram
+        plt.figure(figsize=(6, 4))
+        plt.hist(prob_values, bins=10, color='skyblue', edgecolor='black')
+        plt.xlabel("Probability")
+        plt.ylabel("Frequency")
+        plt.title("Distribution of Probability Values")
+        plt.show()
 
     def step_obj_prop(self,obj,scale=1.0):
         assert scale<=1.,f'{scale}'

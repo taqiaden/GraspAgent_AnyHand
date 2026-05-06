@@ -6,13 +6,21 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/CH_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CH_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_3F_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_3F_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -438,7 +446,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777991330837</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778056539568</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1778056539568</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
