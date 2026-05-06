@@ -756,7 +756,7 @@ class AbstractGraspAgentTraining:
                     sampled_obj_ids.append(sampled_obj_ids)
 
             if not ref_success and not gen_success:
-                self.sim_env.update_obj_info(1e-2, decay=0.9)
+                self.sim_env.update_obj_info(1e-2, decay=0.99)
                 continue
             elif ref_success and not gen_success:
                 k=1
