@@ -3,10 +3,6 @@ from model.Decoders import PoseSampler
 
 
 CH_model_key = 'CH_model'
-CH_model_key2 = 'CH_model2'
-
-
-
 
 
 class CH_G(G):
