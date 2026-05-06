@@ -258,7 +258,6 @@ class AbstractGraspAgentTraining:
         sampled_pose = sampled_pose * sampling_ratios + (1 - sampling_ratios) * ref_pose
         assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
 
-        # max_angle_rad=2*np.pi*tou
         sampled_pose[:, 0:3] = F.normalize(sampled_pose[:, 0:3], dim=1)
         sampled_pose[:, 3:5] = F.normalize(sampled_pose[:, 3:5], dim=1)
 
