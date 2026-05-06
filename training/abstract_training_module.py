@@ -87,7 +87,7 @@ def visualize_depth_with_flat_index(depth, i):
 
 class AbstractGraspAgentTraining:
     def __init__(self, args,sampler_policy_model,critic_model,  epochs=1 ,model_key='test',
-                 test_mode=False,pose_interpolation=None,process_pose=None,
+                 test_mode=False,randomization_unit=None,process_pose=None,
                  n_param=1,track_statistics_history=False,check_kinematics=False):
 
         self.args = args
@@ -109,7 +109,7 @@ class AbstractGraspAgentTraining:
         self.critic_model=critic_model
 
         '''hand specific fucntions'''
-        self.pose_interpolation=pose_interpolation
+        self.randomization_unit=randomization_unit
         self.process_pose=process_pose
         self.sim_env=None
 
@@ -241,6 +241,28 @@ class AbstractGraspAgentTraining:
 
         # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
 
+    def pose_interpolate(self, gripper_pose, annealing_factor):
+        ref_pose = gripper_pose.detach().clone()
+        n = ref_pose.shape[1]
+        assert ref_pose.shape[0] == 1
+
+        assert not torch.isnan(ref_pose).any(), f'{ref_pose}'
+
+        annealing_factor[annealing_factor > 0.5] = 1.
+        sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
+                    annealing_factor * torch.rand_like(ref_pose) + 1e-4))
+
+        sampled_pose = self.randomization_unit(ref_pose[0, 0].numel()).reshape(600, 600, n).permute(2, 0, 1)[
+            None, ...]
+
+        sampled_pose = sampled_pose * sampling_ratios + (1 - sampling_ratios) * ref_pose
+        assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
+
+        # max_angle_rad=2*np.pi*tou
+        sampled_pose[:, 0:3] = F.normalize(sampled_pose[:, 0:3], dim=1)
+        sampled_pose[:, 3:5] = F.normalize(sampled_pose[:, 3:5], dim=1)
+
+        return sampled_pose
 
     def step_discriminator(self, cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, pairs):
 

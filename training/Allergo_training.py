@@ -6,7 +6,7 @@ from Configurations.config import device
 from  model.allergo_model import Allergo_model_key, Allergo_G, Allergo_D
 from  sim_dexee.allegro_hand_env import AllegroHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining
-from  training.sample_random_grasp import allergo_pose_interpolation
+from  training.sample_random_grasp import generate_random_Allergo_poses
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
@@ -103,7 +103,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
-                         test_mode=False,pose_interpolation=allergo_pose_interpolation,
+                         test_mode=False,randomization_unit=generate_random_Allergo_poses,
                          process_pose=process_pose,n_param=24)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)

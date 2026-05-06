@@ -8,7 +8,7 @@ from Configurations.config import device
 from  model.SH_model import SH_model_key, SH_G, SH_D
 from  sim_dexee.Shadow_hand_env import ShadowHandEnv
 from  training.abstract_training_module import AbstractGraspAgentTraining
-from  training.sample_random_grasp import sh_pose_interpolation
+from  training.sample_random_grasp import generate_random_SH_poses
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. IO_utils import custom_print
 from utils. cuda_utils import cuda_memory_report
@@ -64,7 +64,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
-                         test_mode=True, pose_interpolation=sh_pose_interpolation,
+                         test_mode=True, randomization_unit=generate_random_SH_poses,
                          process_pose=process_pose, n_param=11)
 
         root_dir = os.getcwd()  # current working directory
