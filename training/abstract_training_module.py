@@ -10,6 +10,7 @@ from torch import nn
 import torch.nn.functional as F
 from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
+from model.abstract_model import depth_normalization
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
 from utils.cuda_utils import cuda_memory_report
@@ -426,11 +427,9 @@ class AbstractGraspAgentTraining:
 
     def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
         cloned_quality_decoder = copy.deepcopy(self.gan.generator.grasp_quality_)
-        max_ = 1.3
-        min_ = 1.15
-        standarized_depth_ = (depth[None, None, ...].clone() - min_) / (max_ - min_)
 
-        standarized_depth_ = (standarized_depth_ - 0.5) / 0.5
+        standarized_depth_=depth_normalization(depth)
+
         gripper_pose_x = torch.cat([grasp_pose.clone(), standarized_depth_], dim=1)
 
         grasp_quality_x = cloned_quality_decoder(features, gripper_pose_x)

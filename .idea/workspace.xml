@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee_free.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee_free.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/robotiq_2f85/2f85.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/robotiq_2f85/2f85.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/wonik_allegro/right_hand.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/wonik_allegro/right_hand.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Decoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Decoders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/abstract_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/abstract_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,31 +43,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.Allergo_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.CH_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Casia_hand_env.executor&quot;: &quot;Run&quot;,
-    &quot;Python.SH_5F_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.SH_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.allegro_hand_env.executor&quot;: &quot;Run&quot;,
-    &quot;Python.r_2f85_training.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Allergo_training.executor": "Run",
+    "Python.CH_training.executor": "Run",
+    "Python.Casia_hand_env.executor": "Run",
+    "Python.SH_5F_training.executor": "Run",
+    "Python.SH_training.executor": "Run",
+    "Python.abstract_training_module.executor": "Run",
+    "Python.allegro_hand_env.executor": "Run",
+    "Python.r_2f85_training.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="DjangoTestsConfigurationType">
       <option name="ENV_FILES" value="" />
@@ -457,7 +456,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778132643417</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778133244883</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1778133244883</updated>
+    </task>
+    <task id="LOCAL-00029" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778133447099</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1778133447099</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -7,7 +7,12 @@ from  model.Decoders import CriticDecoder, FilmModulatedDecoder
 from  utils.model_init import init_weights_he_normal
 from model.resunet import res_unet
 
-
+def depth_normalization(depth):
+    max_ = 1.3
+    min_ = 1.15
+    standarized_depth_ = (depth.clone() - min_) / (max_ - min_)
+    standarized_depth_ = (standarized_depth_ - 0.5) / 0.5
+    return standarized_depth_
 class G(nn.Module):
     def __init__(self,sampler_decoder,n_params):
         super().__init__()
@@ -34,10 +39,7 @@ class G(nn.Module):
         self.collision.apply(init_weights_he_normal)
 
     def forward(self, depth,  detach_backbone=False):
-        max_ = 1.3
-        min_ = 1.15
-        standarized_depth_ = (depth.clone() - min_) / (max_ - min_)
-        standarized_depth_ = (standarized_depth_ - 0.5) / 0.5
+        standarized_depth_=depth_normalization(depth)
 
         '''backbones'''
         if detach_backbone:

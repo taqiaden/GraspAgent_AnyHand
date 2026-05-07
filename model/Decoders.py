@@ -170,7 +170,7 @@ class FilmModulatedDecoder(nn.Module):
 
     def forward(self, context, condition):
 
-        condition = self.condition_proj(condition.detach())
+        condition = self.condition_proj(condition)
 
         gamma = self.gamma(context)* self.temperature
         beta = self.beta(context)
