@@ -29,7 +29,7 @@ class G(nn.Module):
 
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
-        self.PoseSampler.apply(init_weights_he_normal)
+
         self.grasp_quality_.apply(init_weights_he_normal)
         self.collision.apply(init_weights_he_normal)
 
