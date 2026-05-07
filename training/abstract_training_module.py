@@ -428,7 +428,7 @@ class AbstractGraspAgentTraining:
     def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
         cloned_quality_decoder = copy.deepcopy(self.gan.generator.grasp_quality_)
 
-        standarized_depth_=depth_normalization(depth)
+        standarized_depth_=depth_normalization(depth[None,None,...])
 
         gripper_pose_x = torch.cat([grasp_pose.clone(), standarized_depth_], dim=1)
 
