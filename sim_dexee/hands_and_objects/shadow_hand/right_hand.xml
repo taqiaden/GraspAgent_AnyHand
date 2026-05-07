@@ -72,6 +72,7 @@
       </default>
     </default>
   </default>
+<size njmax="10000" nconmax="5000"/>
 
   <asset>
     <material name="black" specular="0.5" shininess="0.25" rgba="0.16355 0.16355 0.16355 1"/>

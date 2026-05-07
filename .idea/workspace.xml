@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee_free.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/Shadow_dexee/shadow_dexee_free.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/robotiq_2f85/2f85.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/robotiq_2f85/2f85.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/wonik_allegro/right_hand.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/wonik_allegro/right_hand.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -437,7 +441,23 @@
       <option name="project" value="LOCAL" />
       <updated>1777991330837</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778118976157</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1778118976157</updated>
+    </task>
+    <task id="LOCAL-00027" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778132643417</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1778132643417</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

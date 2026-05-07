@@ -54,6 +54,7 @@
       </default>
     </default>
   </default>
+<size njmax="10000" nconmax="5000"/>
 
   <worldbody>
     <body name="tcp">
