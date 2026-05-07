@@ -769,7 +769,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else max(0.01,1-grasp_quality[target_index].item())
+                importance = 0.5*importance if importance is not None else max(0.01,grasp_quality[target_index].item())
                 if importance>0.1:
                     all_pairs.append(
                         (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
