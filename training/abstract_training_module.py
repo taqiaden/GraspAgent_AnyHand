@@ -43,24 +43,27 @@ def logits_to_probs(logits):
     return F.sigmoid(logits)
     # return torch.clamp(logits,0,1)
 
-def weighted_scatter_loss(x, w, r0=1.0, eps=1e-6):
+def weighted_scatter_loss(x, w,sigma=1.0, eps=1e-6):
+
     N, M = x.shape
 
     if N > 1000:
         idx = torch.randperm(N, device=x.device)[:1000]
         x = x[idx]
-        w = w[idx]
+        w=w[idx]
 
-    w = w / (w.sum() + eps)
+    w=w/(w.sum()+eps)
 
-    diff = x[:, None, :] - x[None, :, :].detach()
-    dist = diff.abs()
-    mask=dist>r0
-    dist = dist*w[None,:,None]
-    dist[mask]*=0.
-    dist=dist.sum(dim=1)
-    dist=dist*w[:,None]
-    loss=-dist.sum()/M
+    w=w[:,None]*w[None,:]
+
+    diff=x[:,None,:]-x[None,:,:]
+
+    dist=diff.abs()
+
+    repulsion = torch.exp(-dist**2 / (2 * sigma**2))
+    weighted=w[:,:,None]*repulsion
+
+    loss=weighted.sum()/(x.shape[1]+eps)
 
     return loss
 
@@ -241,7 +244,7 @@ class AbstractGraspAgentTraining:
 
         # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
 
-    def pose_interpolate(self, gripper_pose, annealing_factor):
+    def pose_interpolation(self, gripper_pose, annealing_factor):
         ref_pose = gripper_pose.detach().clone()
         n = ref_pose.shape[1]
         assert ref_pose.shape[0] == 1
@@ -399,9 +402,9 @@ class AbstractGraspAgentTraining:
                     grasp_prediction_)
                 self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                                   grasp_prediction_.detach())
-                self.argmax_collision_statistics.update_confession_matrix(0,0)
+                self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
             else:
-                self.argmax_collision_statistics.update_confession_matrix(1,0)
+                self.argmax_collision_statistics.update_confession_matrix(1,torch.zeros_like(grasp_prediction_))
 
             dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=~floor_mask)
             grasp_target_index = dist.sample()
@@ -418,7 +421,7 @@ class AbstractGraspAgentTraining:
                     grasp_prediction_)
                 self.sampled_grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                                    grasp_prediction_.detach())
-        except Exeption as e:
+        except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
     def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
