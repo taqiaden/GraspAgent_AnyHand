@@ -405,9 +405,9 @@ class AbstractGraspAgentTraining:
                                                                                   grasp_prediction_.detach())
                 self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
             else:
-                self.argmax_collision_statistics.update_confession_matrix(1,torch.zeros_like(grasp_prediction_))
+                self.argmax_collision_statistics.update_confession_matrix(0,torch.ones_like(grasp_prediction_))
 
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=~floor_mask)
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5))
             grasp_target_index = dist.sample()
             grasp_target_point = pc[grasp_target_index]
             grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
@@ -477,10 +477,10 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
@@ -683,7 +683,7 @@ class AbstractGraspAgentTraining:
         clipped_grasp_pose_PW[:, 5:5 + 3] = torch.clip(clipped_grasp_pose_PW[:, 5:5 + 3], 0, 1)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-        selection_p = torch.rand_like(grasp_quality)
+        selection_p = grasp_quality#torch.rand_like(grasp_quality)
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
@@ -798,7 +798,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
-                margin=0 if ref_initial_collision or gen_initial_collision else (1-grasp_quality[target_index])
+                margin=(1-grasp_quality[target_index])
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
