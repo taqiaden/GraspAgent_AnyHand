@@ -386,7 +386,7 @@ class AbstractGraspAgentTraining:
 
     def supplemetary_statistics(self,masked_quality,grasp_collision,pc,grasp_pose_PW,floor_mask):
         try:
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5))
             grasp_target_index = dist.probs.argmax()
             # grasp_target_index = masked_quality.argmax()
             grasp_target_point = pc[grasp_target_index]
