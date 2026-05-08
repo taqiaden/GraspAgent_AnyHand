@@ -386,7 +386,7 @@ class AbstractGraspAgentTraining:
 
     def supplemetary_statistics(self,masked_quality,grasp_collision,pc,grasp_pose_PW,floor_mask):
         try:
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5))
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
             grasp_target_index = dist.probs.argmax()
             # grasp_target_index = masked_quality.argmax()
             grasp_target_point = pc[grasp_target_index]
@@ -480,7 +480,7 @@ class AbstractGraspAgentTraining:
             weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
             # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
