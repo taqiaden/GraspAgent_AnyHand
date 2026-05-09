@@ -220,6 +220,9 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                     ])
                     self.d.mocap_pos[0] += shake
                 elif i>500:
+                    viewer.opt.flags[
+                        mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 0  # shows the contact points in the simulation (where objects touch)
+                    viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CAMERA] = 0  # shows camera frustums if enabled
                     self.hide_below_elevation()
                     while viewer.is_running():
                         viewer.opt.flags[
