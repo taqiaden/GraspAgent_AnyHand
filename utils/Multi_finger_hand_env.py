@@ -159,7 +159,7 @@ class MojocoMultiFingersEnv():
             # Get world position of geom
             geom_pos = self.d.geom_xpos[geom_id]
 
-            # Check if geom is below threshold (and not hand/object)
+            # Check if geom is below threshold (and not hand/object)e
             if geom_pos[2] < elevation_threshold:
                 # Store original rgba
                 original_rgba = self.m.geom(geom_id).rgba.copy()

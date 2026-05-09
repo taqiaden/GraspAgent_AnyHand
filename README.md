@@ -68,4 +68,4 @@ Except for CasiaHand which was designed in our Lab, all hands are brought from t
 
 
 ## Final notes
-Objects used in Mujoco simulator are pre-processed using the Collision-Aware Approximate Convex Decomposition (CoACD) method. The processing method is available in "sim_dexee/utils/generate_mesh_xml.py"
+Objects used in Mujoco simulator are pre-processed using the Collision-Aware Approximate Convex Decomposition (CoACD) method. The processing method is available [here](./sim_dexee/utils/generate_mesh_xml.py)
