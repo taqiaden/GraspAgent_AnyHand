@@ -405,9 +405,9 @@ class AbstractGraspAgentTraining:
                                                                                   grasp_prediction_.detach())
                 self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
             else:
-                self.argmax_collision_statistics.update_confession_matrix(0,torch.ones_like(grasp_prediction_))
+                self.argmax_collision_statistics.update_confession_matrix(1.0,torch.zeros_like(grasp_prediction_))
 
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5))
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5)&(masked_quality>0.5))
             grasp_target_index = dist.sample()
             grasp_target_point = pc[grasp_target_index]
             grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
