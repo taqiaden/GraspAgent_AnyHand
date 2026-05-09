@@ -1,6 +1,7 @@
 
 # GraspAgent_AnyHand
 This repository is under construction. 
+This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. If you have any question please do not hesitate to contact me: taqiaden@gmail.com, Whastapp: 00967 774 631 499, Wechat: taqiaden
 
 <p align="center">
     <a href='https://paper'>
@@ -67,4 +68,4 @@ Except for CasiaHand which was designed in our Lab, all hands are brought from t
 
 
 ## Final notes
-This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. If you have any question please do not hesitate to contact me: [taqiaden](taqiaden@gmail.com), Whastapp: 00967 774 631 499, Wechat: taqiaden
+Objects used in Mujoco simulator are pre-processed using the Collision-Aware Approximate Convex Decomposition (CoACD) method. The processing method is available in "sim_dexee/utils/generate_mesh_xml.py"

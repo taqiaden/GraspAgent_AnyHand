@@ -736,7 +736,7 @@ class MojocoMultiFingersEnv():
             # Update loop — this keeps the window open until the user closes it
             while viewer.is_running():
                 viewer.opt.flags[
-                mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1  # shows the contact points in the simulation (where objects touch)
+                mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 0  # shows the contact points in the simulation (where objects touch)
                 viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CAMERA] = 0  # shows camera frustums if enabled
                 # Render continuously
                 viewer.sync()
