@@ -3,6 +3,8 @@ import time
 import mujoco
 import numpy as np
 import torch
+
+from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
 
 class R2F85Env(MojocoMultiFingersEnv):
@@ -144,7 +146,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         #     assert False
         self.d.ctrl = [0]
         mujoco.mj_step(self.m, self.d)
-        self.static_view(1000)
+        # self.static_view(1000)
 
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         # self.static_view(1000)

@@ -202,7 +202,7 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
         self.d.qpos = hand_pos + hand_quat + self.default_finger_joints + obj_pose
         self.d.ctrl *= 0
         mujoco.mj_step(self.m, self.d)
-        self.static_view(1000)
+        # self.static_view(1000)
 
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         # self.static_view(1000)

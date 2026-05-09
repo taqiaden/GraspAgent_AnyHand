@@ -5,7 +5,7 @@ import mujoco
 import numpy as np
 import torch
 
-from  hands_config.sh_config import fingers_max, fingers_min
+from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
 from  utils.quat_operations import quat_rotate_vector, quat_between
 
@@ -164,7 +164,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         #     assert False
         self.d.ctrl = self.decode_finger_ctrl(hand_fingers)
         mujoco.mj_step(self.m, self.d)
-        self.static_view(1000)
+        # self.static_view(1000)
 
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         # self.static_view(1000)

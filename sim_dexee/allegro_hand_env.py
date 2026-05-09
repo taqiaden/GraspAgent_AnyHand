@@ -147,7 +147,7 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         #     assert False
         self.d.ctrl = hand_fingers
         mujoco.mj_step(self.m, self.d)
-        self.static_view(1000)
+        # self.static_view(1000)
 
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         # self.static_view(1000)

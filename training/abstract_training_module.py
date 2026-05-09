@@ -549,7 +549,6 @@ class AbstractGraspAgentTraining:
                 self.grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                        logits_to_probs(grasp_prediction_logits.detach()))
 
-
                 if grasp_success and positive_counter >= s: continue
                 if (not grasp_success) and negative_counter >= s: continue
 
@@ -572,7 +571,6 @@ class AbstractGraspAgentTraining:
         return grasp_quality_loss_
 
     def get_grasp_collision_loss(self,probs,grasp_collision_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
-
         grasp_collision_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
@@ -1000,7 +998,6 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-
         if (len(self.DDM.low_quality_samples_tracker)==0 or self.skipped_last) and (
                 ((np.random.rand() < self.skip_rate.val ** 2) or len(self.DDM) >= self.max_scenes) and len(
                 self.DDM) > 100):
@@ -1008,7 +1005,6 @@ class AbstractGraspAgentTraining:
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
             self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
-
 
             self.sim_env.reload()
 
