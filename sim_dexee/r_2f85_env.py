@@ -128,6 +128,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         else:
             return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact1,self_collide1,None,warning_flag,grasped_obj
 
+
     def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
         self.restore_simulation_state()
 
@@ -223,7 +224,9 @@ class R2F85Env(MojocoMultiFingersEnv):
         grasped_obj=self.get_grasped_obj()
         print(f'grasped_obj: {grasped_obj}')
 
-        if grasp_success:self.static_view(1000)
+        if grasp_success:
+            self.hide_below_elevation()
+            self.static_view(1000)
 
         return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact,self_collide,None
 

@@ -45,7 +45,6 @@ def process_pose(target_point, target_pose, view=False):
 
     fingers=process_fingers(target_pose_).cpu().tolist()
 
-
     assert all(x == x for x in quat), f"quat contains NaN, {quat,alpha,beta}"
     assert all(x == x for x in fingers), f"fingers contains NaN, {fingers}"
 
@@ -70,8 +69,6 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
         root_dir = os.getcwd()  # current working directory
 
         self.sim_env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
-
-
 
 def train_N_grasp_GAN(args,n=1):
 

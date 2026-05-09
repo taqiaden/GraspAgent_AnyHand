@@ -149,6 +149,25 @@ class MojocoMultiFingersEnv():
         self.obj_dict[str(obj)]=min(1.0,max(self.obj_dict[str(obj)],0.01))*0.5+0.5*scale if str(obj) in self.obj_dict else 0.5
 
 
+    def hide_below_elevation(self, elevation_threshold=0.2):
+        """Set geoms below threshold to transparent/invisible"""
+
+        hidden_geoms = []
+
+        # Get all geom positions and hide those below threshold
+        for geom_id in range(self.m.ngeom):
+            # Get world position of geom
+            geom_pos = self.d.geom_xpos[geom_id]
+
+            # Check if geom is below threshold (and not hand/object)
+            if geom_pos[2] < elevation_threshold:
+                # Store original rgba
+                original_rgba = self.m.geom(geom_id).rgba.copy()
+                # Make transparent (or set group to hide)
+                self.m.geom(geom_id).rgba = np.array([1, 1, 1, 0])  # Transparent
+                hidden_geoms.append((geom_id, original_rgba))
+
+        return hidden_geoms
 
 
     def update_obj_info(self,score,decay=0.99):
