@@ -1,6 +1,6 @@
 
 # GraspAgent_AnyHand
-This repository is under construction. T
+This repository is under construction. 
 
 <p align="center">
     <a href='https://paper'>
