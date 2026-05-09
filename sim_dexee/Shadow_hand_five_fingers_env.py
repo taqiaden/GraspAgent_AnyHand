@@ -5,9 +5,9 @@ import mujoco
 import numpy as np
 import torch
 
-from  hands_config.sh_config import fingers_max, fingers_min
+from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
-from  utils.quat_operations import quat_rotate_vector, quat_between, grasp_frame_to_quat
+from  utils.quat_operations import  quat_between, grasp_frame_to_quat
 
 
 class ShadowHandEnv(MojocoMultiFingersEnv):

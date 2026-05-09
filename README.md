@@ -15,6 +15,11 @@ This repository is under construction. The final version will include a grasp po
   <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview" width="800"/>
 </div>
 
+## Grasp preformance
+| Hand                 | ShadowHand 5F | ShadowHand 3F | CasiaHand | Allegro hand | Robotiq 2F85 |
+|----------------------|---------------|---------------|-----------|--------------|--------------|
+| Average success rate |               |               | 91%       |              | 96%          |
+| 
 ## Installation
 ### Prerequisites
 The following pakages version are used during the development of this repository:
