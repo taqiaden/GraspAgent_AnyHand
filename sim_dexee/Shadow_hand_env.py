@@ -7,7 +7,6 @@ import torch
 
 from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
-from  utils.quat_operations import quat_rotate_vector, quat_between
 
 
 class ShadowHandEnv(MojocoMultiFingersEnv):
@@ -248,9 +247,9 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
 if __name__ == "__main__":
     root_dir = os.getcwd()  # current working directory
 
-    env=ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/")
+    env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/", max_obj_per_scene=10)
 
-    # env.view_geom_names_and_ids()
+    env.view_geom_names_and_ids()
 
     env.view_hand()
     env.drop_new_obj(selected_index='58', obj_pose=[0, 0.3, 0.2], obj_quat=[1, 0, 0, 0], stablize=True)

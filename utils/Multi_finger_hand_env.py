@@ -149,6 +149,7 @@ class MojocoMultiFingersEnv():
         self.obj_dict[str(obj)]=min(1.0,max(self.obj_dict[str(obj)],0.01))*0.5+0.5*scale if str(obj) in self.obj_dict else 0.5
 
 
+
     def hide_below_elevation(self, elevation_threshold=0.2):
         """Set geoms below threshold to transparent/invisible"""
 

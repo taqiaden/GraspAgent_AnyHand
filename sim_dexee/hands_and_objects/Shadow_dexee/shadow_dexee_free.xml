@@ -149,7 +149,7 @@
               <geom name="F0/proximal_lid_geom" class="finger/visual" material="jet_black" mass="0"
                 mesh="r3_finger_proximal_lid"/>
               <geom name="F0/proximal_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                mesh="r3_finger_proximal_magtac" rgba="1 0 0 1"/>
+                mesh="r3_finger_proximal_magtac" rgba="0.035  0.586 0.953 1"/>
               <geom name="F0/proximal_geom_col" class="finger/collision_hard" mesh="r3_finger_proximal_col"/>
               <body name="F0/finger_middle" pos="0 -0.05 0" gravcomp="1">
                 <site name="F0/j2_site"/>
@@ -157,7 +157,7 @@
                 <geom name="F0/middle_geom" class="finger/visual" material="jet_black" mass="0.05585897"
                   mesh="r3_finger_middle"/>
                 <geom name="F0/middle_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                  mesh="r3_finger_middle_magtac" rgba="1 0 0 1"/>
+                  mesh="r3_finger_middle_magtac" rgba="0.035  0.586 0.953 1"/>
                 <geom name="F0/middle_geom_col" class="finger/collision_hard" mesh="r3_finger_middle_col"/>
                 <body name="F0/finger_distal" pos="0 -0.035 0" quat="0 0 -1 1" gravcomp="1">
                   <site name="F0/j3_site"/>
@@ -165,7 +165,7 @@
                     frictionloss="0.001"/>
                   <geom name="F0/distal_geom" class="finger/visual" mass="0.02766365" mesh="r3_finger_distal"/>
                   <geom name="F0/distal_sensor_geom" class="finger/visual" material="graphite_black" mass="0"
-                    mesh="r3_finger_distal_sensor" rgba="1 0 0 1"/>
+                    mesh="r3_finger_distal_sensor" rgba="0.035  0.586 0.953 1"/>
                   <geom name="F0/distal_geom_col" class="finger/collision_hard" mesh="r3_finger_distal_col"/>
                   <geom name="F0/distal_geom_tip_col" class="finger/collision_soft" mesh="r3_finger_distal_tip_col"/>
                   <site name="F0/fingertip_site" pos="0 -0.00625 0.04"/>
@@ -226,7 +226,7 @@
               <geom name="F1/proximal_lid_geom" class="finger/visual" material="jet_black" mass="0"
                 mesh="r3_finger_proximal_lid"/>
               <geom name="F1/proximal_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                mesh="r3_finger_proximal_magtac" rgba="1 0 0 1"/>
+                mesh="r3_finger_proximal_magtac" rgba="0.035  0.586 0.953 1"/>
               <geom name="F1/proximal_geom_col" class="finger/collision_hard" mesh="r3_finger_proximal_col"/>
               <body name="F1/finger_middle" pos="0 -0.05 0" gravcomp="1">
                 <site name="F1/j2_site"/>
@@ -234,7 +234,7 @@
                 <geom name="F1/middle_geom" class="finger/visual" material="jet_black" mass="0.05585897"
                   mesh="r3_finger_middle"/>
                 <geom name="F1/middle_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                  mesh="r3_finger_middle_magtac" rgba="1 0 0 1"/>
+                  mesh="r3_finger_middle_magtac" rgba="0.035  0.586 0.953 1"/>
                 <geom name="F1/middle_geom_col" class="finger/collision_hard" mesh="r3_finger_middle_col"/>
                 <body name="F1/finger_distal" pos="0 -0.035 0" quat="0 0 -1 1" gravcomp="1">
                   <site name="F1/j3_site"/>
@@ -242,7 +242,7 @@
                     frictionloss="0.001"/>
                   <geom name="F1/distal_geom" class="finger/visual" mass="0.02766365" mesh="r3_finger_distal"/>
                   <geom name="F1/distal_sensor_geom" class="finger/visual" material="graphite_black" mass="0"
-                    mesh="r3_finger_distal_sensor" rgba="1 0 0 1"/>
+                    mesh="r3_finger_distal_sensor" rgba="0.035  0.586 0.953 1"/>
                   <geom name="F1/distal_geom_col" class="finger/collision_hard" mesh="r3_finger_distal_col"/>
                   <geom name="F1/distal_geom_tip_col" class="finger/collision_soft" mesh="r3_finger_distal_tip_col"/>
                   <site name="F1/fingertip_site" pos="0 -0.00625 0.04"/>
@@ -303,15 +303,15 @@
               <geom name="F2/proximal_lid_geom" class="finger/visual" material="jet_black" mass="0"
                 mesh="r3_finger_proximal_lid"/>
               <geom name="F2/proximal_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                mesh="r3_finger_proximal_magtac" rgba="1 0 0 1"/>
-              <geom name="F2/proximal_geom_col" class="finger/collision_hard" mesh="r3_finger_proximal_col"/>
+                mesh="r3_finger_proximal_magtac" rgba="0.035  0.586 0.953 1"/>
+              <geom name="F2/proximal_geom_col" class="finger/collision_hard" mesh="r3_finger_proximal_col" />
               <body name="F2/finger_middle" pos="0 -0.05 0" gravcomp="1">
                 <site name="F2/j2_site"/>
                 <joint name="F2/J2" axis="1 0 0" range="0 1.3963" armature="8e-05" damping="0.001" frictionloss="0.001"/>
                 <geom name="F2/middle_geom" class="finger/visual" material="jet_black" mass="0.05585897"
                   mesh="r3_finger_middle"/>
                 <geom name="F2/middle_magtac_geom" class="finger/visual" material="graphite_black" mass="0"
-                  mesh="r3_finger_middle_magtac" rgba="1 0 0 1"/>
+                  mesh="r3_finger_middle_magtac" rgba="0.035  0.586 0.953 1"/>
                 <geom name="F2/middle_geom_col" class="finger/collision_hard" mesh="r3_finger_middle_col"/>
                 <body name="F2/finger_distal" pos="0 -0.035 0" quat="0 0 -1 1" gravcomp="1">
                   <site name="F2/j3_site"/>
@@ -319,7 +319,7 @@
                     frictionloss="0.001"/>
                   <geom name="F2/distal_geom" class="finger/visual" mass="0.02766365" mesh="r3_finger_distal"/>
                   <geom name="F2/distal_sensor_geom" class="finger/visual" material="graphite_black" mass="0"
-                    mesh="r3_finger_distal_sensor" rgba="1 0 0 1"/>
+                    mesh="r3_finger_distal_sensor" rgba="0.035  0.586 0.953 1"/>
                   <geom name="F2/distal_geom_col" class="finger/collision_hard" mesh="r3_finger_distal_col"/>
                   <geom name="F2/distal_geom_tip_col" class="finger/collision_soft" mesh="r3_finger_distal_tip_col" />
                   <site name="F2/fingertip_site" pos="0 -0.00625 0.04"/>
