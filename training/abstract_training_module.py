@@ -386,7 +386,7 @@ class AbstractGraspAgentTraining:
 
     def supplemetary_statistics(self,masked_quality,grasp_collision,pc,grasp_pose_PW,floor_mask):
         try:
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5))
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
             grasp_target_index = dist.probs.argmax()
             # grasp_target_index = masked_quality.argmax()
             grasp_target_point = pc[grasp_target_index]
@@ -407,7 +407,7 @@ class AbstractGraspAgentTraining:
             else:
                 self.argmax_collision_statistics.update_confession_matrix(1.0,torch.zeros_like(grasp_prediction_))
 
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask)&(grasp_collision<=0.5)&(masked_quality>0.5))
+            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
             grasp_target_index = dist.sample()
             grasp_target_point = pc[grasp_target_index]
             grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
@@ -480,7 +480,7 @@ class AbstractGraspAgentTraining:
             # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
             weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],w=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],w=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
@@ -681,7 +681,7 @@ class AbstractGraspAgentTraining:
         clipped_grasp_pose_PW[:, 5:5 + 3] = torch.clip(clipped_grasp_pose_PW[:, 5:5 + 3], 0, 1)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-        selection_p = grasp_quality*torch.rand_like(grasp_quality)
+        selection_p = torch.rand_like(grasp_quality)
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
