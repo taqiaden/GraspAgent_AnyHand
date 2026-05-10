@@ -4,7 +4,7 @@
   <option integrator="implicitfast" cone="elliptic" noslip_iterations="5" noslip_tolerance="0"/>
   <default>
     <joint damping="0.01" armature="0.0001" frictionloss="0.01"/>
-      <geom solref="0.02 0.8" solimp="0.9 0.95 0.001" friction="0.01 0.05 0.005"/>
+      <geom solref="0.02 0.8" solimp="0.9 0.95 0.001" friction="0.8 0.05 0.005"/>
   </default>
 <size njmax="10000" nconmax="5000"/>
 
