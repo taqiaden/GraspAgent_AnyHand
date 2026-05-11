@@ -257,7 +257,6 @@ class AbstractGraspAgentTraining:
                     annealing_factor * torch.rand_like(ref_pose) + 1e-4))
         sampling_ratios = torch.where(annealing_factor > 0.5 , torch.tensor(1.0), sampling_ratios)
 
-
         sampled_pose = self.randomization_unit(ref_pose[0, 0].numel()).reshape(600, 600, n).permute(2, 0, 1)[
             None, ...]
 
@@ -749,6 +748,17 @@ class AbstractGraspAgentTraining:
             if self.check_kinematics:
                 ref_success=ref_success and ref_plan_found
                 gen_success=gen_success and gen_plan_found
+
+            if ref_success and gen_success:
+                '''harder condition: shake'''
+
+                gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
+                    target_point, target_generated_pose, view=False, shake=True,
+                    check_kinematics=self.check_kinematics,
+                    update_obj_prob=grasp_quality[target_index].item())
+
+                ref_success, ref_initial_collision, ref_n_grasp_contact, ref_self_collide, stable_ref_grasp, warning_flag, ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
+                    target_point, target_ref_pose, view=False, shake=True, update_obj_prob=None, check_kinematics=self.check_kinematics)
 
             if warning_flag:
                 break
