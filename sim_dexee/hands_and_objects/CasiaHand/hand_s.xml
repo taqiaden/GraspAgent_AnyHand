@@ -97,9 +97,9 @@
       <body name="translate" pos="-0.08 0.14 -0.02">
         <body gravcomp="1" name="base" pos="-0.204141 0.242939 -0.004">
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="base_link" contype="0" conaffinity="0" group="0"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_0" mass="0" name="pad1"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_1" mass="0" name="pad2"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_2" mass="0" name="pad3"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_0" mass="0" name="pad1"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_1" mass="0" name="pad2"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_2" mass="0" name="pad3"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_3" group="3" mass="0"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_5" group="3" mass="0"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_11" group="3" mass="0"/>
