@@ -252,9 +252,11 @@ class AbstractGraspAgentTraining:
 
         assert not torch.isnan(ref_pose).any(), f'{ref_pose}'
 
-        annealing_factor[annealing_factor > 0.5] = 1.
+        # annealing_factor[annealing_factor > 0.5] = 1.
         sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
                     annealing_factor * torch.rand_like(ref_pose) + 1e-4))
+        sampling_ratios = torch.where(annealing_factor > 0.5 , torch.tensor(1.0), sampling_ratios)
+
 
         sampled_pose = self.randomization_unit(ref_pose[0, 0].numel()).reshape(600, 600, n).permute(2, 0, 1)[
             None, ...]
