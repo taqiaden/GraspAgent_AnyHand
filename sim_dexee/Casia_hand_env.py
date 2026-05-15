@@ -58,9 +58,9 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
             j_rl = 0.091 -  0.037  # ring finger and little finger
         else:
             # j form 0 to 1 represent open to close
-            j_th =   1.5
-            j_fm =   1.5
-            j_rl =   1.5
+            j_th =   0.9
+            j_fm =   1.35
+            j_rl =   1.35
         return [j_th, j_fm, j_fm, j_rl, j_rl]
 
     def  decode_finger_ctrl(self,fingers):
@@ -71,9 +71,9 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
             j_rl = 0.091 - fingers[2] * 0.037  # ring finger and little finger
         else:
             # j form 0 to 1 represent open to close
-            j_th = fingers[0] *  1.5
-            j_fm = fingers[1] *  1.5
-            j_rl = fingers[2] *  1.5
+            j_th = fingers[0] *  0.9
+            j_fm = fingers[1] *  1.35
+            j_rl = fingers[2] *  1.35
         return [j_th, j_fm, j_fm, j_rl, j_rl]
 
     def check_fingers_scope(self,fingers):

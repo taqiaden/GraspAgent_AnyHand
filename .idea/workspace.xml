@@ -6,13 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/hand_s.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand/hand_s.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand/right_hand.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_3F_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_3F_tmp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/CH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/CH_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/sample_random_grasp.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/sample_random_grasp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -265,7 +262,7 @@
       <workItem from="1777539851534" duration="52000" />
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
-      <workItem from="1778828138016" duration="3489000" />
+      <workItem from="1778828138016" duration="4729000" />
     </task>
     <task id="LOCAL-00001" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -563,7 +560,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778509311512</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778851209650</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1778851209650</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
