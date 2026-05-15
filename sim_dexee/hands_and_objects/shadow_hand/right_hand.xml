@@ -105,8 +105,8 @@
       <freejoint/>
     <body name="rh_forearm" childclass="right_hand" quat="0 1 0 1" pos="-0.33 0 -0.05 ">
       <inertial mass="3" pos="0 0 0.09" diaginertia="0.0138 0.0138 0.00744"/>
-      <geom class="plastic_visual" mesh="forearm_0" material="gray"/>
-      <geom class="plastic_visual" mesh="forearm_1"/>
+      <geom class="plastic_visual" mesh="forearm_0" material="gray" rgba="1 1 1 0"/>
+      <geom class="plastic_visual" mesh="forearm_1" rgba="1 1 1 0"/>
       <geom class="plastic_collision" type="mesh" mesh="forearm_collision"/>
       <geom class="plastic_collision" size="0.035 0.035 0.035" pos="0.01 0.0 0.181" quat="0.380188 0.924909 0 0"
         type="box"/>
