@@ -39,6 +39,7 @@ class PoseSampler(nn.Module):
         beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1).detach())
         beta = F.normalize(beta, dim=1)
 
+
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1).detach())
 

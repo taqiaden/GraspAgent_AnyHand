@@ -23,7 +23,6 @@ class G(nn.Module):
         self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
                                     relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
 
-
         self.PoseSampler = sampler_decoder
 
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
