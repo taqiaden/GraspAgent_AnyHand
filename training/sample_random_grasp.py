@@ -122,7 +122,6 @@ def generate_random_CH_poses(size):
     alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
-
     beta_ = random_unit_circle(size)
     # beta_[:,1]=beta_[:,1].abs()*-1
 
