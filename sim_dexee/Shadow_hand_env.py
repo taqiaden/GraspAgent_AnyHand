@@ -1,13 +1,10 @@
 import os
 import time
-
 import mujoco
 import numpy as np
 import torch
-
 from Configurations.config import device
 from  utils.Multi_finger_hand_env import MojocoMultiFingersEnv
-
 
 class ShadowHandEnv(MojocoMultiFingersEnv):
     def __init__(self,root,max_obj_per_scene=2,objects_path=None):

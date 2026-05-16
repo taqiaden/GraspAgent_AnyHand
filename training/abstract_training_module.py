@@ -192,26 +192,25 @@ class AbstractGraspAgentTraining:
 
         '''initialize statistics records'''
         self.balanced_set_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_balanced_set_grasp_quality',
-                                                            track_label_balance=True,track_history=self.track_statistics_history)
+                                                            track_label_balance=False,track_history=self.track_statistics_history)
         self.argmax_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_argmax_grasp_quality',
-                                                            track_label_balance=True,track_history=self.track_statistics_history)
+                                                            track_label_balance=False,track_history=self.track_statistics_history)
         self.argmax_collision_statistics = TrainingTracker(name=self.model_key + '_argmax_collision',
-                                                               track_label_balance=True,
+                                                               track_label_balance=False,
                                                                track_history=self.track_statistics_history)
         self.sampled_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_sampled_grasp_quality',
-                                                            track_label_balance=True,track_history=self.track_statistics_history)
+                                                            track_label_balance=False,track_history=self.track_statistics_history)
         self.balanced_set_collision_statistics = TrainingTracker(name=self.model_key + '_balanced_set_collision',
-                                                    track_label_balance=True, decay_rate=0.01,track_history=self.track_statistics_history)
+                                                    track_label_balance=False, decay_rate=0.01,track_history=self.track_statistics_history)
 
         self.sampler_loss_statistics = TrainingTracker(name=self.model_key + '_sampler_loss',
                                                           track_label_balance=False,track_history=self.track_statistics_history)
 
         self.grasp_quality_statistics = TrainingTracker(name=self.model_key + '_grasp_quality',
-                                                        track_label_balance=True, decay_rate=0.01,track_history=self.track_statistics_history)
+                                                        track_label_balance=False, decay_rate=0.01,track_history=self.track_statistics_history)
 
         self.critic_loss_statistics = TrainingTracker(name=self.model_key + '_critic_loss',
                                                  track_label_balance=False,track_history=self.track_statistics_history)
-
 
     def load_optimizers(self):
         print(f'Load optimizers')
@@ -389,7 +388,6 @@ class AbstractGraspAgentTraining:
         try:
             dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
             grasp_target_index = dist.probs.argmax()
-            # grasp_target_index = masked_quality.argmax()
             grasp_target_point = pc[grasp_target_index]
             grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
 
@@ -883,7 +881,7 @@ class AbstractGraspAgentTraining:
             if self.loaded_synthesised_data is None:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                    ave_uniqueness = sum(a * b for a, b in zip(importance, uniqueness))
+                    ave_uniqueness = sum(uniqueness)
                     self.Ave_uniquness2.update(ave_uniqueness)
 
                     if  not self.Ave_uniquness2.lower_rejection_criteria(ave_uniqueness, k=2.):
@@ -908,7 +906,7 @@ class AbstractGraspAgentTraining:
                     self.DDM.save_data_point(synthesised_data_obj)
             else:
                 importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                ave_uniqueness = sum(a * b for a, b in zip(importance, uniqueness))
+                ave_uniqueness = sum(uniqueness)
                 self.Ave_uniquness.update(ave_uniqueness)
 
                 self.DDM.update_old_record(synthesised_data_obj)

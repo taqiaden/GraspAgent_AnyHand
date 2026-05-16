@@ -118,11 +118,8 @@ def random_unit_circle(n):
 
 def generate_random_CH_poses(size):
 
-    # values = torch.tensor([-1., 0., 1.])
-    # alpha_=sample_vectors(size,3,values).to(device)
     alpha_ = torch.randn((size,3),device=device)
-    alpha_[:, -1] = -1*torch.abs(alpha_[:, -1])
-    # alpha_[:, 0:2]=alpha_[:, 0:2]*torch.abs(alpha_[:, 0:2]**1)
+    alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
 
@@ -150,8 +147,7 @@ def generate_random_CH_poses(size):
 def generate_random_SH_poses(size):
 
     alpha_ = torch.randn((size,3),device=device)
-    alpha_[:, -1] = -1#*torch.abs(alpha_[:, -1])
-    alpha_[:, 0:2]/=3
+    alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -166,8 +162,7 @@ def generate_random_SH_poses(size):
 
 def generate_random_SH_5F_poses(size):
     alpha_ = torch.randn((size,3),device=device)
-    alpha_[:, -1] = -1*(1-alpha_[:, -1].abs()**2)
-    alpha_[:, 0:2]=alpha_[:, 0:2]*torch.abs(alpha_[:, 0:2]**1)
+    alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -210,8 +205,7 @@ def generate_random_SH_5F_poses(size):
 def generate_random_Allergo_poses(size):
 
     alpha_ = torch.randn((size,3),device=device)
-    alpha_[:, -1] = -1*(1-alpha_[:, -1].clamp(-1,1).abs()**2)
-    alpha_[:, 0:2]=alpha_[:, 0:2]*torch.abs(alpha_[:, 0:2]**1)
+    alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -248,8 +242,7 @@ def generate_random_Allergo_poses(size):
 def generate_random_r_2f85_poses(size):
 
     alpha_ = torch.randn((size,3),device=device)
-    alpha_[:, -1] = -1#*(1-alpha_[:, -1].clamp(-1,1).abs()**2)
-    alpha_[:, 0:2]=alpha_[:, 0:2]*torch.abs(alpha_[:, 0:2]**1)
+    alpha_[:, -1] = -alpha_[:, -1].abs()
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
