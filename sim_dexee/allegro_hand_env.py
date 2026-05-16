@@ -169,20 +169,18 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         #     mujoco.mj_step(self.m, self.d)
         #     if i==10:self.static_view(1000)
 
-
-
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1
 
             for i in range(70,600):
                 step_start = time.time()
 
-
                 if 200 < i < 400:
                     self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
 
                 # shake phase
                 if 500 > i > 400:
+                    break
                     # self.d.ctrl = max_fingers #if i<400 else decoded_fingers
 
                     t = i * self.m.opt.timestep

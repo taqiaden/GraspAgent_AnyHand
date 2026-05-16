@@ -180,7 +180,6 @@ def generate_random_SH_5F_poses(size):
 
     fingers_ = torch.randn((size, 18), device=device)/3
 
-    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).to(device),[-1.05,1.05], peak_intensity=10.0)
     fingers_[:,0:1]=(torch.rand((size, 1), device=device)-0.5)*2*1.05
 
     fingers_[:, 1:2]=(1-torch.rand((size, 1), device=device)**2)*1.2
@@ -220,7 +219,6 @@ def generate_random_Allergo_poses(size):
 
     fingers_ = torch.rand((size, 16), device=device)-0.5
 
-    # fingers_[:,0:1]=beta_peak_intensity_tensor(size, 1, torch.tensor([0.]).to(device),[-1.05,1.05], peak_intensity=10.0)
     fingers_[:,1:2]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,2:3]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,3:4]=torch.rand((size, 1), device=device)

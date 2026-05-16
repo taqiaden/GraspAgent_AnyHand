@@ -41,7 +41,7 @@
 
   <plugin plugin="mujoco.pid">
     <instance name="pid_RTh">
-        <config key="kp" value="32"/>
+        <config key="kp" value="24"/>
         <config key="ki" value="4.0"/>
         <config key="kd" value="0.1"/>
         <config key="imax" value="0.2"/>
@@ -97,9 +97,9 @@
       <body name="translate" pos="-0.08 0.14 -0.02">
         <body gravcomp="1" name="base" pos="-0.204141 0.242939 -0.004">
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="base_link" contype="0" conaffinity="0" group="0"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_0" mass="0" name="pad1"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_1" mass="0" name="pad2"/>
-          <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_2" mass="0" name="pad3"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_0" mass="0" name="pad1"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_1" mass="0" name="pad2"/>
+          <geom type="mesh" rgba="0.035  0.586 0.953 1" mesh="part_2" mass="0" name="pad3"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_3" group="3" mass="0"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_5" group="3" mass="0"/>
           <geom type="mesh" rgba="0.752941 0.752941 0.752941 0" mesh="part_11" group="3" mass="0"/>
@@ -109,7 +109,7 @@
 
           <body gravcomp="1" name="RTh-joint1-link" pos="0.23099 -0.29978 0.017385" quat="-2.59734e-06 -0.707105 0.707108 2.59735e-06" >
             <inertial pos="-0.00052377 -0.019871 -0.0057348" quat="0.709096 0.704783 -0.0151904 -0.0152259" mass="0.0086971" diaginertia="1.77515e-06 1.59984e-06 5.58982e-07"/>
-            <joint name="RTh-joint1" pos="0 0 0" axis="0 0 1" range="0 0.57"    />
+            <joint name="RTh-joint1" pos="0 0 0" axis="0 0 1" range="0 1.3"    />
             <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="RFF-joint1-link" contype="0" conaffinity="0" group="0"/>
             <geom type="mesh"  rgba="0.035  0.586 0.953 1" name="ft1_a" mesh="j1_0" mass="0"/>
             <geom type="mesh"  rgba="0.752941 0.752941 0.752941 1" mesh="j1_1" mass="0" group="3"/>
@@ -258,8 +258,8 @@
           plugin="mujoco.pid"
           instance="pid_RTh"
           joint="RTh-joint1"
-          ctrlrange="0 1.5"
-          forcerange="-3 3"
+          ctrlrange="0 0.9"
+          forcerange="-1.5 1.5"
           dyntype="none"
           actdim="2"/>
 
@@ -267,7 +267,7 @@
           plugin="mujoco.pid"
           instance="pid_RFF"
           joint="RFF-joint1"
-          ctrlrange="0 1.5"
+          ctrlrange="0 1.35"
           forcerange="-1.5 1.5"
           dyntype="none"
           actdim="2"/>
@@ -276,7 +276,7 @@
           plugin="mujoco.pid"
           instance="pid_RMF"
           joint="RMF-joint1"
-          ctrlrange="0 1.5"
+          ctrlrange="0 1.35"
           forcerange="-1.5 1.5"
           dyntype="none"
           actdim="2"/>
@@ -285,7 +285,7 @@
           plugin="mujoco.pid"
           instance="pid_RRF"
           joint="RRF-joint1"
-          ctrlrange="0 1.5"
+          ctrlrange="0 1.35"
           forcerange="-1.5 1.5"
           dyntype="none"
           actdim="2"/>
@@ -294,7 +294,7 @@
           plugin="mujoco.pid"
           instance="pid_RLF"
           joint="RLF-joint1"
-          ctrlrange="0 1.3"
+          ctrlrange="0 1.35"
           forcerange="-1.5 1.5"
           dyntype="none"
           actdim="2"/>
@@ -312,24 +312,24 @@
     <weld body1="mocap" body2="tcp"  solref="0.01 1" solimp="0.9 0.99 0.001" />
 
       <!-- Thumb -->
-  <joint joint2="RTh-joint1" joint1="RTh-joint2" polycoef="0 0.5 0 0 0"/>
-  <joint joint2="RTh-joint1" joint1="RTh-joint3" polycoef="0 0.2 0 0 0"/>
+  <joint joint2="RTh-joint1" joint1="RTh-joint2" polycoef="0 0.7 0 0 0"/>
+  <joint joint2="RTh-joint1" joint1="RTh-joint3" polycoef="0 0.5 0 0 0"/>
 
   <!-- Index -->
-  <joint joint2="RFF-joint1" joint1="RFF-joint2" polycoef="0 0.4 0 0 0"/>
-  <joint joint2="RFF-joint1" joint1="RFF-joint3" polycoef="0 0.1 0 0 0"/>
+  <joint joint2="RFF-joint1" joint1="RFF-joint2" polycoef="0 0.9 0 0 0"/>
+  <joint joint2="RFF-joint1" joint1="RFF-joint3" polycoef="0 0.3 0 0 0"/>
 
   <!-- Middle -->
-  <joint joint2="RMF-joint1" joint1="RMF-joint2" polycoef="0 0.4 0 0 0"/>
-  <joint joint2="RMF-joint1" joint1="RMF-joint3" polycoef="0 0.1 0 0 0"/>
+  <joint joint2="RMF-joint1" joint1="RMF-joint2" polycoef="0 0.9 0 0 0"/>
+  <joint joint2="RMF-joint1" joint1="RMF-joint3" polycoef="0 0.3 0 0 0"/>
 
   <!-- Ring -->
-  <joint joint2="RRF-joint1" joint1="RRF-joint2" polycoef="0 0.4 0 0 0"/>
-  <joint joint2="RRF-joint1" joint1="RRF-joint3" polycoef="0 0.1 0 0 0"/>
+  <joint joint2="RRF-joint1" joint1="RRF-joint2" polycoef="0 0.9 0 0 0"/>
+  <joint joint2="RRF-joint1" joint1="RRF-joint3" polycoef="0 0.3 0 0 0"/>
 
   <!-- Little -->
-  <joint joint2="RLF-joint1" joint1="RLF-joint2" polycoef="0 0.4 0 0 0"/>
-  <joint joint2="RLF-joint1" joint1="RLF-joint3" polycoef="0 0.1 0 0 0"/>
+  <joint joint2="RLF-joint1" joint1="RLF-joint2" polycoef="0 0.9 0 0 0"/>
+  <joint joint2="RLF-joint1" joint1="RLF-joint3" polycoef="0 0.3 0 0 0"/>
 
   </equality>
 
