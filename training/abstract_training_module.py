@@ -53,7 +53,9 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         x = x[idx]
         weights=weights[idx]
 
+
     weights=weights/(weights.sum()+eps)
+
 
     weights=weights[:,None]*weights[None,:]
 
@@ -61,13 +63,11 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted=weights[:,:,None]*((1-dist).clamp(min=0.)**2)
+    weighted_dif=weights[:,:,None]*((1-dist).clamp(min=0.))
 
-    loss=weighted.sum()/(weights.sum()*x.shape[1]+eps)
+    loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
-    table_top_constrain=(x[:,2].clamp(min=0.)*weights).mean()
-
-    return loss+table_top_constrain
+    return loss
 
 def visualize_depth_with_flat_index(depth, i):
     """
@@ -93,7 +93,7 @@ def visualize_depth_with_flat_index(depth, i):
 class AbstractGraspAgentTraining:
     def __init__(self, args,sampler_policy_model,critic_model,  epochs=1 ,model_key='test',
                  test_mode=False,randomization_unit=None,process_pose=None,
-                 n_param=1,track_statistics_history=False,check_kinematics=False,exclude_collision_from_grasp_quality=True):
+                 n_param=1,track_statistics_history=False,check_kinematics=False,exclude_collision_from_grasp_quality=True,shake=True):
 
         self.args = args
         self.model_key=model_key
@@ -102,6 +102,8 @@ class AbstractGraspAgentTraining:
         self.train_policy_only=False
         self.view=False
         self.synthesizie_only=False
+
+        self.shake=shake
 
         self.exclude_collision_from_grasp_quality=exclude_collision_from_grasp_quality
 
@@ -233,14 +235,13 @@ class AbstractGraspAgentTraining:
         policy_params += list(self.gan.generator.grasp_quality_.parameters())
         policy_params += list(self.gan.generator.collision.parameters())
 
-        self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
+        self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0)
         # gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
-        # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0., beta2=0.999,weight_decay_=0.)
-        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
+        self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
+        # self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
-                                               momentum=0)
+                                               momentum=0,weight_decay=0)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0., beta2=0.999,weight_decay_=0.)
-
 
         # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
 
@@ -396,7 +397,7 @@ class AbstractGraspAgentTraining:
             grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
             grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                 grasp_target_point, grasp_target_pose, view=False,
-                shake=False, check_kinematics=False,
+                shake=self.shake, check_kinematics=False,
                 update_obj_prob=None)
 
             if not initial_collision:
@@ -415,7 +416,7 @@ class AbstractGraspAgentTraining:
             grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
             grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                 grasp_target_point, grasp_target_pose, view=False,
-                shake=False, check_kinematics=False,
+                shake=self.shake, check_kinematics=False,
                 update_obj_prob=None)
 
             if not initial_collision:
@@ -539,7 +540,7 @@ class AbstractGraspAgentTraining:
 
                 grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
-                    shake=False, check_kinematics=False,
+                    shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
 
                 if warning_flag: continue
@@ -727,7 +728,7 @@ class AbstractGraspAgentTraining:
                 if contact_with_obj or contact_with_floor: continue
 
                 view_r = self.evaluate_grasp(
-                    target_point, target_ref_pose, view=True, shake=True)
+                    target_point, target_ref_pose, view=True, shake=self.shake)
                 if print_details:print(Fore.LIGHTCYAN_EX,
                       f'return f1: {view_r}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
 
@@ -736,14 +737,14 @@ class AbstractGraspAgentTraining:
                 return d_pairs, g_pairs, 1
 
             ref_success, ref_initial_collision, ref_n_grasp_contact, ref_self_collide, stable_ref_grasp, warning_flag, ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
-                target_point, target_ref_pose, view=False, shake=self.loaded_synthesised_data is not None, update_obj_prob=None, check_kinematics=self.check_kinematics)
+                target_point, target_ref_pose, view=False, shake=self.shake, update_obj_prob=None, check_kinematics=self.check_kinematics)
 
             if self.loaded_synthesised_data is None or  len(self.loaded_synthesised_data)==0:self.random_sampler_acceptance_rate.update(ref_success)
 
             if warning_flag:
                 break
             gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
-                target_point, target_generated_pose, view=False, shake=self.loaded_synthesised_data is not None, check_kinematics=self.check_kinematics,
+                target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
                 update_obj_prob=grasp_quality[target_index].item())
 
             if self.check_kinematics:
@@ -871,7 +872,7 @@ class AbstractGraspAgentTraining:
             if self.loaded_synthesised_data is None:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                    ave_uniqueness = sum(uniqueness)
+                    ave_uniqueness = sum(uniqueness)/len(uniqueness)
                     self.Ave_uniquness2.update(ave_uniqueness)
 
                     if  not self.Ave_uniquness2.lower_rejection_criteria(ave_uniqueness, k=2.):
@@ -896,7 +897,7 @@ class AbstractGraspAgentTraining:
                     self.DDM.save_data_point(synthesised_data_obj)
             else:
                 importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                ave_uniqueness = sum(uniqueness)
+                ave_uniqueness = sum(uniqueness)/len(uniqueness)
                 self.Ave_uniquness.update(ave_uniqueness)
 
                 self.DDM.update_old_record(synthesised_data_obj)
