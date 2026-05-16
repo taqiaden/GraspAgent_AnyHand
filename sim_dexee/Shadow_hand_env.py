@@ -196,6 +196,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
 
                 # shake phase
                 if 500 > i > 400:
+                    break
                     # self.d.ctrl = max_fingers #if i<400 else decoded_fingers
 
                     t = i * self.m.opt.timestep
@@ -237,7 +238,9 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         grasped_obj=self.get_grasped_obj()
         print(f'grasped_obj: {grasped_obj}')
 
-        if grasp_success:self.static_view(1000)
+        if grasp_success:
+            self.hide_below_elevation()
+            self.static_view(1000)
 
         return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact,self_collide,None
 
