@@ -63,7 +63,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted_dif=weights[:,:,None]*((1-dist).clamp(min=0.))
+    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
 
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
@@ -481,8 +481,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -502,7 +502,7 @@ class AbstractGraspAgentTraining:
               f'grasp_sampling_loss={grasp_sampling_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}',
               Fore.RESET)
 
-        loss = grasp_sampling_loss  + grasp_quality_loss_ +collision_loss_+contrast_loss+scatter_loss*0.1
+        loss = grasp_sampling_loss  + grasp_quality_loss_ +collision_loss_+contrast_loss+scatter_loss
 
         loss.backward()
         if self.activate_grad_clipping: self.policy_gradient_clipping()
@@ -799,10 +799,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
-                if self.exclude_collision_from_grasp_quality:
-                    margin=1-grasp_quality[target_index].item()
-                else:
-                    margin=0 if ref_initial_collision or gen_initial_collision else (1-grasp_quality[target_index].item())
+                margin=0 if ref_initial_collision or gen_initial_collision else (1-grasp_quality[target_index].item())
 
                 d_pairs.append((target_index, k, margin,  target_point))
 

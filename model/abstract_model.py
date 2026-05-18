@@ -32,10 +32,6 @@ class G(nn.Module):
         self.collision=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
-        replace_instance_with_groupnorm(self.grasp_quality_, max_groups=32)
-        replace_instance_with_groupnorm(self.collision, max_groups=32)
-
-
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
 
