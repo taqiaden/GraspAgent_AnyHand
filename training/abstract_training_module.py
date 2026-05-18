@@ -92,7 +92,7 @@ def visualize_depth_with_flat_index(depth, i):
 class AbstractGraspAgentTraining:
     def __init__(self, args,sampler_policy_model,critic_model,  epochs=1 ,model_key='test',
                  test_mode=False,randomization_unit=None,process_pose=None,
-                 n_param=1,track_statistics_history=False,check_kinematics=False,exclude_collision_from_grasp_quality=True,shake=True):
+                 n_param=1,track_statistics_history=False,check_kinematics=False,exclude_collision_from_grasp_quality=True,shake=False,force_balance=True):
 
         self.args = args
         self.model_key=model_key
@@ -101,6 +101,8 @@ class AbstractGraspAgentTraining:
         self.train_policy_only=False
         self.view=False
         self.synthesizie_only=False
+
+        self.force_balance=force_balance
 
         self.shake=shake
 
@@ -381,31 +383,35 @@ class AbstractGraspAgentTraining:
         loss = torch.tensor(0., device=depth.device)
 
         for j in range(len(pairs)):
-            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=0.) ) / self.batch_size
+            margin=pairs[j][2]
+            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=margin) ) / self.batch_size
 
         return loss
 
-    def supplemetary_statistics(self,masked_quality,grasp_collision,pc,grasp_pose_PW,floor_mask):
+    def supplemetary_statistics(self,masked_quality,pc,grasp_pose_PW,floor_mask):
         try:
-            dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
-            grasp_target_index = dist.probs.argmax()
-            grasp_target_point = pc[grasp_target_index]
-            grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
+            for l in range(10):
+                # dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
+                grasp_target_index = masked_quality.argmax()
+                masked_quality[grasp_target_index]=float('-inf')
+                grasp_target_point = pc[grasp_target_index]
+                grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
 
-            grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-            grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
-                grasp_target_point, grasp_target_pose, view=False,
-                shake=self.shake, check_kinematics=False,
-                update_obj_prob=None)
+                grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
+                grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
+                    grasp_target_point, grasp_target_pose, view=False,
+                    shake=self.shake, check_kinematics=False,
+                    update_obj_prob=None)
 
-            if not initial_collision:
-                label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
-                    grasp_prediction_)
-                self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
-                                                                                  grasp_prediction_.detach())
-                self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
-            else:
-                self.argmax_collision_statistics.update_confession_matrix(1.0,torch.zeros_like(grasp_prediction_))
+                if not initial_collision:
+                    label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
+                        grasp_prediction_)
+                    self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
+                                                                                      grasp_prediction_.detach())
+                    self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
+                    break
+                else:
+                    self.argmax_collision_statistics.update_confession_matrix(1.0,torch.zeros_like(grasp_prediction_))
 
             dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
             grasp_target_index = dist.sample()
@@ -464,11 +470,11 @@ class AbstractGraspAgentTraining:
         masked_quality=probs.clone()
         masked_quality[floor_mask] = float('-inf')
 
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=True)
 
-        collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=False)
+        collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
-        self.supplemetary_statistics( masked_quality,grasp_collision, pc, grasp_pose_PW,floor_mask)
+        self.supplemetary_statistics( masked_quality, pc, grasp_pose_PW,floor_mask)
 
         policy_loss =    grasp_quality_loss_ +collision_loss_
         policy_loss.backward()
@@ -558,8 +564,9 @@ class AbstractGraspAgentTraining:
                 self.grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                        logits_to_probs(grasp_prediction_logits.detach()))
 
-                if grasp_success and positive_counter >= s: continue
-                if (not grasp_success) and negative_counter >= s: continue
+                if self.force_balance:
+                    if grasp_success and positive_counter >= s: continue
+                    if (not grasp_success) and negative_counter >= s: continue
 
                 break
             if grasp_success:
@@ -726,8 +733,6 @@ class AbstractGraspAgentTraining:
             target_generated_pose = grasp_pose_PW[target_index]
             target_ref_pose = grasp_pose_ref_PW[target_index]
 
-            margin = 1.
-
             if self.test_mode:
                 contact_with_obj, contact_with_floor = self.check_collision(target_point, target_ref_pose,
                                                                             view=False)
@@ -803,9 +808,9 @@ class AbstractGraspAgentTraining:
             hh = (counter / self.batch_size) ** 2
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
-            if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
+            margin = 0 if ref_initial_collision or gen_initial_collision else (1 - grasp_quality[target_index].item())
 
-                margin=0 if ref_initial_collision or gen_initial_collision else (1-grasp_quality[target_index].item())
+            if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -1071,7 +1076,7 @@ class AbstractGraspAgentTraining:
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
 
-                annealing_factor = (1 - grasp_quality.detach()).clamp(min=self.skip_rate.val ** 2)**2
+                annealing_factor = (1 - grasp_quality.detach()).clamp(min=self.skip_rate.val ** 2)
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
