@@ -235,7 +235,7 @@ class AbstractGraspAgentTraining:
 
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0)
         # gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
-        self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
+        self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
         # self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0)
@@ -393,9 +393,10 @@ class AbstractGraspAgentTraining:
             for l in range(10):
                 # dist = MaskedCategorical(probs=masked_quality.clamp(min=0.1),mask=(~floor_mask))
                 grasp_target_index = masked_quality.argmax()
-                masked_quality[grasp_target_index]=float('-inf')
                 grasp_target_point = pc[grasp_target_index]
-                grasp_prediction_ = masked_quality[grasp_target_index].squeeze()
+                grasp_prediction_ = masked_quality[grasp_target_index].squeeze().clone()
+
+                masked_quality[grasp_target_index]=float('-inf')
 
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
                 grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
