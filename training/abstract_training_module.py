@@ -818,7 +818,8 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                margin = (0.5-  grasp_quality[target_index]).abs().item()*2
+                # margin = (0.5-  grasp_quality[target_index]).abs().item()*2
+                margin = 0 if ref_initial_collision or gen_initial_collision else (0.5-  grasp_quality[target_index]).abs().item()*2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
