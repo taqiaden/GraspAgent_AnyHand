@@ -62,7 +62,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
+    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)#**2
 
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
@@ -234,9 +234,9 @@ class AbstractGraspAgentTraining:
         policy_params += list(self.gan.generator.collision.parameters())
 
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0)
-        # gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
-        self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
-        # self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0)
+        # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
+        # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
+        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0., beta2=0.999,weight_decay_=0.)
@@ -446,7 +446,7 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)).mean()
+        loss = (torch.clamp(1.0- torch.abs(grasp_quality_obj_x-0.5)*2, min=0.)).mean()
 
 
         return loss
@@ -494,8 +494,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)#**2
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -809,9 +809,9 @@ class AbstractGraspAgentTraining:
             hh = (counter / self.batch_size) ** 2
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
-            margin = 0 if ref_initial_collision or gen_initial_collision else (1 - grasp_quality[target_index].item())
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
+                margin = 0 if ref_initial_collision or gen_initial_collision else (0.5-  grasp_quality[target_index]).abs().item()*2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -820,6 +820,7 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
+                margin = (0.5-  grasp_quality[target_index]).abs().item()*2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
