@@ -115,7 +115,7 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        Train_grasp_GAN.show_overlaid_graphs()
+        Train_grasp_GAN.show_overlaid_graphs(load_from_dataset=False)
         # Train_grasp_GAN.begin(iterations=10)
 
 def read_config(path):

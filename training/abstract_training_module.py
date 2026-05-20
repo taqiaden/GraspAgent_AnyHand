@@ -1314,7 +1314,14 @@ class AbstractGraspAgentTraining:
                     self.gan.generator.eval()
                     grasp_pose, grasp_quality_logits, features, grasp_collision_logits = self.gan.generator(
                         depth[None, None, ...], detach_backbone=True)
-                    self.gan.generator.train()
+
+                    grasp_pose_ref = self.pose_interpolation(grasp_pose,
+                                                             annealing_factor=torch.ones_like(grasp_pose[:,0:1]))
+                    standarized_depth_ = depth_normalization(depth[None, None, ...])
+                    gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
+                    grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+
+
 
                     grasp_quality = logits_to_probs(grasp_quality_logits)
 
