@@ -449,7 +449,7 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        range_mean=(grasp_quality_obj_x.max()-grasp_quality_obj_x.min()).clamp(max=0.5).item()/2
+        range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
 
         loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-range_mean), min=0.)*2).mean()
 
