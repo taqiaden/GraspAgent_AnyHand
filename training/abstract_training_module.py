@@ -449,7 +449,9 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        loss = (torch.clamp(1.0- torch.abs(grasp_quality_obj_x-0.5)*2, min=0.)).mean()
+        range_mean=(grasp_quality_obj_x.max()-grasp_quality_obj_x.min()).item()/2
+
+        loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-range_mean), min=0.)*2).mean()
 
 
         return loss
@@ -1232,7 +1234,7 @@ class AbstractGraspAgentTraining:
         self.grasp_quality_statistics.clear()
 
     def begin(self, iterations=10):
-        context = torch.no_grad() if self.test_mode else nullcontext()
+        context = torch.no_grad() if self.test_mode else torch.enable_grad()
 
         with context:
             pi = progress_indicator('Begin new training round: ', max_limit=iterations)
