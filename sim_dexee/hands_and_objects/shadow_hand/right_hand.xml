@@ -76,8 +76,8 @@
 
   <asset>
     <material name="black" specular="0.5" shininess="0.25" rgba="0.16355 0.16355 0.16355 1"/>
-    <material name="gray" specular="0.0" shininess="0.25" rgba="0.80848 0.80848 0.80848 1"/>
-    <material name="metallic" specular="0" shininess="0.25" rgba="0.9 0.9 0.9 1"/>
+    <material name="gray" specular="0.0" shininess="0.25" rgba="0.80848 0.80848 0.80848 0"/>
+    <material name="metallic" specular="0" shininess="0.25" rgba="0.9 0.9 0.9 0"/>
 
     <mesh class="right_hand" file="forearm_0.obj"/>
     <mesh class="right_hand" file="forearm_1.obj"/>

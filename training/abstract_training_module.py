@@ -13,6 +13,7 @@ from model.abstract_model import depth_normalization
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
 from utils.cuda_utils import cuda_memory_report
+from utils.plot_utils import plot_distribution, plot_distribution_overlayed
 from utils.report_utils import progress_indicator
 from utils.rl.masked_categorical import MaskedCategorical
 from  utils.Online_clustering import OnlingClustering
@@ -67,6 +68,8 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
     return loss
+
+
 
 def visualize_depth_with_flat_index(depth, i):
     """
@@ -173,7 +176,8 @@ class AbstractGraspAgentTraining:
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
         self.gan.ini_models(train=True)
 
-        self.load_optimizers()
+        if not self.test_mode:
+            self.load_optimizers()
 
     def initialize(self):
 
@@ -358,8 +362,7 @@ class AbstractGraspAgentTraining:
                       f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin} ',
                       Fore.RESET)
 
-    def get_generator_loss(self, cropped_local_point_clouds, depth, clean_depth, grasp_pose, grasp_pose_ref, pairs, floor_mask,
-                           latent_vector):
+    def get_generator_loss(self, cropped_local_point_clouds, depth, clean_depth, grasp_pose, grasp_pose_ref, pairs, floor_mask    ):
 
         grasp_pose = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
         grasp_pose_ref = grasp_pose_ref[0].permute(1, 2, 0).reshape(360000, self.n_param)
@@ -451,8 +454,7 @@ class AbstractGraspAgentTraining:
 
         return loss
 
-    def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs,
-                       latent_vector):
+    def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
         self.gan.critic.zero_grad(set_to_none=True)
         self.gan.generator.zero_grad(set_to_none=True)
@@ -488,7 +490,7 @@ class AbstractGraspAgentTraining:
         if len(pairs) == self.batch_size:
             grasp_sampling_loss = self.get_generator_loss(cropped_local_point_clouds,
                                                             depth, clean_depth, grasp_pose, grasp_pose_ref,
-                                                            pairs, floor_mask, latent_vector)
+                                                            pairs, floor_mask)
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
@@ -1065,7 +1067,6 @@ class AbstractGraspAgentTraining:
         # torch.save(floor_mask, 'floor_mask_ch_tmp')
         # exit()
 
-        latent_vector = torch.randn((1, 8, depth.shape[0], depth.shape[1]), device=device)
 
         for k in range(self.iter_per_scene):
 
@@ -1075,6 +1076,7 @@ class AbstractGraspAgentTraining:
                 self.gan.generator.train()
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
+
 
                 annealing_factor = (1 - grasp_quality.detach()).clamp(min=self.skip_rate.val ** 2)
                 if print_details:print(Fore.LIGHTYELLOW_EX,
@@ -1142,13 +1144,12 @@ class AbstractGraspAgentTraining:
                 g_cropped_local_point_clouds = self.prepare_voxels(g_pairs, depth, pc, full_pointcloud)
                 # g_cropped_local_point_clouds=None
                 self.step_policy(g_cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel,
-                                    g_pairs, latent_vector)
+                                    g_pairs)
                 if print_details:self.print_pairs_info(g_pairs, grasp_pose, grasp_pose_ref)
             # elif self.skip_rate.val>0.9:
             elif self.skip_rate.val < 0.5 or self.train_policy_only:
 
-                self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs,
-                                    latent_vector)
+                self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
 
             if not self.train_policy_only and not (
                     (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) and not self.test_mode:
@@ -1231,39 +1232,97 @@ class AbstractGraspAgentTraining:
         self.grasp_quality_statistics.clear()
 
     def begin(self, iterations=10):
-        pi = progress_indicator('Begin new training round: ', max_limit=iterations)
+        context = torch.no_grad() if self.test_mode else nullcontext()
 
-        print(f'# Synthesised scenes = {len(self.DDM)}')
+        with context:
+            pi = progress_indicator('Begin new training round: ', max_limit=iterations)
 
-        for i in range(iterations):
-            if self.skip_rate.val > 0.8:
-                self.batch_size = 1
-                self.iter_per_scene = 1  # 5
-                self.sim_env.max_obj_per_scene = 1
-            elif self.skip_rate.val < 0.4:
-                self.batch_size = 2
-                self.iter_per_scene = 1
-                self.sim_env.max_obj_per_scene = int(7 * np.random.rand())
-            # cuda_memory_report()
-            # self.batch_size = 1
+            print(f'# Synthesised scenes = {len(self.DDM)}')
 
-            if self.args.catch_exceptions:
-                try:
+            for i in range(iterations):
+                if self.skip_rate.val > 0.8:
+                    self.batch_size = 1
+                    self.iter_per_scene = 1  # 5
+                    self.sim_env.max_obj_per_scene = 1
+                elif self.skip_rate.val < 0.4:
+                    self.batch_size = 2
+                    self.iter_per_scene = 1
+                    self.sim_env.max_obj_per_scene = int(7 * np.random.rand())
+                # cuda_memory_report()
+                # self.batch_size = 1
+
+                if self.args.catch_exceptions:
+                    try:
+                        self.step(i, report=i == iterations - 1)
+                        pi.step(i)
+                    except Exception as e:
+                        print(Fore.RED, str(e), Fore.RESET)
+                        traceback.print_exc()
+                        torch.cuda.empty_cache()
+                        self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
+                        if self.loaded_synthesised_data is not None: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
+
+                else:
                     self.step(i, report=i == iterations - 1)
                     pi.step(i)
-                except Exception as e:
-                    print(Fore.RED, str(e), Fore.RESET)
-                    traceback.print_exc()
-                    torch.cuda.empty_cache()
+
+            pi.end()
+            
+            if not self.test_mode:
+                self.export_check_points()
+                self.save_statistics()
+                self.clear()
+
+
+    def show_overlaid_graphs(self, iterations=5,load_from_dataset=True):
+
+        with torch.no_grad() :
+            
+            grasp_quality_data=[]
+
+            for i in range(iterations):
+
+                self.sim_env.max_obj_per_scene = 10
+
+                if load_from_dataset:
+
+                    self.loaded_synthesised_data = self.DDM.load_random_sample()
+                    self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
+                    self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
+
+                    self.sim_env.reload()
+
+                else:
+                    self.loaded_synthesised_data = None
+
                     self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-                    if self.loaded_synthesised_data is not None: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
-            else:
-                self.step(i, report=i == iterations - 1)
-                pi.step(i)
+                    self.sim_env.drop_new_obj(selected_index=None, stablize=True,
+                                              n=random.randint(5, self.sim_env.max_obj_per_scene))
 
-        pi.end()
-        self.export_check_points()
-        self.save_statistics()
 
-        self.clear()
+                '''get scene perception'''
+                depth, pc, floor_mask = self.sim_env.get_scene_preception(view=False)
+
+                floor_mask = torch.from_numpy(floor_mask).to(device)
+
+                depth = torch.from_numpy(depth).to(device)  # [600.600]
+
+                with torch.no_grad():
+                    self.gan.generator.eval()
+                    grasp_pose, grasp_quality_logits, features, grasp_collision_logits = self.gan.generator(
+                        depth[None, None, ...], detach_backbone=True)
+                    self.gan.generator.train()
+
+                    grasp_quality = logits_to_probs(grasp_quality_logits)
+
+                    grasp_quality_c = grasp_quality[0, 0].reshape(-1).clone().detach()
+                    grasp_quality_c = grasp_quality_c[~floor_mask]
+                    grasp_quality_data.append(grasp_quality_c.numpy())
+                        
+            if len(grasp_quality_data)==1:plot_distribution(grasp_quality_data[0])
+            else: plot_distribution_overlayed(grasp_quality_data, name='Scene')
+
+
+
+
