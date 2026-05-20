@@ -759,7 +759,7 @@ class AbstractGraspAgentTraining:
                 break
             gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
-                update_obj_prob=grasp_quality[target_index].item())
+                update_obj_prob=grasp_quality[target_index].item() if self.loaded_synthesised_data is None else None)
 
             if self.check_kinematics:
                 ref_success=ref_success and ref_plan_found
@@ -794,7 +794,7 @@ class AbstractGraspAgentTraining:
                     sampled_obj_ids.append(sampled_obj_ids)
 
             if not ref_success and not gen_success:
-                self.sim_env.update_obj_info(1e-2, decay=0.99)
+                if self.loaded_synthesised_data is None: self.sim_env.update_obj_info(1e-2, decay=0.99)
                 continue
             elif ref_success and not gen_success:
                 k=1
@@ -1079,7 +1079,6 @@ class AbstractGraspAgentTraining:
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
 
-
                 annealing_factor = (1 - grasp_quality.detach()).clamp(min=self.skip_rate.val ** 2)
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
@@ -1315,8 +1314,12 @@ class AbstractGraspAgentTraining:
                     grasp_pose, grasp_quality_logits, features, grasp_collision_logits = self.gan.generator(
                         depth[None, None, ...], detach_backbone=True)
 
+                    grasp_quality = logits_to_probs(grasp_quality_logits)
+
+                    annealing_factor = (1 - grasp_quality.detach()) #torch.ones_like(grasp_pose[:,0:1])
+
                     grasp_pose_ref = self.pose_interpolation(grasp_pose,
-                                                             annealing_factor=torch.ones_like(grasp_pose[:,0:1]))
+                                                             annealing_factor=annealing_factor)
                     standarized_depth_ = depth_normalization(depth[None, None, ...])
                     gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
                     grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
