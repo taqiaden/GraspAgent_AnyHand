@@ -492,7 +492,7 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)#**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
             # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
@@ -508,7 +508,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss + contrast_loss + scatter_loss
+            sampler_loss = grasp_sampling_loss + contrast_loss*10 + scatter_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
@@ -809,7 +809,7 @@ class AbstractGraspAgentTraining:
 
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                margin = 0 if ref_initial_collision or gen_initial_collision else (0.5-  grasp_quality[target_index]).abs().item()*2
+                margin = 0 if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -818,7 +818,7 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                margin = (0.5-  grasp_quality[target_index]).abs().item()*2
+                margin = ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
