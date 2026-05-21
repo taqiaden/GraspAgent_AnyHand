@@ -20,12 +20,12 @@ class PoseSampler(nn.Module):
     def __init__(self,n_joint=0):
         super().__init__()
 
-        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.ReLU(), normalize=False).to(device)
+        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.ReLU(), normalize=False).to(device)
-        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.ReLU(), normalize=False).to(device)
+        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.ReLU(),normalize=False).to(device) if n_joint>0 else None
+        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.SiLU(),normalize=False).to(device) if n_joint>0 else None
 
 
 
@@ -106,9 +106,9 @@ class CriticDecoder(nn.Module):
 
         self.cond_proj = nn.Sequential(
             nn.Linear(in_c2, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.SiLU(),
             nn.Linear(64, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.SiLU(),
             nn.Linear(64, 64, bias=True),
         )
 
