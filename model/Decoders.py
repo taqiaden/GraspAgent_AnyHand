@@ -33,6 +33,8 @@ class PoseSampler(nn.Module):
 
         delta = self.delta(features,depth)
 
+        delta=F.tanh(delta)*2
+
         alpha = self.alpha(features,torch.cat([depth,delta],dim=1).detach())
         alpha = F.normalize(alpha, dim=1)
 
@@ -42,6 +44,7 @@ class PoseSampler(nn.Module):
 
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1).detach())
+            fingers = F.tanh(fingers) * 2
 
             pose = torch.cat([alpha,beta,delta,fingers], dim=1)
         else:

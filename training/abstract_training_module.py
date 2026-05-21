@@ -449,9 +449,9 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
+        # range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
 
-        loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-range_mean), min=0.)*2).mean()
+        loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2).mean()
 
 
         return loss
@@ -496,8 +496,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -512,7 +512,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss + contrast_loss*10 + scatter_loss
+            sampler_loss = grasp_sampling_loss + contrast_loss + scatter_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
