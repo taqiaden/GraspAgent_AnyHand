@@ -68,9 +68,8 @@ def plot_distribution_overlayed(data_list, labels=None, colors=None, show_kde=Tr
             plt.plot(x_range, kde_values, color=colors[i % len(colors)],
                      linestyle='--', linewidth=2, alpha=0.7)
 
-    plt.title('Distribution Comparison (0 to 1)', fontsize=14)
-    plt.xlabel('Value', fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
+    # plt.xlabel('Value', fontsize=12)
+    # plt.ylabel('Frequency', fontsize=12)
     plt.xlim(0, 1)
     plt.grid(True, alpha=0.3)
     plt.legend()
