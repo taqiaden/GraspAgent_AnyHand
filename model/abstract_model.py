@@ -18,7 +18,7 @@ class G(nn.Module):
     def __init__(self,sampler_decoder,n_params):
         super().__init__()
         self.back_bone = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                  relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False,
+                                  relu_negative_slope=0., activation=nn.LeakyReLU(0.2), IN_affine=False,
                                   activate_skip=False).to(device)
 
         self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
