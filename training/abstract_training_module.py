@@ -63,7 +63,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)#**2
+    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
 
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
@@ -243,7 +243,7 @@ class AbstractGraspAgentTraining:
         self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0)
-        # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0., beta2=0.999,weight_decay_=0.)
+        # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
 
         # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
 
@@ -451,7 +451,7 @@ class AbstractGraspAgentTraining:
 
         range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
 
-        loss = (torch.clamp(0.5- torch.abs(grasp_quality_obj_x-range_mean), min=0.)*2).mean()
+        loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-range_mean), min=0.)*2)).mean()
 
         return loss
 
@@ -498,7 +498,7 @@ class AbstractGraspAgentTraining:
             # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
             weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
@@ -511,7 +511,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss + contrast_loss*10 + scatter_loss
+            sampler_loss = grasp_sampling_loss + contrast_loss + scatter_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
