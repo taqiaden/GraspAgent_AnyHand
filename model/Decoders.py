@@ -33,15 +33,15 @@ class PoseSampler(nn.Module):
 
         delta = self.delta(features,depth)
 
-        alpha = self.alpha(features,torch.cat([depth,delta],dim=1))
+        alpha = self.alpha(features,torch.cat([depth,delta],dim=1).detach())
         alpha = F.normalize(alpha, dim=1)
 
-        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1))
+        beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1).detach())
         beta = F.normalize(beta, dim=1)
 
 
         if self.fingers is not None:
-            fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
+            fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1).detach())
 
             pose = torch.cat([alpha,beta,delta,fingers], dim=1)
         else:
@@ -106,9 +106,9 @@ class CriticDecoder(nn.Module):
 
         self.cond_proj = nn.Sequential(
             nn.Linear(in_c2, 64, bias=True),
-            nn.SiLU(),
+            nn.LeakyReLU(0.2),
             nn.Linear(64, 64, bias=True),
-            nn.SiLU(),
+            nn.LeakyReLU(0.2),
             nn.Linear(64, 64, bias=True),
         )
 
