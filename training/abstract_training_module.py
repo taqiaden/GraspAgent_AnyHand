@@ -450,7 +450,7 @@ class AbstractGraspAgentTraining:
         # range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
         grasp_quality_obj_x=grasp_quality_obj_x[grasp_quality_obj_x>0.5]
         if grasp_quality_obj_x.numel()>0:
-            loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)).mean()
+            loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
         else: loss=torch.tensor(0,device=device).float()
 
         return loss
@@ -495,8 +495,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -811,7 +811,7 @@ class AbstractGraspAgentTraining:
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                margin = 0 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index].clamp(min=0.5)).abs()*2).item()**2
+                margin = 0 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index]).abs()*2).item()**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -820,7 +820,7 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                margin = ((0.5-grasp_quality[target_index].clamp(min=0.5)).abs()*2).item()**2
+                margin = ((0.5-grasp_quality[target_index]).abs()*2).item()**2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
