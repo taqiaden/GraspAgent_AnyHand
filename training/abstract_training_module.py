@@ -235,12 +235,12 @@ class AbstractGraspAgentTraining:
         policy_params += list(self.gan.generator.grasp_quality_.parameters())
         policy_params += list(self.gan.generator.collision.parameters())
 
-        self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0)
+        self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
         # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
         # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
         self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
-                                               momentum=0,weight_decay=0)
+                                               momentum=0)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
 
         # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
@@ -811,7 +811,7 @@ class AbstractGraspAgentTraining:
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                margin = (1-grasp_quality[target_index].item())**2 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index]).abs()*2).item()**2
+                margin = 0 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index]).abs()*2).item()**2
 
 
                 d_pairs.append((target_index, k, margin,  target_point))
@@ -821,7 +821,7 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                margin = (1-grasp_quality[target_index].item())**2 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index]).abs()*2).item()**2
+                margin = 0 if ref_initial_collision or gen_initial_collision else ((0.5-grasp_quality[target_index]).abs()*2).item()**2
 
 
                 g_pairs.append((target_index, k, margin, target_point))
