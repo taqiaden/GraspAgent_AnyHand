@@ -61,7 +61,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
+    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)
 
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
@@ -450,7 +450,9 @@ class AbstractGraspAgentTraining:
         # range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
         grasp_quality_obj_x=grasp_quality_obj_x[grasp_quality_obj_x>0.5]
         if grasp_quality_obj_x.numel()>0:
-            loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
+            # loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
+            loss = ((torch.clamp(1.-grasp_quality_obj_x, min=0.)*2)).mean()
+
         else: loss=torch.tensor(0,device=device).float()
 
         return loss
@@ -472,7 +474,7 @@ class AbstractGraspAgentTraining:
         probs = logits_to_probs(grasp_quality_logits)
 
 
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=True)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
 
         collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
@@ -495,10 +497,10 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
@@ -519,9 +521,6 @@ class AbstractGraspAgentTraining:
         if print_details: print(Fore.LIGHTYELLOW_EX,
               f'grasp_sampling_loss={grasp_sampling_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}',
               Fore.RESET)
-
-
-
 
 
         self.gan.generator.zero_grad(set_to_none=True)
@@ -811,7 +810,7 @@ class AbstractGraspAgentTraining:
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                margin = 0 if ref_initial_collision or gen_initial_collision else (grasp_quality[target_index].item())**2
+                margin = 0 if ref_initial_collision or gen_initial_collision else (grasp_quality[target_index].clamp(min=0.5).item())**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -821,7 +820,7 @@ class AbstractGraspAgentTraining:
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
 
-                margin=(1-grasp_quality[target_index].item())**2
+                margin=0
 
                 g_pairs.append((target_index, k, margin, target_point))
 
@@ -1001,7 +1000,7 @@ class AbstractGraspAgentTraining:
 
         return cropped_local_point_clouds
 
-    def step(self, i, report=False):
+    def step(self, report=False):
 
         self.sim_env.max_obj_per_scene = 10
 
@@ -1107,7 +1106,7 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.reshape(600, 600, self.n_param).permute(2, 0, 1).unsqueeze(0)
 
                 if report and k == 0:
-                    self.view_result(grasp_pose, floor_mask)
+                    self.view_result(grasp_pose, (~floor_mask) & (grasp_quality.reshape(-1)>0.5))
 
                 d_pairs, g_pairs = [], []
                 if not self.train_policy_only:
@@ -1159,22 +1158,22 @@ class AbstractGraspAgentTraining:
 
 
 
-    def view_result(self, grasp_poses, floor_mask):
+    def view_result(self, grasp_poses, mask):
         with torch.no_grad():
             self.sim_env.save_obj_dict()
 
 
             cuda_memory_report()
 
-            get_grasp_collision_losss = grasp_poses[0].permute(1, 2, 0).reshape(360000, self.n_param).detach()  # .cpu().numpy()
-            get_grasp_collision_losss = get_grasp_collision_losss[~floor_mask]
+            grasp_poses_ = grasp_poses[0].permute(1, 2, 0).reshape(360000, self.n_param).detach()  # .cpu().numpy()
+            grasp_poses_ = grasp_poses_[mask]
 
             self.sampler_loss_statistics.print()
             self.critic_loss_statistics.print()
 
             # get_grasp_collision_losss = grasp_pose.permute(1, 0, 2, 3).flatten(1).detach()
 
-            print(f'grasp_pose std = {torch.std(get_grasp_collision_losss, dim=0).cpu()}')
+            print(f'grasp_pose std = {torch.std(grasp_poses_, dim=0).cpu()}')
             # print(f'grasp_pose mean = {torch.mean(get_grasp_collision_losss, dim=0).cpu()}')
             # print(f'grasp_pose max = {torch.max(get_grasp_collision_losss, dim=0)[0].cpu()}')
             # print(f'grasp_pose min = {torch.min(get_grasp_collision_losss, dim=0)[0].cpu()}')
@@ -1253,7 +1252,7 @@ class AbstractGraspAgentTraining:
 
                 if self.args.catch_exceptions:
                     try:
-                        self.step(i, report=i == iterations - 1)
+                        self.step(report=i == iterations - 1)
                         pi.step(i)
                     except Exception as e:
                         print(Fore.RED, str(e), Fore.RESET)
@@ -1263,7 +1262,7 @@ class AbstractGraspAgentTraining:
                         if self.loaded_synthesised_data is not None: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
                 else:
-                    self.step(i, report=i == iterations - 1)
+                    self.step( report=i == iterations - 1)
                     pi.step(i)
 
             pi.end()
