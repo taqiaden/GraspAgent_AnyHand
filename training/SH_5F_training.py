@@ -85,13 +85,15 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,  epochs=1 ):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D,  epochs=epochs ,model_key=SH_model_key,
-                         test_mode=False,randomization_unit=generate_random_SH_5F_poses,
+                         test_mode=True,randomization_unit=generate_random_SH_5F_poses,
                          process_pose=process_pose,n_param=28,exclude_collision_from_grasp_quality=True,force_balance=True)
 
 
         root_dir = os.getcwd()  # current working directory
 
         self.sim_env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/", max_obj_per_scene=10)
+        self.sim_env.plt_obj_dict_statistics()
+
 
 
 def train_N_grasp_GAN(args, n=1):

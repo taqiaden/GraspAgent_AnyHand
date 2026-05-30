@@ -15,6 +15,8 @@ import os
 from  utils.quat_operations import random_quaternion
 import time
 
+
+
 def pose_quat_to_matrix(position, quaternion):
     """
     position: (3,) [x, y, z]
@@ -133,6 +135,10 @@ class MojocoMultiFingersEnv():
 
         # Extract probability values
         prob_values = list(self.obj_dict.values())
+        mean_=sum(prob_values)/len(prob_values)
+        above_5=sum(1 for item in prob_values if item > 0.5)
+
+        print(f'Mean scores={mean_}, objects with score above 0.5 {above_5}')
 
         # Plot histogram
         plt.figure(figsize=(6, 4))
