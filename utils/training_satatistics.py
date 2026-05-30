@@ -64,10 +64,10 @@ class ConfessionMatrix:
         self.FN += FN
         self.TN += TN
 
-        self.TP_MA=0.99*self.TP_MA+0.01*TP
-        self.FP_MA=0.99*self.FP_MA+0.01*FP
-        self.FN_MA=0.99*self.FN_MA+0.01*FN
-        self.TN_MA=0.99*self.TN_MA+0.01*TN
+        self.TP_MA=0.9*self.TP_MA+0.1*TP
+        self.FP_MA=0.9*self.FP_MA+0.1*FP
+        self.FN_MA=0.9*self.FN_MA+0.1*FN
+        self.TN_MA=0.9*self.TN_MA+0.1*TN
 
 
         return TP_mask,FP_mask,FN_mask,TN_mask
