@@ -53,6 +53,8 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
                          process_pose=process_pose,n_param=8)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
+        self.sim_env.plt_obj_dict_statistics()
+
 
 def train_N_grasp_GAN(args,n=1):
     Train_grasp_GAN = TrainGraspGAN(args)

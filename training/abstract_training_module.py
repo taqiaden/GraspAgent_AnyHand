@@ -177,6 +177,7 @@ class AbstractGraspAgentTraining:
         if not self.test_mode:
             self.load_optimizers()
 
+
     def initialize(self):
 
         '''Moving rates'''
@@ -1314,17 +1315,13 @@ class AbstractGraspAgentTraining:
 
                     grasp_quality = logits_to_probs(grasp_quality_logits)
 
-                    annealing_factor = (1 - grasp_quality.detach()) #torch.ones_like(grasp_pose[:,0:1])
-
-                    grasp_pose_ref = self.pose_interpolation(grasp_pose,
-                                                             annealing_factor=annealing_factor)
-                    standarized_depth_ = depth_normalization(depth[None, None, ...])
-                    gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
-                    grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
-
-
-
-                    grasp_quality = logits_to_probs(grasp_quality_logits)
+                    # annealing_factor = (1 -     grasp_quality.detach()) #torch.ones_like(grasp_pose[:,0:1])
+                    # grasp_pose_ref = self.pose_interpolation(grasp_pose,
+                    #                                          annealing_factor=annealing_factor)
+                    # standarized_depth_ = depth_normalization(depth[None, None, ...])
+                    # gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
+                    # grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+                    # grasp_quality = logits_to_probs(grasp_quality_logits)
 
                     grasp_quality_c = grasp_quality[0, 0].reshape(-1).clone().detach()
                     grasp_quality_c = grasp_quality_c[~floor_mask]

@@ -246,28 +246,17 @@ class OnlingClustering():
             self.centers[idx] = F.normalize(c_norm + repulse, dim=0)
 
     def get_uniqueness_score(self,new_vector):
-        # dist =self.get_dist_to_centers(new_vector)
-        # dist=(dist-dist.min())/(dist.max()-dist.min())
-        # sim=1-dist
-        # sim=sim/sim.sum()
+
 
         sim = torch.matmul(self.centers, new_vector)
 
-        # Convert to [0, 1] and apply temperature
         sim = (sim + 1) / 2
         sim = F.softmax(sim / .1, dim=0)
 
 
-        # print(1-(self.update_rates.squeeze()*sim).sum(),'////////////////////////////////////////////////////',sim)
         r=self.update_rates.squeeze()
-        # r=(r-r.min())/(r.max()-r.min())
         u=1-(r*sim).sum()
 
-        # index, min_dist = self.get_closest_center(new_vector)
-        # u=1-self.update_rates
-        # u=(u[index])#-torch.min(u))/(torch.max(u)-torch.min(u))
-        # u = u[index]/torch.mean(u)
-        # print(f'-----{u},/////////////////////////////////////{new_vector}')
 
         return u
 
