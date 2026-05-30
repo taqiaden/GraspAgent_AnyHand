@@ -769,7 +769,7 @@ class AbstractGraspAgentTraining:
                 break
             gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
-                update_obj_prob=1.0 if self.loaded_synthesised_data is None else None)
+                update_obj_prob=1.0 if self.loaded_synthesised_data is None and grasp_quality[target_index].item()>0.5 else None)
 
             if self.check_kinematics:
                 ref_success=ref_success and ref_plan_found
