@@ -177,7 +177,6 @@ class AbstractGraspAgentTraining:
         if not self.test_mode:
             self.load_optimizers()
             
-        self.view_result()
 
 
     def initialize(self):
@@ -218,6 +217,9 @@ class AbstractGraspAgentTraining:
 
         self.critic_loss_statistics = TrainingTracker(name=self.model_key + '_critic_loss',
                                                  track_label_balance=False,track_history=self.track_statistics_history)
+
+
+
 
     def load_optimizers(self):
         print(f'Load optimizers')
@@ -452,18 +454,20 @@ class AbstractGraspAgentTraining:
 
         range_mean=((grasp_quality_obj_x.max()+grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
 
+
         grasp_quality_obj_x_p=grasp_quality_obj_x[grasp_quality_obj_x>=range_mean]
         grasp_quality_obj_x_N=grasp_quality_obj_x[grasp_quality_obj_x<range_mean]
 
-        loss = ((torch.clamp(1.0-grasp_quality_obj_x_p, min=0.)*2)**2).mean() if grasp_quality_obj_x_p.numel()>0 else 0.
+        loss_p = ((torch.clamp(1.0-grasp_quality_obj_x_p, min=0.)*2)**2).mean() if grasp_quality_obj_x_p.numel()>0 else 0.
 
-        loss += ((torch.clamp(grasp_quality_obj_x_N, min=0.)*2)**2).mean() if grasp_quality_obj_x_N.numel()>0 else 0.
+        loss_N = ((torch.clamp(grasp_quality_obj_x_N, min=0.)*2)**2).mean() if grasp_quality_obj_x_N.numel()>0 else 0.
 
+        print(f'range_mean= {range_mean}, loss_p={loss_p}, loss_N={loss_N}')
 
 
         # loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
 
-        return loss
+        return loss_p+loss_N
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''

@@ -92,7 +92,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
         root_dir = os.getcwd()  # current working directory
 
         self.sim_env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/", max_obj_per_scene=10)
-        self.sim_env.plt_obj_dict_statistics()
+        # self.sim_env.plt_obj_dict_statistics()
 
 
 

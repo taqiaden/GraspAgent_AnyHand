@@ -181,7 +181,7 @@ class FilmModulatedDecoder(nn.Module):
         gamma = 1+self.gamma(condition)
         beta = self.beta(condition)
 
-        x = condition * gamma+beta
+        x = context * gamma+beta
 
         x = self.d(x)
 
