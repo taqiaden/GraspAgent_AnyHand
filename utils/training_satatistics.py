@@ -64,10 +64,14 @@ class ConfessionMatrix:
         self.FN += FN
         self.TN += TN
 
-        self.TP_MA=0.9*self.TP_MA+0.1*TP
-        self.FP_MA=0.9*self.FP_MA+0.1*FP
-        self.FN_MA=0.9*self.FN_MA+0.1*FN
-        self.TN_MA=0.9*self.TN_MA+0.1*TN
+        c=self.TP_MA+self.FP_MA+self.FN_MA+ self.TN_MA
+
+        alpha=0.99*c
+
+        self.TP_MA=alpha*self.TP_MA+(1-alpha)*TP
+        self.FP_MA=alpha*self.FP_MA+(1-alpha)*FP
+        self.FN_MA=alpha*self.FN_MA+(1-alpha)*FN
+        self.TN_MA=alpha*self.TN_MA+(1-alpha)*TN
 
 
         return TP_mask,FP_mask,FN_mask,TN_mask
@@ -102,6 +106,7 @@ class ConfessionMatrix:
     def view(self):
         total=self.total_classification
         print(f'TP={int((self.TP/total)*1000)/10}%, FP={int((self.FP/total)*1000)/10}%, FN={int((self.FN/total)*1000)/10}%, TN={int((self.TN/total)*1000)/10}%')
+        total=self.TP_MA + self.TN_MA + self.FP_MA + self.FN_MA
         print(f'TP_MA={int((self.TP_MA/total)*1000)/10}%, FP_MA={int((self.FP_MA/total)*1000)/10}%, FN_MA={int((self.FN_MA/total)*1000)/10}%, TN_MA={int((self.TN_MA/total)*1000)/10}%')
 
 class MovingRate():
