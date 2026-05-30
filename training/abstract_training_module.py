@@ -61,7 +61,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     dist=diff.abs()
 
-    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)
+    weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
 
     loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
@@ -176,6 +176,8 @@ class AbstractGraspAgentTraining:
 
         if not self.test_mode:
             self.load_optimizers()
+            
+        self.view_result()
 
     def initialize(self):
 
@@ -447,13 +449,18 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        # range_mean=((grasp_quality_obj_x.max()-grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
-        grasp_quality_obj_x=grasp_quality_obj_x[grasp_quality_obj_x>0.5]
-        if grasp_quality_obj_x.numel()>0:
-            # loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
-            loss = ((torch.clamp(1.-grasp_quality_obj_x, min=0.)*2)).mean()
+        range_mean=((grasp_quality_obj_x.max()+grasp_quality_obj_x.min())/2).clamp(max=0.5).item()
 
-        else: loss=torch.tensor(0,device=device).float()
+        grasp_quality_obj_x_p=grasp_quality_obj_x[grasp_quality_obj_x>=range_mean]
+        grasp_quality_obj_x_N=grasp_quality_obj_x[grasp_quality_obj_x<range_mean]
+
+        loss = ((torch.clamp(1.0-grasp_quality_obj_x_p, min=0.)*2)**2).mean() if grasp_quality_obj_x_p.numel()>0 else 0.
+
+        loss += ((torch.clamp(grasp_quality_obj_x_N, min=0.)*2)**2).mean() if grasp_quality_obj_x_N.numel()>0 else 0.
+
+
+
+        # loss = ((torch.clamp(0.5- torch.abs(grasp_quality_obj_x-0.5), min=0.)*2)**2).mean()
 
         return loss
 
@@ -497,8 +504,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -781,7 +788,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = 0.5*importance if importance is not None else min(0.5,max(0.01,1-grasp_quality[target_index].item()))
+                importance = 0.5*importance if importance is not None else min(0.5,max(0.01,grasp_quality[target_index].item()))
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
@@ -1158,25 +1165,25 @@ class AbstractGraspAgentTraining:
 
 
 
-    def view_result(self, grasp_poses, mask):
+    def view_result(self, grasp_poses=None, mask=None):
         with torch.no_grad():
-            self.sim_env.save_obj_dict()
 
 
             cuda_memory_report()
 
-            grasp_poses_ = grasp_poses[0].permute(1, 2, 0).reshape(360000, self.n_param).detach()  # .cpu().numpy()
-            grasp_poses_ = grasp_poses_[mask]
+            if grasp_poses is not None:
+                grasp_poses_ = grasp_poses[0].permute(1, 2, 0).reshape(360000, self.n_param).detach()  # .cpu().numpy()
+                if mask is not None:grasp_poses_ = grasp_poses_[mask]
+                if grasp_poses_.numel() > 0:
+                    print(f'grasp_pose parameters std = {torch.std(grasp_poses_, dim=0).cpu()}' )
+                    print(f'grasp_pose parameters range = {(torch.max(grasp_poses_, dim=0)[0]-torch.min(grasp_poses_, dim=0)[0]).cpu()}')
+
+                else: print('No valid grasps')
 
             self.sampler_loss_statistics.print()
             self.critic_loss_statistics.print()
 
-            # get_grasp_collision_losss = grasp_pose.permute(1, 0, 2, 3).flatten(1).detach()
 
-            print(f'grasp_pose std = {torch.std(grasp_poses_, dim=0).cpu()}')
-            # print(f'grasp_pose mean = {torch.mean(get_grasp_collision_losss, dim=0).cpu()}')
-            # print(f'grasp_pose max = {torch.max(get_grasp_collision_losss, dim=0)[0].cpu()}')
-            # print(f'grasp_pose min = {torch.min(get_grasp_collision_losss, dim=0)[0].cpu()}')
 
             self.skip_rate.view()
 
@@ -1196,8 +1203,9 @@ class AbstractGraspAgentTraining:
 
 
     def save_statistics(self):
-        self.skip_rate.save()
+        self.sim_env.save_obj_dict()
 
+        self.skip_rate.save()
 
         self.random_sampler_acceptance_rate.save()
 
@@ -1223,12 +1231,6 @@ class AbstractGraspAgentTraining:
         self.gan.export_models()
         self.gan.export_optimizers()
 
-    def clear(self):
-        self.critic_loss_statistics.clear()
-
-        self.balanced_set_collision_statistics.clear()
-        self.sampler_loss_statistics.clear()
-        self.grasp_quality_statistics.clear()
 
     def begin(self, iterations=10):
         context = torch.no_grad() if self.test_mode else torch.enable_grad()
@@ -1270,7 +1272,6 @@ class AbstractGraspAgentTraining:
             if not self.test_mode:
                 self.export_check_points()
                 self.save_statistics()
-                self.clear()
 
 
     def show_overlaid_graphs(self, iterations=5,load_from_dataset=True):

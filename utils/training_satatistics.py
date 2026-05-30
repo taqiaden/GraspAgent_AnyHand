@@ -20,8 +20,8 @@ def confession_mask(label,prediction_,pivot_value=0.5):
 
     return TP_mask, FP_mask, FN_mask, TN_mask
 
-class ConfessionMatrix():
-    def __init__(self,TP=0,FP=0,FN=0,TN=0):
+class ConfessionMatrix:
+    def __init__(self,path,TP=0,FP=0,FN=0,TN=0):
         '''confession matrix'''
         self.TP = TP
         self.FP = FP
@@ -29,13 +29,45 @@ class ConfessionMatrix():
         self.TN = TN
         self.epsilon = 0.00001
 
+        self.path=path
+
+        self.TP_MA = get_float('TP_MA_', config_file=self.path)
+        self.FP_MA = get_float('FP_MA_', config_file=self.path)
+        self.FN_MA = get_float('FN_MA_', config_file=self.path)
+        self.TN_MA = get_float('TN_MA_', config_file=self.path)
+
+
+    def save(self):
+        save_key('TP_MA_', self.TP_MA, config_file=self.path)
+        save_key('FP_MA_', self.FP_MA, config_file=self.path)
+        save_key('FN_MA_', self.FN_MA, config_file=self.path)
+        save_key('TN_MA_', self.TN_MA, config_file=self.path)
+
+
+    def clear(self):
+        self.TP = 0
+        self.FP = 0
+        self.FN = 0
+        self.TN = 0
+
     def update_confession_matrix(self,label,prediction_,pivot_value=0.5):
         '''masks'''
         TP_mask,FP_mask,FN_mask,TN_mask=confession_mask(label,prediction_,pivot_value=pivot_value)
-        self.TP += (TP_mask).sum()
-        self.FP += (FP_mask).sum()
-        self.FN += (FN_mask).sum()
-        self.TN += (TN_mask).sum()
+        TP = (TP_mask).sum().item()
+        FP = (FP_mask).sum().item()
+        FN = (FN_mask).sum().item()
+        TN = (TN_mask).sum().item()
+
+
+        self.TP += TP
+        self.FP += FP
+        self.FN += FN
+        self.TN += TN
+
+        self.TP_MA=0.99*self.TP_MA+0.01*TP
+        self.FP_MA=0.99*self.FP_MA+0.01*FP
+        self.FN_MA=0.99*self.FN_MA+0.01*FN
+        self.TN_MA=0.99*self.TN_MA+0.01*TN
 
 
         return TP_mask,FP_mask,FN_mask,TN_mask
@@ -70,6 +102,7 @@ class ConfessionMatrix():
     def view(self):
         total=self.total_classification
         print(f'TP={int((self.TP/total)*1000)/10}%, FP={int((self.FP/total)*1000)/10}%, FN={int((self.FN/total)*1000)/10}%, TN={int((self.TN/total)*1000)/10}%')
+        print(f'TP_MA={int((self.TP_MA/total)*1000)/10}%, FP_MA={int((self.FP_MA/total)*1000)/10}%, FN_MA={int((self.FN_MA/total)*1000)/10}%, TN_MA={int((self.TN_MA/total)*1000)/10}%')
 
 class MovingRate():
     def __init__(self,name='000',decay_rate=0.01,initial_val=0.0,track_history=False,load_last=True):
@@ -170,10 +203,9 @@ class TrainingTracker:
         self.name=name
         self.path=data_directory+name
 
-        self.running_loss_ = None
 
         '''confession matrix'''
-        self.confession_matrix=ConfessionMatrix()
+        self.confession_matrix=ConfessionMatrix(self.path)
 
         '''balance indicator'''
         self.label_balance_indicator=self.load_label_balance_indicator() if track_label_balance else None
@@ -210,7 +242,6 @@ class TrainingTracker:
 
     @loss.setter
     def loss(self,value):
-        self.running_loss_= value if self.running_loss_ is None else self.running_loss_+ value
         self.loss_moving_average_ = self.decay_rate * value + self.loss_moving_average_ * (1 - self.decay_rate)
         self.momentum = self.decay_rate * (value**2) + self.momentum * (1 - self.decay_rate)
 
@@ -268,11 +299,10 @@ class TrainingTracker:
             self.prediction_balance_indicator = (1 - self.decay_rate) * self.prediction_balance_indicator - self.decay_rate
 
     def print(self):
+
         # self.set_decay_rate()
         print(Fore.LIGHTBLUE_EX,f'statistics for {self.name}')
-        # if self.running_loss_ is not None:
-        #     self.running_loss_ = truncate(self.running_loss_, k=100000)
-        #     print(f'Average loss = {self.running_loss_/self.tmp_counter}, Running loss = {self.running_loss_}')
+
 
         self.loss_moving_average_ = truncate(self.loss_moving_average_,k=100000)
         self.convergence = truncate(self.convergence,k=100000)
@@ -293,6 +323,9 @@ class TrainingTracker:
 
         print(Fore.RESET,'-------------------------------------------------------------------------')
 
+        self.confession_matrix.clear()
+
+
     def save(self):
         save_key('label_balance_indicator', self.label_balance_indicator, config_file=self.path)
         save_key('prediction_balance_indicator', self.prediction_balance_indicator, config_file=self.path)
@@ -301,6 +334,8 @@ class TrainingTracker:
         save_key('momentum', self.momentum, config_file=self.path)
         save_key('counter', self.counter, config_file=self.path)
         save_key('moving_accuracy',self.moving_accuracy,config_file=self.path)
+
+        self.confession_matrix.save()
 
         if self.track_history:
             '''append to history records'''
@@ -315,10 +350,6 @@ class TrainingTracker:
             save_new_data_point(self.confession_matrix.FP, self.path+'_FP.txt')
             save_new_data_point(self.confession_matrix.TN, self.path+'_TN.txt')
             save_new_data_point(self.confession_matrix.FN, self.path+'_FN.txt')
-
-    def clear(self):
-        self.running_loss_=0
-        self.confession_matrix=ConfessionMatrix()
 
 if __name__ == '__main__':
     save_new_data_point(torch.Tensor([3, 4, 5, 6]), 'my_file.txt')

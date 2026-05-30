@@ -20,12 +20,12 @@ class PoseSampler(nn.Module):
     def __init__(self,n_joint=0):
         super().__init__()
 
-        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.ReLU(), normalize=False).to(device)
+        self.delta = FilmModulatedDecoder(in_c1=64, in_c2= 1, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.ReLU(), normalize=False).to(device)
-        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.ReLU(), normalize=False).to(device)
+        self.alpha = FilmModulatedDecoder(in_c1=64, in_c2= 1+3, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
+        self.beta = FilmModulatedDecoder(in_c1=64, in_c2= 4+3, out_c=2,activation=nn.SiLU(), normalize=False).to(device)
 
-        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.ReLU(),normalize=False).to(device) if n_joint>0 else None
+        self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.SiLU(),normalize=False).to(device) if n_joint>0 else None
 
 
 
@@ -133,25 +133,28 @@ class FilmModulatedDecoder(nn.Module):
         mid_c+=mid_c%2
 
         self.gamma = nn.Sequential(
-            nn.Conv2d(in_c1, mid_c, kernel_size=1),
+            nn.Conv2d(mid_c, mid_c, kernel_size=1),
         ).to(device)
         self.beta = nn.Sequential(
-            nn.Conv2d(in_c1, mid_c, kernel_size=1),
+            nn.Conv2d(mid_c, mid_c, kernel_size=1),
         ).to(device)
 
-        self.temperature = nn.Parameter(torch.ones(1, mid_c, 1, 1))
-
-
+        self.context_proj =nn.Sequential(
+            nn.Conv2d(in_c1, mid_c, kernel_size=1),
+        ).to(device)
 
         self.condition_proj =nn.Sequential(
             nn.Conv2d(in_c2, mid_c, kernel_size=1),
             LayerNorm2D(mid_c),
             activation,
             nn.Conv2d(mid_c, mid_c, kernel_size=1),
+            LayerNorm2D(mid_c),
+            activation,
         ).to(device)
 
 
         self.d = nn.Sequential(
+            activation,
             nn.Conv2d(mid_c , max(48,5*out_c), kernel_size=1,bias=True),
             LayerNorm2D(max(48,5*out_c)),
             activation,
@@ -160,6 +163,7 @@ class FilmModulatedDecoder(nn.Module):
             activation,
             nn.Conv2d(max(32,3*out_c), out_c, kernel_size=1,bias=True)
         ).to(device) if normalize else  nn.Sequential(
+            activation,
             nn.Conv2d(mid_c , max(48,5*out_c), kernel_size=1,bias=True),
             activation,
             nn.Conv2d(max(48,5*out_c), max(32,3*out_c), kernel_size=1,bias=True),
@@ -171,9 +175,11 @@ class FilmModulatedDecoder(nn.Module):
     def forward(self, context, condition):
 
         condition = self.condition_proj(condition)
+        context = self.context_proj(context)
 
-        gamma = self.gamma(context)* self.temperature
-        beta = self.beta(context)
+
+        gamma = 1+self.gamma(condition)
+        beta = self.beta(condition)
 
         x = condition * gamma+beta
 

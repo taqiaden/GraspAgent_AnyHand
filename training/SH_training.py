@@ -63,7 +63,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
-                         test_mode=True, randomization_unit=generate_random_SH_poses,
+                         test_mode=False, randomization_unit=generate_random_SH_poses,
                          process_pose=process_pose, n_param=11)
 
         root_dir = os.getcwd()  # current working directory
@@ -79,8 +79,8 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        Train_grasp_GAN.show_overlaid_graphs()
-        # Train_grasp_GAN.begin(iterations=10)
+        # Train_grasp_GAN.show_overlaid_graphs()
+        Train_grasp_GAN.begin(iterations=10)
 
 def read_config(path):
     config = configparser.ConfigParser()
