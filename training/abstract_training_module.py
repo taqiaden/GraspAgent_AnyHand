@@ -505,8 +505,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            # weight=(1-torch.abs(0.5-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())*2)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -765,7 +765,7 @@ class AbstractGraspAgentTraining:
                 break
             gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
-                update_obj_prob=grasp_quality[target_index].item() if self.loaded_synthesised_data is None else None)
+                update_obj_prob=1.0 if self.loaded_synthesised_data is None else None)
 
             if self.check_kinematics:
                 ref_success=ref_success and ref_plan_found
