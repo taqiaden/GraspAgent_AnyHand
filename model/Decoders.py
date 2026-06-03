@@ -133,13 +133,9 @@ class FilmModulatedDecoder(nn.Module):
         mid_c+=mid_c%2
 
         self.gamma = nn.Sequential(
-            nn.Conv2d(mid_c, mid_c, kernel_size=1),
+            nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to(device)
         self.beta = nn.Sequential(
-            nn.Conv2d(mid_c, mid_c, kernel_size=1),
-        ).to(device)
-
-        self.context_proj =nn.Sequential(
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to(device)
 
@@ -148,8 +144,6 @@ class FilmModulatedDecoder(nn.Module):
             LayerNorm2D(mid_c),
             activation,
             nn.Conv2d(mid_c, mid_c, kernel_size=1),
-            LayerNorm2D(mid_c),
-            activation,
         ).to(device)
 
 
@@ -174,14 +168,13 @@ class FilmModulatedDecoder(nn.Module):
 
     def forward(self, context, condition):
 
-        condition = self.condition_proj(condition)
-        context = self.context_proj(context)
+        condition_embedding = self.condition_proj(condition)
 
 
-        gamma = 1+self.gamma(condition)
-        beta = self.beta(condition)
+        gamma = 1+self.gamma(context)
+        beta = self.beta(context)
 
-        x = context * gamma+beta
+        x = condition_embedding * gamma+beta
 
         x = self.d(x)
 
