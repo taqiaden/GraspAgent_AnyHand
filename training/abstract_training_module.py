@@ -824,6 +824,7 @@ class AbstractGraspAgentTraining:
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 margin = 0 if ref_initial_collision or gen_initial_collision else 1-(0.5-  grasp_quality[target_index]).abs().item()*2
 
+
                 d_pairs.append((target_index, k, margin,  target_point))
 
                 superior_pose = target_ref_pose if k > 0 else target_generated_pose

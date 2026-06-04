@@ -26,6 +26,7 @@ class G(nn.Module):
 
         self.PoseSampler = sampler_decoder
 
+
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
