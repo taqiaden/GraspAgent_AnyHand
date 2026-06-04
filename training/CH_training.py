@@ -64,7 +64,7 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        # Train_grasp_GAN.show_overlaid_graphs()
+        Train_grasp_GAN.show_overlaid_graphs()
 
         Train_grasp_GAN.begin(iterations=10)
 
@@ -118,7 +118,6 @@ def get_args():
         help="Wrap the execution with try and except (default: True). Use true/false."
     )
     return parser.parse_args()
-
 
 if __name__ == "__main__":
     args = get_args()

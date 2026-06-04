@@ -6,13 +6,25 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Decoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Decoders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_obj_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_obj_data.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/r_2f85_hand_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_tmp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_tmp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/CH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/CH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/SH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -42,33 +54,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.Allergo_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.CH_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Casia_hand_env.executor&quot;: &quot;Run&quot;,
-    &quot;Python.SH_5F_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.SH_training.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Shadow_hand_env.executor&quot;: &quot;Run&quot;,
-    &quot;Python.abstract_training_module.executor&quot;: &quot;Run&quot;,
-    &quot;Python.allegro_hand_env.executor&quot;: &quot;Run&quot;,
-    &quot;Python.r_2f85_training.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Allergo_training.executor": "Run",
+    "Python.CH_training.executor": "Run",
+    "Python.Casia_hand_env.executor": "Run",
+    "Python.SH_5F_training.executor": "Run",
+    "Python.SH_training.executor": "Run",
+    "Python.Shadow_hand_env.executor": "Run",
+    "Python.abstract_training_module.executor": "Run",
+    "Python.allegro_hand_env.executor": "Run",
+    "Python.r_2f85_training.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "git.auto.fetch.suggestion.counter": "1",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="ENV_FILES" value="" />
@@ -151,7 +164,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-c59985aa861c-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.24374.152" />
+        <option value="bundled-python-sdk-024ed6589d45-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.23567.174" />
       </set>
     </attachedChunks>
   </component>
@@ -171,6 +184,46 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
+    </task>
+    <task id="LOCAL-00029" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778133447099</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1778133447099</updated>
+    </task>
+    <task id="LOCAL-00030" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778154436739</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1778154436739</updated>
+    </task>
+    <task id="LOCAL-00031" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778154738025</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1778154738025</updated>
+    </task>
+    <task id="LOCAL-00032" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778222015045</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1778222015045</updated>
+    </task>
+    <task id="LOCAL-00033" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1778223502740</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1778223502740</updated>
     </task>
     <task id="LOCAL-00034" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -524,47 +577,7 @@
       <option name="project" value="LOCAL" />
       <updated>1780118573222</updated>
     </task>
-    <task id="LOCAL-00078" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1780119819401</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1780119819402</updated>
-    </task>
-    <task id="LOCAL-00079" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1780121217584</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1780121217584</updated>
-    </task>
-    <task id="LOCAL-00080" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1780145890922</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1780145890922</updated>
-    </task>
-    <task id="LOCAL-00081" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1780147350760</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1780147350760</updated>
-    </task>
-    <task id="LOCAL-00082" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1780461599870</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1780461599871</updated>
-    </task>
-    <option name="localTasksCounter" value="83" />
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

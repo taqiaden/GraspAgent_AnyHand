@@ -180,14 +180,3 @@ class FilmModulatedDecoder(nn.Module):
         x = self.d(x)
 
         return x
-
-
-
-
-
-
-
-
-
-
-
