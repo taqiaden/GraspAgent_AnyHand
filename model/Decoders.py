@@ -144,7 +144,6 @@ class FilmModulatedDecoder(nn.Module):
             LayerNorm2D(mid_c),
             activation,
             nn.Conv2d(mid_c, mid_c, kernel_size=1),
-
         ).to(device)
 
 
