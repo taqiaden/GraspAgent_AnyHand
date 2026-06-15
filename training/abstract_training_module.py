@@ -953,7 +953,7 @@ class AbstractGraspAgentTraining:
                 c_Uniqueness = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.,report=print_details)
                 c_importance = self.Ave_improtance.lower_rejection_criteria(max_importance, k=2.,report=print_details)
 
-                if len(self.DDM) >= self.max_scenes and (c_Uniqueness or c_importance):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if len(self.DDM) >= self.max_scenes and (c_Uniqueness or (max_importance<0.1)):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
                           f'poor sample detected, criteria: c_Uniqueness: { c_Uniqueness},  ave_uniqueness: { ave_uniqueness}, c_importance:{c_importance}, max_importance:{max_importance} ',
                           Fore.RESET)
