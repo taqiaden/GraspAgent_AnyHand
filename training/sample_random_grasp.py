@@ -132,7 +132,7 @@ def generate_random_CH_poses(size):
     # fingers_=sample_vectors(size,3,values).to(device)
 
     delta = torch.randn((size, 3), device=device)/2
-    delta[:,0:2]/=5
+    # delta[:,0:2]/=5
     delta[:,-1]-=0.5
 
     # values = torch.tensor([ 0.,0.3,0.5,0.7, 1.])
@@ -153,7 +153,7 @@ def generate_random_SH_poses(size):
     fingers_ = beta_peak_intensity_tensor(size, 3, torch.tensor([0.,0,0]).to(device),[-0.5,0.5], peak_intensity=10.0)
 
     delta = torch.randn((size, 3), device=device)
-    delta[:,0:2]/=5
+    # delta[:,0:2]/=5
     
     sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
     return sampled_pose
@@ -194,7 +194,7 @@ def generate_random_SH_5F_poses(size):
     fingers_[:, 17] = s[:,3]
 
     delta = torch.randn((size, 3), device=device)/2
-    delta[:,0:2]/=5
+    # delta[:,0:2]/=5
 
     sampled_pose = torch.cat([alpha_,beta_,delta,gamma, fingers_], dim=1)
 
@@ -230,7 +230,7 @@ def generate_random_Allergo_poses(size):
 
 
     delta = torch.randn((size, 3), device=device)/2
-    delta[:,0:2]/=5
+    # delta[:,0:2]/=5
 
     sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
 
@@ -246,7 +246,7 @@ def generate_random_r_2f85_poses(size):
 
 
     delta = torch.randn((size, 3), device=device)/2
-    delta[:,0:2]/=5
+    # delta[:,0:2]/=5
 
     sampled_pose = torch.cat([alpha_,beta_,delta], dim=1)
 

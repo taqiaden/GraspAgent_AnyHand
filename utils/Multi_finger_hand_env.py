@@ -259,13 +259,16 @@ class MojocoMultiFingersEnv():
 
         self.save_simulation_state()
 
-    def drop_new_obj(self,selected_index=None,obj_pose=None,obj_quat=None,stablize=True,drop_far_from_others=False,n=1,view=False):
+    def drop_new_obj(self,selected_index=None,obj_pose=None,obj_quat=None,stablize=True,drop_far_from_others=False,n=1,random_sampling=False,view=False):
         while True:
 
             for el in range(n):
                 if selected_index is None:
                     for j in range(1000):
-                        new_obj_id,prob=self.sample_random_obj()
+                        if random_sampling:
+                            new_obj_id = sample(range(self.object_nums_all), 1)[0]
+                        else:
+                            new_obj_id,prob=self.weighted_sampling()
 
                         if new_obj_id not in self.objects :
                             file_exist = self.check_file_exist(new_obj_id)
@@ -276,7 +279,6 @@ class MojocoMultiFingersEnv():
                                     self.obj_dict.pop(new_obj_id)
                                 continue
                     else: assert False
-                    # print('Newly added object ID: ', new_obj_id, ' prob: ',prob)
                 else: new_obj_id=selected_index
 
                 self.objects.append(new_obj_id)
@@ -448,24 +450,16 @@ class MojocoMultiFingersEnv():
             print(f"  Inertia: [{inertia[0]:.6f}, {inertia[1]:.6f}, {inertia[2]:.6f}]")
             print()
 
-    def sample_random_obj(self):
+    def weighted_sampling(self):
         idxs = sample(range(self.object_nums_all), 1)[0]
         if len(self.obj_dict) == 0: return idxs,None
         if str(idxs) not in self.obj_dict: return idxs,None
-        # print(self.obj_dict,'----',idxs)
 
         keys = list(self.obj_dict.keys())
         weights = list(self.obj_dict.values())
         key = random.choices(keys, weights=weights, k=1)[0]
-        # print(f'list max {max(weights)} min {min(weights)} mean {sum(weights)/len(weights)} len {len(weights)}')
 
         prob=self.obj_dict[key]
-
-        # while True:
-        #     if idxs not in self.obj_dict: break
-        #     p=self.obj_dict[idxs]
-        #     if p>np.random.random(): break
-        #     idxs = sample(range(self.object_nums_all), self.obj_nums_in_scene)
 
         return idxs,prob
 

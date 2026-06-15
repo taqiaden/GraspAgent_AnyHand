@@ -3,6 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 
 from Configurations.config import device
+from model.utils import add_spectral_norm_selective
 
 
 class LayerNorm2D(nn.Module):
@@ -42,6 +43,7 @@ class PoseSampler(nn.Module):
 
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
+
 
             pose = torch.cat([alpha,beta,delta,fingers], dim=1)
         else:
@@ -123,7 +125,6 @@ class CriticDecoder(nn.Module):
         return x
 
 
-
 class FilmModulatedDecoder(nn.Module):
     def __init__(self, in_c1, in_c2, out_c,
                  activation=None,normalize=False):
@@ -135,9 +136,12 @@ class FilmModulatedDecoder(nn.Module):
         self.gamma = nn.Sequential(
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to(device)
+
         self.beta = nn.Sequential(
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to(device)
+
+
 
         self.condition_proj =nn.Sequential(
             nn.Conv2d(in_c2, mid_c, kernel_size=1),
@@ -169,7 +173,6 @@ class FilmModulatedDecoder(nn.Module):
     def forward(self, context, condition):
 
         condition_embedding = self.condition_proj(condition)
-
 
         gamma = 1+self.gamma(context)
         beta = self.beta(context)
