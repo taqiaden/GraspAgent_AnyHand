@@ -98,7 +98,8 @@ class AbstractGraspAgentTraining:
                  exclude_collision_from_grasp_quality=True,
                  shake=False,
                  force_balance=True
-                 ,train_policy_only=False):
+                 ,train_policy_only=False
+                 ,domain_randomization=False):
 
         self.args = args
         self.model_key=model_key
@@ -107,6 +108,7 @@ class AbstractGraspAgentTraining:
         self.train_policy_only=train_policy_only
         self.view=False
         self.synthesizie_only=False
+        self.domain_randomization=domain_randomization
 
         self.force_balance=force_balance
 
@@ -1003,22 +1005,18 @@ class AbstractGraspAgentTraining:
 
         full_objects_pc = self.sim_env.get_obj_point_clouds(view=False)
         full_pointcloud = np.vstack([pc[floor_mask], full_objects_pc])
-
         floor_mask = torch.from_numpy(floor_mask).to(device)
-
         full_pointcloud = torch.from_numpy(full_pointcloud).to(device)
-
         clean_depth = torch.from_numpy(depth).to(device)  # [600.600]
         depth = torch.from_numpy(depth).to(device)  # [600.600]
 
-        # pc = torch.from_numpy(pc).to(device)
+        if self.domain_randomization:
+            pc = torch.from_numpy(pc).to(device)
+            depth=add_reflective_blob_noise(clean_depth,n_blobs=np.random.randint(5,10), blob_radius=np.random.uniform(1, 3), outlier_scale=0.02)
+            depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600))
+            pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
 
-        # depth=add_reflective_blob_noise(clean_depth,n_blobs=np.random.randint(5,10), blob_radius=np.random.uniform(1, 3), outlier_scale=0.02)
-
-        # depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600))
-        # pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
         pc = torch.from_numpy(pc).to(device)
-        # view_npy_open3d(pc.cpu().numpy())
 
 
         for k in range(self.iter_per_scene):
@@ -1052,7 +1050,6 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
                         qr=grasp_quality_p[index].item()**2
-
 
                         if pose.shape==grasp_pose_ref[index].shape:
 
