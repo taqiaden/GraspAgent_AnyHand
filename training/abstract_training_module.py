@@ -9,9 +9,11 @@ from torch import nn
 import torch.nn.functional as F
 from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
+from model.abstract_model import depth_normalization
 from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
 from utils.cuda_utils import cuda_memory_report
+from utils.domain_randomization import add_reflective_blob_noise, add_depth_noise
 from utils.plot_utils import plot_distribution, plot_distribution_overlayed
 from utils.report_utils import progress_indicator
 from utils.rl.masked_categorical import MaskedCategorical
@@ -442,7 +444,22 @@ class AbstractGraspAgentTraining:
                                                                                    grasp_prediction_.detach())
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
+    def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
+        standarized_depth_=depth_normalization(depth[None,None,...])
 
+        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
+
+        grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+        grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
+
+        grasp_quality_obj_x = grasp_quality_x[~floor_mask]
+
+        grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
+
+        loss = (torch.clamp(1.0- torch.abs(grasp_quality_obj_x-0.5)*2, min=0.)).mean()
+
+
+        return loss
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
         self.gan.critic.zero_grad(set_to_none=True)
@@ -490,18 +507,17 @@ class AbstractGraspAgentTraining:
             scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
-
+            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-
-            sampler_loss = grasp_sampling_loss   + scatter_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
 
         if print_details: print(Fore.LIGHTYELLOW_EX,
-              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}',
+              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}, contrast_loss={contrast_loss.item()}',
               Fore.RESET)
 
 
@@ -760,12 +776,14 @@ class AbstractGraspAgentTraining:
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_PW[target_index], importance, gen_grasped_obj))
 
+
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 importance = 0.5*importance if importance is not None else min(0.5,max(0.01,1-grasp_quality[target_index].item()))
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
+
 
                 if ref_grasped_obj in sampled_obj_ids:
                     if len(self.loaded_synthesised_data) > 0: continue
@@ -796,9 +814,9 @@ class AbstractGraspAgentTraining:
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
-                if k==-1:
-                    superior_pose = target_ref_pose if k > 0 else target_generated_pose
-                    self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
+                # if k==-1:
+                #     superior_pose = target_ref_pose if k > 0 else target_generated_pose
+                self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
 
@@ -865,7 +883,7 @@ class AbstractGraspAgentTraining:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                    max_importance=max(importance)
+
                     self.Ave_uniquness.update(ave_uniqueness)
 
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.):
@@ -984,12 +1002,11 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last or self.skip_rate.val>np.random.random()**2 or len( self.DDM) < 100) and not self.train_policy_only:
+        if (self.skipped_last or self.skip_rate.val>np.random.random()**2 or len(self.DDM) < 100) and not self.train_policy_only:
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
             self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
-
             self.sim_env.reload()
 
         else:
@@ -1011,7 +1028,6 @@ class AbstractGraspAgentTraining:
         depth = torch.from_numpy(depth).to(device)  # [600.600]
 
         if self.domain_randomization:
-            pc = torch.from_numpy(pc).to(device)
             depth=add_reflective_blob_noise(clean_depth,n_blobs=np.random.randint(5,10), blob_radius=np.random.uniform(1, 3), outlier_scale=0.02)
             depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600))
             pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
@@ -1050,9 +1066,9 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
                         qr=grasp_quality_p[index].item()**2
+                        qr=max(0.1,qr)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-
                             grasp_pose_ref[index] = pose*(1-qr)+grasp_pose_gen[index]*qr
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:5] = pose[0:5]
