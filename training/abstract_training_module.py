@@ -51,7 +51,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     weights=weights/(weights.sum()+eps)
 
-    loss=((x[:,8:].abs()-1).clamp(min=0.)*weights[:,None]).sum() if M>8 else 0.
+    # loss=((x[:,8:].abs()-1).clamp(min=0.)*weights[:,None]).sum() if M>8 else 0.
 
 
     weights=weights[:,None]*weights[None,:]
@@ -62,7 +62,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     weighted_dif= weights[:,:,None] * (1-dist).clamp(0.)**2
 
-    loss+=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
+    loss=weighted_dif.sum()/(weights.sum()*x.shape[1]+eps)
 
     return loss
 
@@ -209,11 +209,9 @@ class AbstractGraspAgentTraining:
                                                             track_label_balance=False,track_history=self.track_statistics_history)
         self.argmax_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_argmax_grasp_quality',
                                                             track_label_balance=False,track_history=self.track_statistics_history)
-        self.argmax_collision_statistics = TrainingTracker(name=self.model_key + '_argmax_collision',
-                                                               track_label_balance=False,
-                                                               track_history=self.track_statistics_history)
-        self.sampled_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_sampled_grasp_quality',
-                                                            track_label_balance=False,track_history=self.track_statistics_history)
+
+
+
         self.balanced_set_collision_statistics = TrainingTracker(name=self.model_key + '_balanced_set_collision',
                                                     track_label_balance=False, decay_rate=0.01,track_history=self.track_statistics_history)
 
@@ -422,26 +420,10 @@ class AbstractGraspAgentTraining:
                         grasp_prediction_)
                     self.argmax_grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                                       grasp_prediction_.detach())
-                    self.argmax_collision_statistics.update_confession_matrix(0,torch.zeros_like(grasp_prediction_))
                     break
-                else:
-                    self.argmax_collision_statistics.update_confession_matrix(1.0,torch.zeros_like(grasp_prediction_))
 
-            dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=(~floor_mask)&(probs>0.5))
-            grasp_target_index = dist.sample()
-            grasp_target_point = pc[grasp_target_index]
-            grasp_prediction_ = probs[grasp_target_index].squeeze()
-            grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-            grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
-                grasp_target_point, grasp_target_pose, view=False,
-                shake=self.shake, check_kinematics=False,
-                update_obj_prob=None)
 
-            if not initial_collision:
-                label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
-                    grasp_prediction_)
-                self.sampled_grasp_quality_statistics.update_confession_matrix(label.detach(),
-                                                                                   grasp_prediction_.detach())
+
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
     def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
@@ -456,10 +438,12 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
-        loss = (torch.clamp(1.0- torch.abs(grasp_quality_obj_x-0.5)*2, min=0.)).mean()
+        loss_p = (torch.clamp(1.0- grasp_quality_obj_x[grasp_quality_obj_x>0.5]*2, min=0.)**2).mean()
+        loss_n = (torch.clamp(grasp_quality_obj_x[grasp_quality_obj_x<0.5]*2, min=0.)**2).mean()
 
 
-        return loss
+        return loss_p+loss_n
+
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
         self.gan.critic.zero_grad(set_to_none=True)
@@ -810,7 +794,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 # if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                margin = 0.0 if ref_initial_collision or gen_initial_collision else max(0.1,1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                margin = 0.0 if ref_initial_collision or gen_initial_collision else (1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -820,7 +804,7 @@ class AbstractGraspAgentTraining:
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
 
-                margin = 0.0 if ref_initial_collision or gen_initial_collision else  max(0.1,(0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                margin = 0.0 if ref_initial_collision or gen_initial_collision else  ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
@@ -1065,8 +1049,8 @@ class AbstractGraspAgentTraining:
                         pose = self.loaded_synthesised_data.grasp_parameters[t]
 
                         pose = torch.tensor(pose).to(device)
-                        qr=grasp_quality_p[index].item()**2
-                        qr=max(0.1,qr)
+                        qr=grasp_quality_p[index].item()
+                        qr=max(0.1,qr**2)
 
                         if pose.shape==grasp_pose_ref[index].shape:
                             grasp_pose_ref[index] = pose*(1-qr)+grasp_pose_gen[index]*qr
@@ -1157,9 +1141,7 @@ class AbstractGraspAgentTraining:
 
             self.grasp_quality_statistics.print()
 
-            self.sampled_grasp_quality_statistics.print()
             self.argmax_grasp_quality_statistics.print()
-            self.argmax_collision_statistics.print()
             self.approach_beta_clusters.view()
 
 
@@ -1174,9 +1156,7 @@ class AbstractGraspAgentTraining:
         self.sampler_loss_statistics.save()
         self.approach_beta_clusters.save()
 
-        self.sampled_grasp_quality_statistics.save()
         self.argmax_grasp_quality_statistics.save()
-        self.argmax_collision_statistics.save()
 
         self.Ave_uniquness.save()
 

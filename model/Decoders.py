@@ -141,15 +141,12 @@ class FilmModulatedDecoder(nn.Module):
             nn.Conv2d(in_c1, mid_c, kernel_size=1),
         ).to(device)
 
-
-
         self.condition_proj =nn.Sequential(
             nn.Conv2d(in_c2, mid_c, kernel_size=1),
             LayerNorm2D(mid_c),
             activation,
             nn.Conv2d(mid_c, mid_c, kernel_size=1),
         ).to(device)
-
 
         self.d = nn.Sequential(
             activation,
