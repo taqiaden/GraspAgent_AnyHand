@@ -68,11 +68,6 @@ class G(nn.Module):
         '''policy'''
         grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
 
-        # '''centering'''
-        # b = grasp_quality_logits.shape[0]
-        # center = grasp_quality_logits.view(b, -1).mean(dim=1, keepdim=True)  # [b, 1]
-        # center = center.view(b, 1, 1, 1)
-        # grasp_quality_logits=grasp_quality_logits-center
 
         collision = self.collision(features2.detach(), detached_dense_grasp_pose)
 

@@ -51,7 +51,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     weights=weights/(weights.sum()+eps)
 
-    # loss=((x[:,8:].abs()-1).clamp(min=0.)*weights[:,None]).sum() if M>8 else 0.
+    # loss=(x[:,8:].abs()*weights[:,None]).sum() if M>8 else 0.
 
 
     weights=weights[:,None]*weights[None,:]
@@ -441,7 +441,6 @@ class AbstractGraspAgentTraining:
         loss_p = (torch.clamp(1.0- grasp_quality_obj_x[grasp_quality_obj_x>0.5]*2, min=0.)**2).mean()
         loss_n = (torch.clamp(grasp_quality_obj_x[grasp_quality_obj_x<0.5]*2, min=0.)**2).mean()
 
-
         return loss_p+loss_n
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
@@ -495,7 +494,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss#+contrast_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
@@ -794,17 +793,16 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 # if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                margin = 0.0 if ref_initial_collision or gen_initial_collision else (1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                margin =  (1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
-                # if k==-1:
-                #     superior_pose = target_ref_pose if k > 0 else target_generated_pose
-                self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
+                superior_pose = target_ref_pose if k > 0 else target_generated_pose
+                self.approach_beta_clusters.update(superior_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
 
-                margin = 0.0 if ref_initial_collision or gen_initial_collision else  ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                margin = 0. if ref_initial_collision or gen_initial_collision else  ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                 g_pairs.append((target_index, k, margin, target_point))
 
