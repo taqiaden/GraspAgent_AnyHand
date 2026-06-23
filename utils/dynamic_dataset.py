@@ -152,21 +152,47 @@ class DynamicDataManagement:
         else:
             self.last_id = 0
 
+    def delete_npz(self, filename):
+        """Delete the saved npz file"""
+        import os
+        try:
+            os.remove(filename)
+            print(f"Delete {filename}")
+            return True
+        except FileNotFoundError:
+            print(f"File {filename} not found")
+            return False
+        except Exception as e:
+            print(f"Error deleting {filename}: {e}")
+            return False
+
+    def try_compress(self):
+        if len(self.low_quality_samples_tracker)>0:
+            id = self.low_quality_samples_tracker.pop()
+            last_data=self.load_data_point(self.last_id)
+            self.save_at_id(last_data, id)
+
+            path_to_delete = self.folder_dir + str(self.last_id) + '.npz'
+            self.delete_npz(path_to_delete)
+
+            self.last_id=self.last_id-1
+
     def save_data_point(self,obj:SynthesisedData):
         if len(self.low_quality_samples_tracker)>0:
             id =self.low_quality_samples_tracker.pop()
-            path =self.folder_dir+str(id)+'.npz'
-            obj.save_npz(path)
+            self.save_at_id(obj,id)
             # print(Fore.LIGHTMAGENTA_EX,'Replace data point, path :',path,f' , grasped_objects({obj.grasped_objects}), instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
         else:
-            path =self.folder_dir+str(self.last_id+1)+'.npz'
-            obj.save_npz(path)
+            self.save_at_id(obj,self.last_id+1)
             # with open(path, "wb") as f:
             #     pickle.dump(obj, f)
 
             self.last_id=self.last_id+1
 
             # print(Fore.LIGHTMAGENTA_EX,'Save new data point, path :',path,f' , grasped_objects({obj.grasped_objects}),  instances({len(obj.target_indexes)}) #obj={len(obj.obj_ids)}',Fore.RESET)
+    def save_at_id(self,obj:SynthesisedData,id):
+        path = self.folder_dir + str(id) + '.npz'
+        obj.save_npz(path)
 
     def update_old_record(self,obj:SynthesisedData):
         id=obj.id
