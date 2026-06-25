@@ -131,7 +131,7 @@ def generate_random_CH_poses(size):
     # values = torch.tensor([-0.5, 0.,0.2, 0.5])
     # fingers_=sample_vectors(size,3,values).to(device)
 
-    delta = torch.randn((size, 3), device=device)/2
+    delta = torch.randn((size, 3), device=device)
     delta[:,0:2]*=torch.rand((size, 2), device=device)**2
     delta[:,-1]-=0.5
 
@@ -159,7 +159,8 @@ def generate_random_SH_poses(size):
     return sampled_pose
 
 def generate_random_SH_5F_poses(size):
-    alpha_ = torch.cat([random_unit_circle(size),torch.rand((size,1),device=device)*-1],dim=1)
+    alpha_=torch.randn((size, 3), device=device)
+    alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -193,7 +194,7 @@ def generate_random_SH_5F_poses(size):
     fingers_[:, 16] = b[:,4]
     fingers_[:, 17] = s[:,3]
 
-    delta = torch.randn((size, 3), device=device)/2
+    delta = torch.randn((size, 3), device=device)
     delta[:,0:2]*=torch.rand((size, 2), device=device)**2
 
     sampled_pose = torch.cat([alpha_,beta_,delta,gamma, fingers_], dim=1)
@@ -229,7 +230,7 @@ def generate_random_Allergo_poses(size):
     fingers_[:,15:16]=torch.rand((size, 1), device=device)
 
 
-    delta = torch.randn((size, 3), device=device)/2
+    delta = torch.randn((size, 3), device=device)
     delta[:,0:2]*=torch.rand((size, 2), device=device)**2
 
     sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
@@ -245,7 +246,7 @@ def generate_random_r_2f85_poses(size):
     beta_ = F.normalize(beta_, dim=-1)
 
 
-    delta = torch.randn((size, 3), device=device)/2
+    delta = torch.randn((size, 3), device=device)
     delta[:,0:2]*=torch.rand((size, 2), device=device)**2
 
     sampled_pose = torch.cat([alpha_,beta_,delta], dim=1)

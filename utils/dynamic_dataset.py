@@ -142,6 +142,7 @@ class DynamicDataManagement:
 
 
     def get_last_id(self):
+
         ids = [
             int(f[:-4])
             for f in os.listdir(self.folder_dir)

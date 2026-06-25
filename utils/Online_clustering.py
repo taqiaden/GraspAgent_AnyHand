@@ -88,6 +88,8 @@ class OnlingClustering():
 
         self.repulse_lr=1e-3
 
+        self.temperature=0.01
+
         if static_centers is None:
             self.metrics=self.load_metrics()
     def load_metrics(self):
@@ -247,11 +249,17 @@ class OnlingClustering():
 
     def get_uniqueness_score(self,new_vector):
 
+        if self.use_euclidean_dist:
+            dist = torch.cdist(new_vector.unsqueeze(0), self.centers).squeeze(0)
+            sim = 1 / (1 + dist)  # Maps to (0, 1] where 1 = identical
 
-        sim = torch.matmul(self.centers, new_vector)
+        else:
+            sim = torch.matmul(self.centers, new_vector)
 
-        sim = (sim + 1) / 2
-        sim = F.softmax(sim / .1, dim=0)
+            sim = (sim + 1) / 2
+            sim = F.softmax(sim / self.temperature, dim=0)
+            # sim = torch.where(sim >= torch.topk(sim, 3)[0][-1], sim, 0)
+            sim = sim/sim.sum()
 
 
         r=self.update_rates.squeeze()
@@ -260,24 +268,30 @@ class OnlingClustering():
 
         return u
 
-    def update(self,new_vector):
+    def update(self,new_vector,influence_factor=1.):
         if not self.use_euclidean_dist:
 
             new_vector=F.normalize(new_vector,p=2,dim=0,eps=1e-8)
 
         if self.static:
-            '''smooth update'''
-            sim = torch.matmul(self.centers, new_vector)
+            if self.use_euclidean_dist:
+                dist = torch.cdist(new_vector.unsqueeze(0), self.centers).squeeze(0)
+                sim = 1 / (1 + dist)  # Maps to (0, 1] where 1 = identical
 
-            # Convert to [0, 1] and apply temperature
-            sim = (sim + 1) / 2
-            sim = F.softmax(sim / .1, dim=0)
+                sim = sim.max()
+            else:
+                sim = torch.matmul(self.centers, new_vector)
 
-            self.update_rates=self.update_rates*(1-self.decay_rate)+sim*self.decay_rate
+                # Convert to [0, 1] and apply temperature
+                sim = (sim + 1) / 2
+                sim = F.softmax(sim / self.temperature, dim=0)
+                # sim = torch.where(sim >= torch.topk(sim, 3)[0][-1], sim, 0)
+                sim = sim / sim.sum()
+
+            self.update_rates=self.update_rates*(1-self.decay_rate*influence_factor)+sim*self.decay_rate*influence_factor
 
             # index, min_dist = self.get_closest_center(new_vector)
             # self.step_decay_rate(index)
-
 
         elif self.centers is None:
             self.centers=new_vector.clone()[None,:]
