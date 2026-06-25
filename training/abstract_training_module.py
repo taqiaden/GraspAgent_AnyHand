@@ -807,7 +807,7 @@ class AbstractGraspAgentTraining:
                 if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
             elif ref_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
+                u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref_PW[target_index][0:5]).item()
                 u=min(u,0.99)
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 importance = u*importance if importance is not None else min(0.5,max(0.01,u*(1-grasp_quality[target_index].item())))
