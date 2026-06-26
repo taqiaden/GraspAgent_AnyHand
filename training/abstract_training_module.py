@@ -557,10 +557,10 @@ class AbstractGraspAgentTraining:
         for k in range(n):
             '''grasp quality'''
             while True:
-                # if random_sampling:
-                dist = MaskedCategorical(probs=torch.rand_like(probs), mask=~floor_mask)
-                # else:
-                #     dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=~floor_mask)
+                if random_sampling:
+                    dist = MaskedCategorical(probs=torch.rand_like(probs), mask=~floor_mask)
+                else:
+                    dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=~floor_mask)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
@@ -584,13 +584,6 @@ class AbstractGraspAgentTraining:
                 if self.force_balance:
                     if grasp_success and positive_counter >= s: continue
                     if (not grasp_success) and negative_counter >= s: continue
-
-                if not random_sampling:
-                    u = self.approach_beta_clusters.get_uniqueness_score(grasp_target_pose[0:5]).item()
-                    not_unique = self.Ave_uniquness.lower_rejection_criteria(u, k=2.,
-                                                                               report=False)
-                    if (logits_to_probs(grasp_prediction_logits)>np.random.rand() or not_unique) and  grasp_success:continue
-                    if logits_to_probs(grasp_prediction_logits)<np.random.rand() and not grasp_success:continue
 
                 break
             if grasp_success:
@@ -796,26 +789,26 @@ class AbstractGraspAgentTraining:
                     f' gen ---- {target_generated_pose}, {gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide}')
 
             if gen_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
-                u=min(u,0.99)
+                # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
+                # u=min(u,0.99)
 
                 importance = max(0.01,
-                                 grasp_quality[target_index].item()*u)
+                                 grasp_quality[target_index].item())
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_PW[target_index], importance, gen_grasped_obj))
 
-                if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
+                # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
             elif ref_success:
                 u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref_PW[target_index][0:5]).item()
                 u=min(u,0.99)
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = u*importance if importance is not None else min(0.5,max(0.01,u*(1-grasp_quality[target_index].item())))
+                importance = u*importance if importance is not None else min(0.5,max(0.01,(1-grasp_quality[target_index].item())))
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
 
-                if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
+                # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
                 if ref_grasped_obj in sampled_obj_ids:
                     if len(self.loaded_synthesised_data) > 0: continue
@@ -1101,13 +1094,13 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            option1=pose
-                            option2=pose*0.9+grasp_pose_gen[index]*0.1
-                            u1 = self.approach_beta_clusters.get_uniqueness_score(
-                                option1[0:5]).item()
-                            u2 = self.approach_beta_clusters.get_uniqueness_score(
-                                option2[0:5]).item()
-                            grasp_pose_ref[index] = option1 if u1>u2 else option2
+                            # option1=pose
+                            # option2=pose*0.9+grasp_pose_gen[index]*0.1
+                            # u1 = self.approach_beta_clusters.get_uniqueness_score(
+                            #     option1[0:5]).item()
+                            # u2 = self.approach_beta_clusters.get_uniqueness_score(
+                            #     option2[0:5]).item()
+                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1#option1 if u1>u2 else option2
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:5] = pose[0:5]
 
