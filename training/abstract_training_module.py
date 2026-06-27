@@ -53,7 +53,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     weights=weights/(weights.sum()+eps)
 
-    loss=((x[:,5:]*weights[:,None]).sum(dim=0)**2).mean()#/(M-5)
+    loss=((x[:,5:]*weights[:,None]).sum(dim=0)**2).mean() if M>5 else 0.
 
 
     weights=weights[:,None]*weights[None,:]
@@ -189,7 +189,7 @@ class AbstractGraspAgentTraining:
 
 
 
-        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.1,use_euclidean_dist=False,static_centers=alpha_beta)
+        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.05,use_euclidean_dist=False,static_centers=alpha_beta)
 
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
         self.gan.ini_models(train=True)
@@ -209,6 +209,15 @@ class AbstractGraspAgentTraining:
 
 
         self.Ave_uniquness = MovingRate(self.model_key + 'Ave_uniquness',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
+
+        self.collision_tendency = MovingRate(self.model_key + '_collision_tendency',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
+        self.data_update_rate = MovingRate(self.model_key + '_data_update_rate',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
@@ -522,7 +531,7 @@ class AbstractGraspAgentTraining:
 
             weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            scatter_loss = weighted_scatter_loss(torch.cat([grasp_pose[:,0:5],grasp_pose[:,8:]],dim=1).reshape(self.n_param-3, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
@@ -833,9 +842,11 @@ class AbstractGraspAgentTraining:
             hh = (counter / self.batch_size) ** 2
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
+            self.collision_tendency.update(1. if gen_initial_collision else 0.)
+
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 # if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                margin = 0 if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
+                margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
 
                 d_pairs.append((target_index, k, margin,  target_point))
 
@@ -945,6 +956,10 @@ class AbstractGraspAgentTraining:
                     self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
                     if len(self.DDM) > self.max_scenes: self.DDM.try_compress()
+
+                    self.data_update_rate.update(1.)
+                else:
+                    self.data_update_rate.update(0.)
 
             self.skip_rate.update(0.)
         else:
@@ -1094,13 +1109,13 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            # option1=pose
-                            # option2=pose*0.9+grasp_pose_gen[index]*0.1
-                            # u1 = self.approach_beta_clusters.get_uniqueness_score(
-                            #     option1[0:5]).item()
-                            # u2 = self.approach_beta_clusters.get_uniqueness_score(
-                            #     option2[0:5]).item()
-                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1#option1 if u1>u2 else option2
+                            option1=pose
+                            option2=pose*0.9+grasp_pose_gen[index]*0.1
+                            u1 = self.approach_beta_clusters.get_uniqueness_score(
+                                option1[0:5]).item()
+                            u2 = self.approach_beta_clusters.get_uniqueness_score(
+                                option2[0:5]).item()
+                            grasp_pose_ref[index] = option1 if u1>u2 else option2
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:5] = pose[0:5]
 
@@ -1209,6 +1224,8 @@ class AbstractGraspAgentTraining:
             self.random_sampler_acceptance_rate.view()
             self.confidence_indicator.view()
             self.discrimination_dist.view()
+            self.collision_tendency.view()
+            self.data_update_rate.view()
 
             self.balanced_set_grasp_quality_statistics.print()
             self.balanced_set_collision_statistics.print()
@@ -1229,6 +1246,8 @@ class AbstractGraspAgentTraining:
         self.critic_loss_statistics.save()
         self.sampler_loss_statistics.save()
         self.approach_beta_clusters.save()
+        self.collision_tendency.save()
+        self.data_update_rate.save()
 
 
         self.argmax_grasp_quality_statistics.save()

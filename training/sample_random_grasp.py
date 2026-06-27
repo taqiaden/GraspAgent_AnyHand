@@ -118,7 +118,8 @@ def random_unit_circle(n):
 
 def generate_random_CH_poses(size):
 
-    alpha_ = torch.cat([random_unit_circle(size),torch.rand((size,1),device=device)*-1],dim=1)
+    alpha_=torch.randn((size, 3), device=device)
+    alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -144,7 +145,8 @@ def generate_random_CH_poses(size):
 
 def generate_random_SH_poses(size):
 
-    alpha_ = torch.cat([random_unit_circle(size),torch.rand((size,1),device=device)*-1],dim=1)
+    alpha_=torch.randn((size, 3), device=device)
+    alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -203,7 +205,8 @@ def generate_random_SH_5F_poses(size):
 
 def generate_random_Allergo_poses(size):
 
-    alpha_ = torch.cat([random_unit_circle(size),torch.rand((size,1),device=device)*-1],dim=1)
+    alpha_=torch.randn((size, 3), device=device)
+    alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
@@ -239,7 +242,8 @@ def generate_random_Allergo_poses(size):
 
 def generate_random_r_2f85_poses(size):
 
-    alpha_ = torch.cat([random_unit_circle(size),torch.rand((size,1),device=device)*-1],dim=1)
+    alpha_=torch.randn((size, 3), device=device)
+    alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
