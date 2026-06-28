@@ -845,15 +845,15 @@ class AbstractGraspAgentTraining:
             self.collision_tendency.update(1. if gen_initial_collision else 0.)
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                # if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                if k > 0:
-                    u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                else:
-                    u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
-                u = min(u, 1.0)
-                margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
-                margin*=u
-                d_pairs.append((target_index, k, margin,  target_point))
+                if (importance > 0.1) or (self.skip_rate.val > 0.5):
+                    if k > 0:
+                        u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                    else:
+                        u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
+                    u = min(u, 1.0)
+                    margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
+                    margin*=u
+                    d_pairs.append((target_index, k, margin,  target_point))
 
                 # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
                     # superior_pose = target_ref_pose if k > 0 else target_generated_pose
