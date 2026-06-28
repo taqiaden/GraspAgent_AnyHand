@@ -169,7 +169,9 @@ class AbstractGraspAgentTraining:
         self.skipped_last=True
 
         approach_centers = torch.tensor([[0., 1., 0],[0., -1., 0],[1., 0, 0],[-1., 0, 0],[0., 0, -1]], device=device)
-        beta_centers=torch.tensor([[0., 1],[0., -1],[1., 0],[-1., 0]], device=device)
+        beta_centers=torch.tensor([[0., 1],[0., -1],[1., 0],[-1., 0],[1,1],[-1,-1],[1,-1],[-1,1]], device=device)
+        beta_centers=F.normalize(beta_centers,p=2,dim=-1)
+
         # Repeat approach_centers n_beta times
         alpha_repeated = approach_centers.repeat_interleave(beta_centers.shape[0] , dim=0)  # (20, 3)
         # Tile beta_centers n_alpha times
@@ -189,13 +191,19 @@ class AbstractGraspAgentTraining:
 
 
 
-        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.05,use_euclidean_dist=False,static_centers=alpha_beta)
+        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.01,use_euclidean_dist=False,static_centers=alpha_beta)
 
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
         self.gan.ini_models(train=True)
 
         if not self.test_mode:
             self.load_optimizers()
+
+        torch.set_printoptions(
+            precision=4,  # Number of decimal places
+            sci_mode=False  # Disable scientific notation
+        )
+        np.set_printoptions(suppress=True, precision=4)
             
 
 
@@ -209,7 +217,7 @@ class AbstractGraspAgentTraining:
 
 
         self.Ave_uniquness = MovingRate(self.model_key + 'Ave_uniquness',
-                                                       decay_rate=0.01,
+                                                       decay_rate=0.1,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
 
@@ -538,7 +546,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss#+contrast_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
@@ -546,7 +554,6 @@ class AbstractGraspAgentTraining:
         if print_details: print(Fore.LIGHTYELLOW_EX,
               f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}, contrast_loss={contrast_loss.item()}',
               Fore.RESET)
-
 
         self.gan.generator.zero_grad(set_to_none=True)
         self.gan.critic.zero_grad(set_to_none=True)
@@ -846,13 +853,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                    if k > 0:
-                        u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                    else:
-                        u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
-                    u = min(u, 1.0)
                     margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
-                    margin*=u
                     d_pairs.append((target_index, k, margin,  target_point))
 
                 # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
@@ -860,10 +861,13 @@ class AbstractGraspAgentTraining:
                 self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone(),influence_factor=grasp_quality[target_index].item())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
+                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2., report=False)
+                if not not_unique:
 
-                margin =  0 if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                    margin =  0 if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
-                g_pairs.append((target_index, k, margin, target_point))
+                    g_pairs.append((target_index, k, margin, target_point))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
@@ -925,10 +929,12 @@ class AbstractGraspAgentTraining:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
 
-                    self.Ave_uniquness.update(ave_uniqueness)
 
-                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.):
+
+                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=max(0.,((self.max_scenes/len(self.DDM))**2)*2.0)):
                         self.DDM.save_data_point(synthesised_data_obj)
+                        self.Ave_uniquness.update(ave_uniqueness)
+
                         if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
                             if print_details:print(Fore.GREEN,
                                   f'Replace sample, criteria: ave_uniqueness : { ave_uniqueness} ',
@@ -952,7 +958,7 @@ class AbstractGraspAgentTraining:
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.,report=print_details)
+                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=max(0.,((self.max_scenes/len(self.DDM))**2)*2.0),report=print_details)
 
                 if len(self.DDM) >= self.max_scenes and (not_unique or (max_importance<0.1)):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
