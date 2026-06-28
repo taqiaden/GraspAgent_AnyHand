@@ -50,11 +50,9 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         x = x[idx]
         weights=weights[idx]
 
-
     weights=weights/(weights.sum()+eps)
 
-    loss=((x[:,5:]*weights[:,None]).sum(dim=0)**2).mean() if M>5 else 0.
-
+    loss=((((x[:,5:].abs()-1).clamp(min=0.)**2)*weights[:,None]).sum(dim=0)).mean() if M>5 else 0.
 
     weights=weights[:,None]*weights[None,:]
 
@@ -1160,10 +1158,6 @@ class AbstractGraspAgentTraining:
                 self.step_discriminator(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
                 if print_details:self.print_pairs_info(d_pairs, grasp_pose, grasp_pose_ref)
 
-                self.skipped_last=False
-            else:
-                self.skipped_last=True
-
 
             if not self.train_policy_only and len(g_pairs) == self.batch_size:
 
@@ -1173,9 +1167,12 @@ class AbstractGraspAgentTraining:
                                     g_pairs)
                 if print_details:self.print_pairs_info(g_pairs, grasp_pose, grasp_pose_ref)
 
-            elif self.skip_rate.val < 0.5 or self.train_policy_only:
+                self.skipped_last = False
+            else:
+                self.skipped_last = True
 
-                self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
+                if self.skip_rate.val < 0.5 or self.train_policy_only:
+                    self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
 
             if not self.train_policy_only and not (
                     (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) and not self.test_mode:

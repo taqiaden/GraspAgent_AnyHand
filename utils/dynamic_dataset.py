@@ -158,7 +158,6 @@ class DynamicDataManagement:
         import os
         try:
             os.remove(filename)
-            print(f"Delete {filename}")
             return True
         except FileNotFoundError:
             print(f"File {filename} not found")
@@ -173,8 +172,13 @@ class DynamicDataManagement:
             last_data=self.load_data_point(self.last_id)
             self.save_at_id(last_data, id)
 
+
+
             path_to_delete = self.folder_dir + str(self.last_id) + '.npz'
             self.delete_npz(path_to_delete)
+
+            print(f"Move file {path_to_delete} to index location {id}")
+
 
             self.last_id=self.last_id-1
 
