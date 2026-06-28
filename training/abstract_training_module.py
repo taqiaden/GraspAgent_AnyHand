@@ -804,18 +804,18 @@ class AbstractGraspAgentTraining:
                 importance = max(0.01,
                                  grasp_quality[target_index].item())
                 all_pairs.append(
-                    (target_index, target_point, grasp_pose_PW[target_index], importance, gen_grasped_obj))
+                    (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
             elif ref_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref_PW[target_index][0:5]).item()
+                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
                 u=min(u,0.99)
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 importance = u*importance if importance is not None else min(0.5,max(0.01,(1-grasp_quality[target_index].item())))
                 # if importance>0.1:
                 all_pairs.append(
-                    (target_index, target_point, grasp_pose_ref_PW[target_index], importance, ref_grasped_obj))
+                    (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
 
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
@@ -846,8 +846,13 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 # if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
-
+                if k > 0:
+                    u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                else:
+                    u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
+                u = min(u, 1.0)
+                margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
+                margin*=u
                 d_pairs.append((target_index, k, margin,  target_point))
 
                 # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
@@ -1109,7 +1114,7 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            option1=pose
+                            option1=pose*0.99+grasp_pose_gen[index]*0.01
                             option2=pose*0.9+grasp_pose_gen[index]*0.1
                             u1 = self.approach_beta_clusters.get_uniqueness_score(
                                 option1[0:5]).item()
