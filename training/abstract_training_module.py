@@ -218,6 +218,10 @@ class AbstractGraspAgentTraining:
                                                        decay_rate=0.1,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
+        self.dist_bias = MovingRate(self.model_key + '_dist_bias',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
 
         self.collision_tendency = MovingRate(self.model_key + '_collision_tendency',
                                                        decay_rate=0.01,
@@ -309,6 +313,8 @@ class AbstractGraspAgentTraining:
 
         sampled_pose = self.randomization_unit(ref_pose[0, 0].numel()).reshape(600, 600, n).permute(2, 0, 1)[
             None, ...]
+
+        sampled_pose[:,7]+=self.dist_bias.val
 
         sampled_pose = sampled_pose * sampling_ratios + (1 - sampling_ratios) * ref_pose
         assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
@@ -537,7 +543,10 @@ class AbstractGraspAgentTraining:
 
             weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
 
-            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            biased_grasp_pose=grasp_pose.clone()
+            biased_grasp_pose[:,7]=biased_grasp_pose[:,7]-self.dist_bias.val
+
+            scatter_loss = weighted_scatter_loss(biased_grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
@@ -854,16 +863,18 @@ class AbstractGraspAgentTraining:
 
                 # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
                     # superior_pose = target_ref_pose if k > 0 else target_generated_pose
+                if k>0: self.dist_bias.update(target_ref_pose[7].item())
+                else: self.dist_bias.update(target_generated_pose[7].item())
                 self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone(),influence_factor=grasp_quality[target_index].item())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2., report=False)
-                if not not_unique:
+                # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                # not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2., report=False)
+                # if not not_unique:
 
-                    margin =  0 #if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                margin =  0 #if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
-                    g_pairs.append((target_index, k, margin, target_point))
+                g_pairs.append((target_index, k, margin, target_point))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
@@ -1232,6 +1243,7 @@ class AbstractGraspAgentTraining:
             self.discrimination_dist.view()
             self.collision_tendency.view()
             self.data_update_rate.view()
+            self.dist_bias.view()
 
             self.balanced_set_grasp_quality_statistics.print()
             self.balanced_set_collision_statistics.print()
@@ -1254,6 +1266,7 @@ class AbstractGraspAgentTraining:
         self.approach_beta_clusters.save()
         self.collision_tendency.save()
         self.data_update_rate.save()
+        self.dist_bias.save()
 
 
         self.argmax_grasp_quality_statistics.save()

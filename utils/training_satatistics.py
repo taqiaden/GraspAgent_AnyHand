@@ -138,15 +138,15 @@ class MovingRate():
     def __call__(self, *args, **kwargs):
         return self.moving_rate
 
-    def update(self,value):
+    def update(self,value,influence_factor=1.0):
         with torch.no_grad():
-            self.moving_rate=(1-self.decay_rate)*self.moving_rate+self.decay_rate*value
-            self.momentum=(1-self.decay_rate)*self.momentum+self.decay_rate*(value**2)
+            self.moving_rate=(1-self.decay_rate*influence_factor)*self.moving_rate+self.decay_rate*influence_factor*value
+            self.momentum=(1-self.decay_rate*influence_factor)*self.momentum+self.decay_rate*influence_factor*(value**2)
             delta=value-self.moving_rate
-            self.var_x=(1-self.decay_rate)*self.var_x+self.decay_rate*(delta**2)
+            self.var_x=(1-self.decay_rate*influence_factor)*self.var_x+self.decay_rate*influence_factor*(delta**2)
             if self.last_value is not None:
                 change = value - self.last_value
-                self.convergence = self.decay_rate * change + self.convergence * (1 - self.decay_rate)
+                self.convergence = self.decay_rate *influence_factor* change + self.convergence * (1 - self.decay_rate*influence_factor)
             self.last_value=value
             self.counter+=1
 

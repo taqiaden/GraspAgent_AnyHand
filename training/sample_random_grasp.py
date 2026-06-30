@@ -134,7 +134,7 @@ def generate_random_CH_poses(size):
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]*=torch.rand((size, 2), device=device)**2
-    delta[:,-1]-=0.5
+    # delta[:,-1]-=0.5
 
     # values = torch.tensor([ 0.,0.3,0.5,0.7, 1.])
     # transition_=sample_vectors(size, 1, values).to(device)
