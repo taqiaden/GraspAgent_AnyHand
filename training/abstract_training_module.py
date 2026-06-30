@@ -52,7 +52,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     weights=weights/(weights.sum()+eps)
 
-    loss=((((x[:,5:].abs()-1).clamp(min=0.)**2)*weights[:,None]).sum(dim=0)).mean() if M>5 else 0.
+    loss=(((x[:,5:].abs())*weights[:,None]).sum(dim=0)).mean() if M>5 else 0.
 
     weights=weights[:,None]*weights[None,:]
 
@@ -535,22 +535,22 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
 
-            scatter_loss = weighted_scatter_loss(torch.cat([grasp_pose[:,0:5],grasp_pose[:,8:]],dim=1).reshape(self.n_param-3, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            scatter_loss = weighted_scatter_loss(grasp_pose.reshape(self.n_param, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss#+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
             sampler_loss.backward()
             if self.activate_grad_clipping: self.policy_gradient_clipping()
             self.gan.sampler_optimizer.step()
 
         if print_details: print(Fore.LIGHTYELLOW_EX,
-              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}, contrast_loss={contrast_loss.item()}, contrast_loss={contrast_loss.item()}',
+              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_.item()}, scatter_loss={scatter_loss.item()}',
               Fore.RESET)
 
         self.gan.generator.zero_grad(set_to_none=True)
@@ -805,19 +805,17 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-
-                importance = max(0.01,
-                                 grasp_quality[target_index].item())
+                v=grasp_quality[target_index].item()
+                importance = max(0.01,v)
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
             elif ref_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                u=min(u,0.99)
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                importance = u*importance if importance is not None else min(0.5,max(0.01,(1-grasp_quality[target_index].item())))
+                v=1-grasp_quality[target_index].item()
+                importance = 0.5*importance if importance is not None else max(0.01,v)
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
@@ -863,7 +861,7 @@ class AbstractGraspAgentTraining:
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2., report=False)
                 if not not_unique:
 
-                    margin =  0 if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                    margin =  0 #if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
 
                     g_pairs.append((target_index, k, margin, target_point))
 
@@ -970,9 +968,7 @@ class AbstractGraspAgentTraining:
                 else:
                     self.data_update_rate.update(0.)
 
-            self.skip_rate.update(0.)
         else:
-            self.skip_rate.update(1.)
 
             if self.loaded_synthesised_data is not None:
                 if print_details:print(Fore.LIGHTRED_EX, 'Poses not found for the scene, to be replaced', Fore.RESET)
@@ -1054,7 +1050,7 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last or self.skip_rate.val>np.random.random()**2 or len(self.DDM) < 100) and not self.train_policy_only:
+        if (self.skipped_last or self.skip_rate.val>np.random.random() or len(self.DDM) < 100) and not self.train_policy_only:
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
@@ -1096,7 +1092,7 @@ class AbstractGraspAgentTraining:
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
 
-                annealing_factor = (1 - grasp_quality.detach()).clamp(min=self.skip_rate.val ** 2)
+                annealing_factor = (1 - grasp_quality.detach())#.clamp()
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
@@ -1118,13 +1114,13 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            option1=pose*0.99+grasp_pose_gen[index]*0.01
-                            option2=pose*0.9+grasp_pose_gen[index]*0.1
-                            u1 = self.approach_beta_clusters.get_uniqueness_score(
-                                option1[0:5]).item()
-                            u2 = self.approach_beta_clusters.get_uniqueness_score(
-                                option2[0:5]).item()
-                            grasp_pose_ref[index] = option1 if u1>u2 else option2
+                            # option1=pose*0.99+grasp_pose_gen[index]*0.01
+                            # option2=pose*0.9+grasp_pose_gen[index]*0.1
+                            # u1 = self.approach_beta_clusters.get_uniqueness_score(
+                            #     option1[0:5]).item()
+                            # u2 = self.approach_beta_clusters.get_uniqueness_score(
+                            #     option2[0:5]).item()
+                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1#option1 if u1>u2 else option2
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:5] = pose[0:5]
 
@@ -1157,7 +1153,11 @@ class AbstractGraspAgentTraining:
                 # d_cropped_local_point_clouds=None
                 self.step_discriminator(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
                 if print_details:self.print_pairs_info(d_pairs, grasp_pose, grasp_pose_ref)
-
+                self.skipped_last = False
+                self.skip_rate.update(0.)
+            else:
+                self.skipped_last = True
+                self.skip_rate.update(1.)
 
             if not self.train_policy_only and len(g_pairs) == self.batch_size:
 
@@ -1167,9 +1167,7 @@ class AbstractGraspAgentTraining:
                                     g_pairs)
                 if print_details:self.print_pairs_info(g_pairs, grasp_pose, grasp_pose_ref)
 
-                self.skipped_last = False
             else:
-                self.skipped_last = True
 
                 if self.skip_rate.val < 0.5 or self.train_policy_only:
                     self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
