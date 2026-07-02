@@ -51,23 +51,19 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         weights=weights[idx]
 
     weights = weights / (weights.sum() + eps)
+
+
     w = weights[:, None] * weights[None, :]
 
-    # Cosine similarity (dot product since unit vectors)
-    def l_(sub_x):
+    diff = x[:, None, :] - x[None, :, :]
 
-        cos_sim = sub_x @ sub_x.T
+    dist = diff.abs()
 
-        cos_sim = cos_sim.clamp(-1 + eps, 1 - eps)
+    weighted_dif = w[:, :, None] *  - dist
 
-        dist = (1 - cos_sim) / 2  # [0, 1]
+    loss = weighted_dif.sum() / (x.shape[1] + eps)
 
-        # Apply kernel
-        weighted = w * (1 - dist)
-
-        return weighted.sum()
-
-    return l_(x[:,0:3])+l_(x[:,3:])
+    return loss
 
 
 
@@ -859,24 +855,25 @@ class AbstractGraspAgentTraining:
             self.collision_tendency.update(1. if gen_initial_collision else 0.)
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
-                if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                    margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
-                    d_pairs.append((target_index, k, margin,  target_point))
-
-                # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
-                    # superior_pose = target_ref_pose if k > 0 else target_generated_pose
-                if k>0: self.dist_bias.update(target_ref_pose[7].item())
-                else: self.dist_bias.update(target_generated_pose[7].item())
-                self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone(),influence_factor=grasp_quality[target_index].item())
-
-            if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2., report=False)
                 if not not_unique:
+                    if (importance > 0.1) or (self.skip_rate.val > 0.5):
+                        margin = 0. if ref_initial_collision or gen_initial_collision else  ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
+                        d_pairs.append((target_index, k, margin,  target_point))
 
-                    margin =  0 #if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+                    # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
+                        # superior_pose = target_ref_pose if k > 0 else target_generated_pose
+                if k>0: self.dist_bias.update(target_ref_pose[7].item())
+                else: self.dist_bias.update(target_generated_pose[7].item())
+                if grasp_quality[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
-                    g_pairs.append((target_index, k, margin, target_point))
+            if len(g_pairs) < self.batch_size and ref_success and not gen_success:
+
+
+                margin =  0 #if ref_initial_collision or gen_initial_collision else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2
+
+                g_pairs.append((target_index, k, margin, target_point))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
@@ -1166,11 +1163,14 @@ class AbstractGraspAgentTraining:
                 # d_cropped_local_point_clouds=None
                 self.step_discriminator(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
                 if print_details:self.print_pairs_info(d_pairs, grasp_pose, grasp_pose_ref)
-                self.skipped_last = False
-                self.skip_rate.update(0.)
+
+                if not self.train_policy_only:
+                    self.skipped_last = False
+                    self.skip_rate.update(0.)
             else:
-                self.skipped_last = True
-                self.skip_rate.update(1.)
+                if not self.train_policy_only:
+                    self.skipped_last = True
+                    self.skip_rate.update(1.)
 
             if not self.train_policy_only and len(g_pairs) == self.batch_size:
 
