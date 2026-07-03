@@ -30,7 +30,6 @@ def process_pose(target_point, target_pose, view=False):
     default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.], device=device))
     quat = grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
 
-
     assert all(x == x for x in quat), f"quat contains NaN, {quat, alpha, beta}"
 
     if view:
@@ -50,7 +49,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=R_2F85_G,critic_model=R_2F85_D,  epochs=epochs ,model_key=R_2F85_model_key,
                          test_mode=False,randomization_unit=generate_random_r_2f85_poses,
-                         process_pose=process_pose,n_param=8,train_policy_only=False)
+                         process_pose=process_pose,n_param=8,train_policy_only=True)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()

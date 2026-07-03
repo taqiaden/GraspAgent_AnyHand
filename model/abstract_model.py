@@ -24,6 +24,9 @@ class G(nn.Module):
         self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
                                     relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
 
+        self.back_bone3_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
+                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
+
         self.PoseSampler = sampler_decoder
 
 
@@ -35,11 +38,12 @@ class G(nn.Module):
 
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
+        self.back_bone3_.apply(init_weights_he_normal)
 
         self.grasp_quality_.apply(init_weights_he_normal)
         self.collision.apply(init_weights_he_normal)
 
-    def forward(self, depth,  detach_backbone=False):
+    def forward(self, depth,  detach_backbone=False,detach_collision=False):
         standarized_depth_=depth_normalization(depth)
 
         '''backbones'''
@@ -69,7 +73,14 @@ class G(nn.Module):
         grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
 
 
-        collision = self.collision(features2.detach(), detached_dense_grasp_pose)
+        if detach_collision:
+            with torch.no_grad():
+                features3 = self.back_bone3_(standarized_depth_)
+                collision = self.collision(features3, detached_dense_grasp_pose)
+
+        else:
+            features3 = self.back_bone3_(standarized_depth_)
+            collision = self.collision(features3, detached_dense_grasp_pose)
 
 
         return dense_grasp_pose, grasp_quality_logits,features2.detach(),collision
