@@ -11,10 +11,20 @@ from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
 
+def cip_fingers(target_pose_):
+    if target_pose_.ndim==2:
+        target_pose_[:,8:]=target_pose_[:,8:].clamp(min=0.,max=1.)
+    else:
+        target_pose_[8:]=target_pose_[8:].clamp(min=0.,max=1.)
+
+    return target_pose_
+
 def process_fingers(target_pose_):
     fingers = target_pose_[5+3: ]
 
     ''''''
+    fingers[0:1]-=0.5
+
     fingers[1:2]*=1.806
     fingers[1:2]-=0.196
 
@@ -25,6 +35,8 @@ def process_fingers(target_pose_):
     fingers[3:4]-=0.227
 
     ''''''
+    fingers[4:5]-=0.5
+
     fingers[5:6]*=1.806
     fingers[5:6]-=0.196
 
@@ -35,6 +47,7 @@ def process_fingers(target_pose_):
     fingers[7:8]-=0.227
 
     ''''''
+    fingers[8:9]-=0.5
 
     fingers[9:10]*=1.806
     fingers[9:10]-=0.196
@@ -58,7 +71,6 @@ def process_fingers(target_pose_):
 
     fingers[15:16]*=1.882
     fingers[15:16]-=0.162
-
 
     return fingers
 
@@ -103,7 +115,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
-                         test_mode=False,randomization_unit=generate_random_Allergo_poses,
+                         test_mode=False,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
                          process_pose=process_pose,n_param=24)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)

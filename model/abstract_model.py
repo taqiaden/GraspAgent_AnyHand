@@ -43,34 +43,37 @@ class G(nn.Module):
         self.grasp_quality_.apply(init_weights_he_normal)
         self.collision.apply(init_weights_he_normal)
 
-    def forward(self, depth,  detach_backbone=False,detach_collision=False):
+    def forward(self, depth,  detach_sampler=False,detach_quality=False,detach_collision=False):
         standarized_depth_=depth_normalization(depth)
 
         '''backbones'''
-        if detach_backbone:
+        if detach_sampler:
             with torch.no_grad():
                 features = self.back_bone(standarized_depth_)
-                features2 = self.back_bone2_(standarized_depth_)
+                dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
 
         else:
             features = self.back_bone(standarized_depth_)
+            dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
+
+        detached_dense_grasp_pose = dense_grasp_pose.detach().clone()
+        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose, standarized_depth_], dim=1)
+
+        if detach_quality:
+            with torch.no_grad():
+                features2 = self.back_bone2_(standarized_depth_)
+                grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
+
+
+        else:
             features2 = self.back_bone2_(standarized_depth_)
-
-
+            grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
 
         # print('G b1 max val= ', features.max().item(), 'mean:', features.mean().item(), ' std:',
         #       features.std(dim=1).mean().item())
         # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
         #       features2.std(dim=1).mean().item())
 
-        '''sampler'''
-        dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
-
-        detached_dense_grasp_pose = dense_grasp_pose.detach().clone()
-        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose, standarized_depth_], dim=1)
-
-        '''policy'''
-        grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
 
 
         if detach_collision:

@@ -212,7 +212,7 @@ def generate_random_Allergo_poses(size):
     beta_ = random_unit_circle(size)
     beta_ = F.normalize(beta_, dim=-1)
 
-    fingers_ = torch.rand((size, 16), device=device)-0.5
+    fingers_ = torch.rand((size, 16), device=device)
 
     fingers_[:,1:2]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,2:3]=1-torch.rand((size, 1), device=device)**2
