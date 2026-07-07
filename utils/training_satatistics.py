@@ -118,7 +118,7 @@ class MovingRate():
         self.moving_rate=initial_val
         self.momentum=0.0
         self.convergence=0.0
-        self.var_x=0.
+        self.var_x=1.
 
         self.initial_val=initial_val
 
@@ -134,6 +134,10 @@ class MovingRate():
     @property
     def val(self):
         return self.moving_rate
+
+    @property
+    def std(self):
+        return math.sqrt(self.var_x)
 
     def __call__(self, *args, **kwargs):
         return self.moving_rate

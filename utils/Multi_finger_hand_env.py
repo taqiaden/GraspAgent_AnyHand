@@ -334,12 +334,12 @@ class MojocoMultiFingersEnv():
                 self.d.qpos = self.far_hand_pos + self.far_hand_quat + self.default_finger_joints + self.objects_poses
                 self.static_view(1000)
 
-            new_poses=self.get_stable_object_pose(self.objects_poses,stablize=stablize) if stablize else self.d.qpos[7 + len(self.default_finger_joints):]
-            if new_poses is not None:
+            new_poses,unresolved=self.get_stable_object_pose(self.objects_poses,stablize=stablize) if stablize else self.d.qpos[7 + len(self.default_finger_joints):]
+            if new_poses is not None and not unresolved:
                 self.objects_poses=new_poses.tolist()
                 break
             else:
-                self.remove_all_objects()
+                self.remove_objects(len(self.objects))
             # break
         if view:
             self.d.mocap_pos[0] = self.far_hand_pos
@@ -902,6 +902,7 @@ class MojocoMultiFingersEnv():
             new_obj_pos=np.copy(self.d.qpos[7 + len(self.default_finger_joints):])
             if last_obj_pos is not None:
                 diff=np.mean(np.abs(last_obj_pos-new_obj_pos))
+                if np.isnan(diff):break
                 if diff<threshold:
                     counter+=1
                     # self.d.qvel[:] = 0
@@ -921,8 +922,7 @@ class MojocoMultiFingersEnv():
             print(Fore.RED,f'Cannot find a stable obj state, diff={diff}',Fore.RESET)
             # return None
 
-
-        return  self.d.qpos[7 + len(self.default_finger_joints):]
+        return  self.d.qpos[7 + len(self.default_finger_joints):], np.isnan(diff)
 
     def manual_view(self,pos=None,quat=None,fingers=None):
         pos=[0., 0., .3] if pos is None else pos
@@ -1113,6 +1113,9 @@ class MojocoMultiFingersEnv():
                 time_until_next_step = self.m.opt.timestep - (time.time() - step_start)
                 if time_until_next_step > 0:
                     time.sleep(time_until_next_step)
+
+    def __len__(self):
+        return len(self.objects)
 if __name__ == "__main__":
     print(mujoco.__version__)
 

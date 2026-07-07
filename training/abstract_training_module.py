@@ -223,7 +223,6 @@ class AbstractGraspAgentTraining:
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
-
         self.collision_tendency = MovingRate(self.model_key + '_collision_tendency',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
@@ -310,7 +309,10 @@ class AbstractGraspAgentTraining:
             print(f'ref_pose is nan: {ref_pose}')
             exit()
 
-        sampling_ratios=annealing_factor
+        # sampling_ratios=annealing_factor
+        sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
+                    annealing_factor * torch.rand_like(ref_pose) + 1e-4))
+        sampling_ratios[:, :3] = annealing_factor
 
         # if len(self.DDM)<self.max_scenes:
         # sampling_ratios = torch.where(annealing_factor > 0.5 , torch.tensor(1.0), sampling_ratios)
@@ -495,8 +497,8 @@ class AbstractGraspAgentTraining:
 
             self.confidence_indicator.update(high_quality.mean().item() )
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean()
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean()
 
         print(f'loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
@@ -523,9 +525,10 @@ class AbstractGraspAgentTraining:
         grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
         floor_quality_loss=torch.tensor([0.],device=device)
         collision_loss_=torch.tensor([0.],device=device)
+
+
         if grasp_quality_loss_ is not None:
             floor_quality_loss=probs[floor_mask].clamp(min=0).mean()
-
             if self.train_policy_only:
                 collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
@@ -539,8 +542,8 @@ class AbstractGraspAgentTraining:
 
         scatter_loss=torch.tensor([0.],device=device)
         grasp_sampling_loss=torch.tensor([0.],device=device)
-        spatial_consistency_loss=torch.tensor([0.],device=device)
-        contrast_loss=torch.tensor([0.],device=device)
+        # spatial_consistency_loss=torch.tensor([0.],device=device)
+        # contrast_loss=torch.tensor([0.],device=device)
         if len(pairs) == self.batch_size:
             grasp_sampling_loss = self.get_generator_loss(cropped_local_point_clouds,
                                                             depth, clean_depth, grasp_pose, grasp_pose_ref,
@@ -556,19 +559,18 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-
-            spatial_consistency_loss=(grasp_pose[:,5:7].reshape(2, -1).permute(1, 0)[~floor_mask] * weight[:,None]).sum()**2
+            # spatial_consistency_loss=(grasp_pose[:,5:7].reshape(2, -1).permute(1, 0)[~floor_mask] * weight[:,None]).sum()**2
 
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss+spatial_consistency_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
         if print_details: print(Fore.LIGHTYELLOW_EX,
-              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_}, scatter_loss={scatter_loss.item()}, spatial_consistency_loss={spatial_consistency_loss.item()}',
+              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_}, scatter_loss={scatter_loss.item()}',
               Fore.RESET)
 
         self.gan.generator.zero_grad(set_to_none=True)
@@ -599,13 +601,14 @@ class AbstractGraspAgentTraining:
                 grasp_prediction_logits = grasp_quality_logits[grasp_target_index].squeeze()
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
 
+
                 grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
 
                 if warning_flag: continue
-                if time.time() - start > 5 * s or self.skip_rate.val > 0.9:
+                if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
                     return None
                 if initial_collision and self.exclude_collision_from_grasp_quality:continue
                 label = torch.ones_like(grasp_prediction_logits) if grasp_success else torch.zeros_like(grasp_prediction_logits)
@@ -731,14 +734,14 @@ class AbstractGraspAgentTraining:
         g_pairs = []
         all_pairs = []
 
-        selection_mask = (~floor_mask)
+        selection_mask = (~floor_mask.clone())
         grasp_quality = grasp_quality[0, 0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
         clipped_grasp_pose_PW = grasp_pose_PW.clone()
         clipped_grasp_pose_PW[:, 5:5 + 3] = torch.clip(clipped_grasp_pose_PW[:, 5:5 + 3], 0, 1)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-        selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality
+        selection_p =torch.rand_like(grasp_quality) if self.loaded_synthesised_data is None else grasp_quality
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
@@ -816,7 +819,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=grasp_quality[target_index].item()**2
+                v=grasp_quality[target_index].item()
                 importance = max(0.01,v)
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -869,7 +872,7 @@ class AbstractGraspAgentTraining:
                     # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
                         # superior_pose = target_ref_pose if k > 0 else target_generated_pose
                 if k>0: self.dist_bias.update(target_ref_pose[7].item())
-                else: self.dist_bias.update(target_generated_pose[7].item())
+                if k<0: self.dist_bias.update(target_generated_pose[7].item())
                 if grasp_quality[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
@@ -1077,7 +1080,11 @@ class AbstractGraspAgentTraining:
             self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
 
             min_=0 if self.train_policy_only else 5
-            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, self.sim_env.max_obj_per_scene ))
+            max_=15 if self.train_policy_only else self.sim_env.max_obj_per_scene
+
+            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ))
+
+        if len(self.sim_env.objects)==0:return
 
         '''get scene perception'''
         depth, pc, floor_mask = self.sim_env.get_scene_preception(view=False)
