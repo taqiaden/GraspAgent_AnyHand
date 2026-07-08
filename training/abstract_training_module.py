@@ -25,6 +25,7 @@ import spconv.pytorch as spconv
 from torch_scatter import scatter_mean
 import numpy as np
 from utils.visualiztion import view_npy_open3d
+from utils.where_I_am import detect_environment
 
 print_details=True
 
@@ -56,10 +57,9 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
     w = weights[:, None] * weights[None, :]
 
     diff = x[:, None, :] - x[None, :, :]
-
     dist = diff.abs()
     weighted_dif = w[:, :, None] *  (1- dist).clamp(min=0)
-    loss = weighted_dif.sum()*100
+    loss = weighted_dif.sum()/(w.sum()*M)
 
     return loss
 
@@ -202,7 +202,8 @@ class AbstractGraspAgentTraining:
         )
         np.set_printoptions(suppress=True, precision=4)
             
-
+        env=detect_environment()
+        print(Fore.GREEN,f"Environment: {env}",Fore.RESET)
 
     def initialize(self):
 
@@ -495,12 +496,14 @@ class AbstractGraspAgentTraining:
 
             self.confidence_indicator.update(high_quality.mean().item() )
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean()
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean()
+        loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
+
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean().detach()
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean().detach()
 
         print(f'loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss_p
+        return loss
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
