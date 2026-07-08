@@ -261,7 +261,6 @@ class MojocoMultiFingersEnv():
 
     def drop_new_obj(self,selected_index=None,obj_pose=None,obj_quat=None,stablize=True,drop_far_from_others=False,n=1,random_sampling=False,view=False):
         while True:
-
             for el in range(n):
                 if selected_index is None:
                     for j in range(1000):
@@ -335,6 +334,7 @@ class MojocoMultiFingersEnv():
                 self.static_view(1000)
 
             new_poses,unresolved=self.get_stable_object_pose(self.objects_poses,stablize=stablize) if stablize else self.d.qpos[7 + len(self.default_finger_joints):]
+
             if new_poses is not None and not unresolved:
                 self.objects_poses=new_poses.tolist()
                 break

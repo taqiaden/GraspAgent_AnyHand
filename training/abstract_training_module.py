@@ -58,10 +58,8 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
     diff = x[:, None, :] - x[None, :, :]
 
     dist = diff.abs()
-
-    weighted_dif = w[:, :, None] *  - dist
-
-    loss = weighted_dif.sum() / (x.shape[1] + eps)
+    weighted_dif = w[:, :, None] *  (1- dist).clamp(min=0)
+    loss = weighted_dif.sum()*100
 
     return loss
 
@@ -551,7 +549,7 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach())#**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()*2).clamp(max=1.0)**2
 
             weight = weight / (weight.sum() + 1e-6)
 
@@ -578,6 +576,8 @@ class AbstractGraspAgentTraining:
         self.gan.generator_optimizer.zero_grad(set_to_none=True)
         self.gan.critic_optimizer.zero_grad(set_to_none=True)
         self.gan.sampler_optimizer.zero_grad(set_to_none=True)
+
+
 
     def get_grasp_quality_loss(self,probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
 
@@ -1079,12 +1079,13 @@ class AbstractGraspAgentTraining:
 
             self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
 
-            min_=0 if self.train_policy_only else 5
+            min_=1 if self.train_policy_only else 5
             max_=15 if self.train_policy_only else self.sim_env.max_obj_per_scene
 
             self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ))
 
         if len(self.sim_env.objects)==0:return
+
 
         '''get scene perception'''
         depth, pc, floor_mask = self.sim_env.get_scene_preception(view=False)
