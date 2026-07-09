@@ -51,9 +51,6 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         x = x[idx]
         weights=weights[idx]
 
-
-
-
     w = weights[:, None] * weights[None, :]
 
     diff = x[:, None, :] - x[None, :, :]
@@ -553,7 +550,7 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()*2).clamp(max=1.0)**2
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
 
             weight = weight / (weight.sum() + 1e-6)
 
