@@ -479,6 +479,7 @@ class AbstractGraspAgentTraining:
         gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
 
         grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
         grasp_quality_obj_x = grasp_quality_x[~floor_mask]
@@ -524,16 +525,16 @@ class AbstractGraspAgentTraining:
         self.supplemetary_statistics( probs.clone().detach(), pc, grasp_pose_PW,floor_mask)
 
         grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
-        floor_quality_loss=torch.tensor([0.],device=device)
+        # floor_quality_loss=torch.tensor([0.],device=device)
         collision_loss_=torch.tensor([0.],device=device)
 
 
         if grasp_quality_loss_ is not None:
-            floor_quality_loss=probs[floor_mask].clamp(min=0).mean()
+            # floor_quality_loss=probs[floor_mask].clamp(min=0).mean()
             if self.train_policy_only:
                 collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
-            policy_loss =    grasp_quality_loss_ +collision_loss_+floor_quality_loss
+            policy_loss =    grasp_quality_loss_ +collision_loss_#+floor_quality_loss
             policy_loss.backward()
             self.gan.generator_optimizer.step()
             self.gan.generator.zero_grad(set_to_none=True)
@@ -571,7 +572,7 @@ class AbstractGraspAgentTraining:
             self.gan.sampler_optimizer.step()
 
         if print_details: print(Fore.LIGHTYELLOW_EX,
-              f'grasp_sampling_loss={grasp_sampling_loss.item()}, floor_quality_loss={floor_quality_loss.item()}, grasp_quality_loss_={grasp_quality_loss_}, scatter_loss={scatter_loss.item()}',
+              f'grasp_sampling_loss={grasp_sampling_loss.item()},  grasp_quality_loss_={grasp_quality_loss_}, scatter_loss={scatter_loss.item()}',
               Fore.RESET)
 
         self.gan.generator.zero_grad(set_to_none=True)
@@ -869,7 +870,7 @@ class AbstractGraspAgentTraining:
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=(self.Ave_uniquness.val**2)*2.0, report=False)
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                        margin =0. if gen_initial_collision or ref_initial_collision else   ((1-(0.5-  grasp_quality[target_index]).abs().item()*2)**2 if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2)**2)
+                        margin =0. if gen_initial_collision or ref_initial_collision else   ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
                         d_pairs.append((target_index, k, margin,  target_point))
 
                     # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
@@ -1181,11 +1182,9 @@ class AbstractGraspAgentTraining:
 
                 if not self.train_policy_only:
                     self.skipped_last = False
-                    self.skip_rate.update(0.)
             else:
                 if not self.train_policy_only:
                     self.skipped_last = True
-                    self.skip_rate.update(1.)
 
             if not self.train_policy_only and len(g_pairs) == self.batch_size:
 
@@ -1195,10 +1194,15 @@ class AbstractGraspAgentTraining:
                                     g_pairs)
                 if print_details:self.print_pairs_info(g_pairs, grasp_pose, grasp_pose_ref)
 
+                if not self.train_policy_only:
+                    self.skipped_last = False
             else:
 
                 if self.skip_rate.val < 0.5 or self.train_policy_only:
                     self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
+
+            if self.skipped_last: self.skip_rate.update(1.)
+            else: self.skip_rate.update(0.)
 
             if not self.train_policy_only and not (
                     (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) and not self.test_mode:
