@@ -494,14 +494,14 @@ class AbstractGraspAgentTraining:
 
             self.confidence_indicator.update(high_quality.mean().item() )
 
-        loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
+        # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean().detach()
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean()
         loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean().detach()
 
         print(f'loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss
+        return loss_p
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
