@@ -444,10 +444,11 @@ class AbstractGraspAgentTraining:
 
         return loss
 
-    def supplemetary_statistics(self,probs,pc,grasp_pose_PW,floor_mask):
+    def supplemetary_statistics(self,probs,pc,grasp_pose_PW,floor_mask,coll_props):
         try:
             for l in range(10):
-                dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=(~floor_mask)&(probs>0.5))
+                mask_=(~floor_mask)&(probs>0.5)&(coll_props<0.5) if self.train_policy_only else (~floor_mask)&(probs>0.5)
+                dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=mask_)
                 grasp_target_index = dist.probs.argmax()
                 grasp_target_point = pc[grasp_target_index]
                 grasp_prediction_ = probs[grasp_target_index].squeeze().clone()
@@ -518,20 +519,19 @@ class AbstractGraspAgentTraining:
         grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
         grasp_collision_logits = grasp_collision_logits[0, 0].reshape(-1)
         probs = logits_to_probs(grasp_quality_logits)
+        coll_props=logits_to_probs(grasp_collision_logits.detach().clone())
 
-        self.supplemetary_statistics( probs.clone().detach(), pc, grasp_pose_PW,floor_mask)
+        self.supplemetary_statistics( probs.clone().detach(), pc, grasp_pose_PW,floor_mask,coll_props)
 
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
-        # floor_quality_loss=torch.tensor([0.],device=device)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,coll_props,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
         collision_loss_=torch.tensor([0.],device=device)
 
 
         if grasp_quality_loss_ is not None:
-            # floor_quality_loss=probs[floor_mask].clamp(min=0).mean()
             if self.train_policy_only:
                 collision_loss_=self.get_grasp_collision_loss(probs, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=True)
 
-            policy_loss =    grasp_quality_loss_ +collision_loss_#+floor_quality_loss
+            policy_loss =    grasp_quality_loss_ +collision_loss_
             policy_loss.backward()
             self.gan.generator_optimizer.step()
             self.gan.generator.zero_grad(set_to_none=True)
@@ -580,7 +580,7 @@ class AbstractGraspAgentTraining:
 
 
 
-    def get_grasp_quality_loss(self,probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_quality_loss(self,probs,coll_props,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
 
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
@@ -592,10 +592,11 @@ class AbstractGraspAgentTraining:
         for k in range(n):
             '''grasp quality'''
             while True:
+                mask_=(coll_props<0.5)&(~floor_mask) if self.train_policy_only else ~floor_mask
                 if random_sampling:
-                    dist = MaskedCategorical(probs=torch.rand_like(probs), mask=~floor_mask)
+                    dist = MaskedCategorical(probs=torch.rand_like(probs), mask=mask_)
                 else:
-                    dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=~floor_mask)
+                    dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
@@ -867,7 +868,7 @@ class AbstractGraspAgentTraining:
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=(self.Ave_uniquness.val**2)*2.0, report=False)
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                        margin =0. if gen_initial_collision or ref_initial_collision else   ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
+                        margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
                         d_pairs.append((target_index, k, margin,  target_point))
 
                     # if (self.loaded_synthesised_data is None or len(self.loaded_synthesised_data) == 0):
