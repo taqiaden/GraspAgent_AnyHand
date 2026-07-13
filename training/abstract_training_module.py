@@ -512,12 +512,12 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean()
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean().detach()
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()#.detach()
 
         print(f'loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss_p
+        return loss_p++loss_n
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
@@ -882,7 +882,7 @@ class AbstractGraspAgentTraining:
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=0.01
+                        if ref_initial_collision or gen_initial_collision:margin*=self.collision_tendency.val**2
                         d_pairs.append((target_index, k, margin,  target_point))
 
                 if k>0: self.dist_bias.update(target_ref_pose[7].item())
