@@ -455,13 +455,12 @@ class AbstractGraspAgentTraining:
     def supplementary_statistics(self, probs, pc, grasp_pose_PW, floor_mask, coll_props):
         try:
             if self.train_policy_only:
-                probs2=(1-coll_props)
-                mask_ = (~floor_mask) & (probs2 > 0.5)
+                mask_ = (~floor_mask) & (coll_props > 0.5)
 
-                dist = MaskedCategorical(probs=probs2.clamp(min=0.1), mask=mask_)
+                dist = MaskedCategorical(probs=coll_props.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.probs.argmax()
                 grasp_target_point = pc[grasp_target_index]
-                grasp_prediction_ = probs2[grasp_target_index].squeeze().clone()
+                grasp_prediction_ = coll_props[grasp_target_index].squeeze().clone()
 
 
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
@@ -480,7 +479,7 @@ class AbstractGraspAgentTraining:
 
         try:
             # probs2=probs*(1-coll_props)
-            for l in range(10):
+            for l in range(30):
                 mask_=(~floor_mask)&(probs>0.5)
                 dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=mask_)
                 grasp_target_index = dist.probs.argmax()
