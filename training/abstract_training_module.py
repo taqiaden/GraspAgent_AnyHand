@@ -398,17 +398,18 @@ class AbstractGraspAgentTraining:
             target_index = pairs[j][0]
             k = pairs[j][1]
             margin = pairs[j][2]
+            is_col=pairs[j][4]
 
             target_generated_pose = grasp_pose[target_index].detach()
             target_ref_pose = grasp_pose_ref[target_index].detach()
 
             if k < 0:
                 print(Fore.GREEN,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin} ',
+                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col} ',
                       Fore.RESET)
             elif k > 0:
                 print(Fore.LIGHTCYAN_EX,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin} ',
+                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col} ',
                       Fore.RESET)
 
     def get_generator_loss(self, cropped_local_point_clouds, depth, clean_depth, grasp_pose, grasp_pose_ref, pairs, floor_mask    ):
@@ -866,7 +867,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=grasp_quality[target_index].item()
+                v=torch.sqrt(grasp_quality[target_index]*grasp_feasiblity[target_index]).item()
                 importance = max(0.01,v)
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -875,7 +876,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                v=1-grasp_quality[target_index].item()
+                v=1-torch.sqrt(grasp_quality[target_index]*grasp_feasiblity[target_index]).item()
                 importance = grasp_quality[target_index].item()*importance if importance is not None else max(0.01,v)
                 # if importance>0.1:
                 all_pairs.append(
@@ -914,7 +915,7 @@ class AbstractGraspAgentTraining:
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
                         if ref_initial_collision or gen_initial_collision:margin=grasp_feasiblity[target_index].item()#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
-                        d_pairs.append((target_index, k, margin,  target_point))
+                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision))
 
                 if k>0: self.dist_bias.update(target_ref_pose[7].item())
                 if k<0: self.dist_bias.update(target_generated_pose[7].item())
@@ -925,7 +926,7 @@ class AbstractGraspAgentTraining:
 
                 margin =  0.
 
-                g_pairs.append((target_index, k, margin, target_point))
+                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
