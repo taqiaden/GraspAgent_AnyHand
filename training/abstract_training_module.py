@@ -443,24 +443,24 @@ class AbstractGraspAgentTraining:
 
     def supplementary_statistics(self, probs, pc, grasp_pose_PW, floor_mask, coll_props):
         try:
-            if self.train_policy_only:
-                mask_ = (~floor_mask) & (coll_props > 0.5)
+            probs2=(coll_props*probs)**0.5
+            mask_ = (~floor_mask) & (coll_props > 0.5) & (probs>0.5)
 
-                dist = MaskedCategorical(probs=coll_props.clamp(min=0.1), mask=mask_)
-                grasp_target_index = dist.probs.argmax()
-                grasp_target_point = pc[grasp_target_index]
-                grasp_prediction_ = coll_props[grasp_target_index].squeeze().clone()
+            dist = MaskedCategorical(probs=probs2.clamp(min=0.1), mask=mask_)
+            grasp_target_index = dist.probs.argmax()
+            grasp_target_point = pc[grasp_target_index]
+            grasp_prediction_ = probs2[grasp_target_index].squeeze().clone()
 
 
-                grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-                grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
-                    grasp_target_point, grasp_target_pose, view=False,
-                    shake=self.shake, check_kinematics=False,
-                    update_obj_prob=None)
+            grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
+            grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_target_point, grasp_target_pose, view=False,
+                shake=self.shake, check_kinematics=False,
+                update_obj_prob=None)
 
-                label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
-                    grasp_prediction_)
-                self.argmax_policy_statistics.update_confession_matrix(label.detach(),
+            label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
+                grasp_prediction_)
+            self.argmax_policy_statistics.update_confession_matrix(label.detach(),
                                                                             grasp_prediction_.detach())
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
@@ -469,7 +469,7 @@ class AbstractGraspAgentTraining:
         try:
             # probs2=probs*(1-coll_props)
             for l in range(30):
-                mask_=(~floor_mask)&(probs>0.5)
+                mask_=(~floor_mask) & (probs>0.5) & (coll_props > 0.5)
                 dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=mask_)
                 grasp_target_index = dist.probs.argmax()
                 grasp_target_point = pc[grasp_target_index]
@@ -549,13 +549,15 @@ class AbstractGraspAgentTraining:
 
         self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, coll_props)
 
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False)
+        mask_ = (~floor_mask) & (coll_props>0.5)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
         # collision_loss_=torch.tensor([0.],device=device)
 
 
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
-        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, floor_mask, pc, grasp_pose_PW,random_sampling=False)
+        mask_ = (~floor_mask) & (probs>0.5)
+        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ +collision_loss_
         if policy_loss.grad is not None:
@@ -610,7 +612,7 @@ class AbstractGraspAgentTraining:
 
 
 
-    def get_grasp_quality_loss(self,probs,grasp_quality_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_quality_loss(self,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
 
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
@@ -622,7 +624,6 @@ class AbstractGraspAgentTraining:
         for k in range(n):
             '''grasp quality'''
             while True:
-                mask_=~floor_mask
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(probs), mask=mask_)
                 else:
@@ -669,7 +670,7 @@ class AbstractGraspAgentTraining:
 
         return grasp_quality_loss_
 
-    def get_grasp_collision_loss(self,coll_probs,grasp_collision_logits,floor_mask,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_collision_loss(self,coll_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
@@ -680,7 +681,6 @@ class AbstractGraspAgentTraining:
         for k in range(n):
             '''grasp quality'''
             while True:
-                mask_ = ~floor_mask
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(coll_probs), mask=mask_)
                 else:
@@ -876,8 +876,8 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                v=1-torch.sqrt(grasp_quality[target_index]*grasp_feasiblity[target_index]).item()
-                importance = grasp_quality[target_index].item()*importance if importance is not None else max(0.01,v)
+                v=torch.sqrt(grasp_quality[target_index]*grasp_feasiblity[target_index]).item()
+                importance = v*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
