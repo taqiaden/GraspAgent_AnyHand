@@ -75,8 +75,11 @@ def process_pose(target_point, target_pose, view=False):
         print('alpha: ', alpha)
         print('beta: ', beta)
         print('delta: ', delta)
+        print('zeta: ', zeta)
 
+        print('pre_grasp_point: ', pre_grasp_point)
         print('target_pose: ', target_pose)
+
 
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)

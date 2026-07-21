@@ -176,8 +176,6 @@ class AbstractGraspAgentTraining:
         alpha_beta = torch.cat([alpha_repeated, beta_tiled], dim=1)  # (20, 5)
 
 
-
-
         self.moving_std=torch.load( self.model_key + '_moving_std') if os.path.exists(self.model_key + '_moving_std') else None
         self.moving_range=torch.load(self.model_key + '_moving_range') if os.path.exists(self.model_key + '_moving_range') else None
 
