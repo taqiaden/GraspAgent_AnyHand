@@ -464,11 +464,10 @@ class AbstractGraspAgentTraining:
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
-
         try:
             # probs2=probs*(1-coll_props)
             for l in range(30):
-                mask_=(~floor_mask) & (probs>0.5) 
+                mask_=(~floor_mask) & (probs>0.5)
                 dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=mask_)
                 grasp_target_index = dist.probs.argmax()
                 grasp_target_point = pc[grasp_target_index]
