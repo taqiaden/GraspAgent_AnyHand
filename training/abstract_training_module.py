@@ -908,7 +908,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=(self.Ave_uniquness.val**2)*2.0, report=False)
+                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val)**2)*2.0, report=False)
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
@@ -989,7 +989,7 @@ class AbstractGraspAgentTraining:
 
 
 
-                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=(self.Ave_uniquness.val**2)*2.0):
+                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val)**2)*2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
 
@@ -1016,9 +1016,9 @@ class AbstractGraspAgentTraining:
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=(self.Ave_uniquness.val**2)*2.0,report=print_details)
+                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val)**2)*2.0,report=print_details)
 
-                if len(self.DDM) >= self.max_scenes and (not_unique or (max_importance<0.1)):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if len(self.DDM)-len(self.DDM.low_quality_samples_tracker) >= self.max_scenes and (not_unique or (max_importance<0.1)):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
                           f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, max_importance:{max_importance} ',
                           Fore.RESET)
@@ -1112,7 +1112,7 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last or self.skip_rate.val>np.random.random() or len(self.DDM) < 100) and not self.train_policy_only:
+        if (self.skipped_last or self.skip_rate.val>np.random.random() or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode)):
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
@@ -1198,7 +1198,7 @@ class AbstractGraspAgentTraining:
                     self.view_result(grasp_pose, (~floor_mask) & (grasp_quality.reshape(-1)>0.5),(~floor_mask) & (grasp_quality.reshape(-1)<0.5))
 
                 d_pairs, g_pairs = [], []
-                if not self.train_policy_only and not self.explore_mode:
+                if not self.train_policy_only or  self.explore_mode:
 
                     d_pairs, g_pairs, sampler_samples = self.sample_contrastive_pairs(pc, floor_mask, grasp_pose,
                                                                                       grasp_pose_ref,
