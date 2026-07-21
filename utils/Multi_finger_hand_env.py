@@ -658,7 +658,7 @@ class MojocoMultiFingersEnv():
                 accumulate_dist+=c.dist
 
                 # print(f"⚠️ Interference between geom {c.geom1} and geom {c.geom2}, depth = {c.dist:.6f}")
-        print(f'------------------------n_contact:{n_contact}, accumulate_dist={accumulate_dist}')
+        # print(f'------------------------n_contact:{n_contact}, accumulate_dist={accumulate_dist}')
         return contact_with_obj,contact_with_floor
     def get_grasped_obj(self):
         k = 3 + 4 + len(self.default_finger_joints)

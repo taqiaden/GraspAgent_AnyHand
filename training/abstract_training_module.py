@@ -96,7 +96,8 @@ class AbstractGraspAgentTraining:
                  force_balance=True
                  ,train_policy_only=False
                  ,domain_randomization=False
-                 ,cip_fingers=None):
+                 ,cip_fingers=None
+                 ,explore_mode=False):
 
         self.args = args
         self.model_key=model_key
@@ -104,8 +105,8 @@ class AbstractGraspAgentTraining:
         self.max_n=5 if test_mode else 30
         self.train_policy_only=train_policy_only
         self.view=False
-        self.synthesizie_only=False
         self.domain_randomization=domain_randomization
+        self.explore_mode=explore_mode
 
         self.cip_fingers=cip_fingers
 
@@ -1197,12 +1198,12 @@ class AbstractGraspAgentTraining:
                     self.view_result(grasp_pose, (~floor_mask) & (grasp_quality.reshape(-1)>0.5),(~floor_mask) & (grasp_quality.reshape(-1)<0.5))
 
                 d_pairs, g_pairs = [], []
-                if not self.train_policy_only:
+                if not self.train_policy_only and not self.explore_mode:
 
                     d_pairs, g_pairs, sampler_samples = self.sample_contrastive_pairs(pc, floor_mask, grasp_pose,
                                                                                       grasp_pose_ref,
                                                                                      grasp_quality.detach(),grasp_feasiblity.detach() )
-                    if self.synthesizie_only: break
+                    if self.explore_mode: break
 
             if self.test_mode:
                 if len(d_pairs) > 0 and self.view:
@@ -1356,7 +1357,7 @@ class AbstractGraspAgentTraining:
 
 
     def begin(self, iterations=10):
-        context = torch.no_grad() if self.test_mode else torch.enable_grad()
+        context = torch.no_grad() if self.test_mode or self.explore_mode else torch.enable_grad()
 
         with context:
             pi = progress_indicator('Begin new training round: ', max_limit=iterations)
@@ -1390,7 +1391,7 @@ class AbstractGraspAgentTraining:
 
             pi.end()
             
-            if not self.test_mode:
+            if not self.test_mode and not self.explore_mode:
                 self.export_check_points()
                 self.save_statistics()
 

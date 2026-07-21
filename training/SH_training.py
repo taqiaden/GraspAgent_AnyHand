@@ -64,7 +64,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
                          test_mode=False, randomization_unit=generate_random_SH_poses,
-                         process_pose=process_pose, n_param=11,train_policy_only=True)
+                         process_pose=process_pose, n_param=11,train_policy_only=True,explore_mode=True)
 
         root_dir = os.getcwd()  # current working directory
 

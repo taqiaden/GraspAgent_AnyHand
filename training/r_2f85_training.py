@@ -49,7 +49,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=R_2F85_G,critic_model=R_2F85_D,  epochs=epochs ,model_key=R_2F85_model_key,
                          test_mode=False,randomization_unit=generate_random_r_2f85_poses,
-                         process_pose=process_pose,n_param=8,train_policy_only=True)
+                         process_pose=process_pose,n_param=8,train_policy_only=True,explore_mode=True)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()
