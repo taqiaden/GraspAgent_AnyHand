@@ -521,12 +521,12 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()#.detach()
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else 0.
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 else 0.
 
         print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss_p++loss_n
+        return loss_p+loss_n
 
     def get_repulsive_loss_col(self,depth,grasp_pose,features,floor_mask):
 
@@ -551,12 +551,12 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()#.detach()
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else 0.
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 else 0.
 
         print(f'collision loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss_p++loss_n
+        return loss_p+loss_n
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
@@ -1317,10 +1317,10 @@ class AbstractGraspAgentTraining:
                     print(f'Invalid grasp_pose parameters range = {pose_range2}')
 
                     if not torch.isnan(pose_std).any():
-                        self.moving_std=pose_std if self.moving_std is None else self.moving_std *0.9+pose_std*0.1
+                        self.moving_std=pose_std if self.moving_std is None or pose_std.numel()!=self.moving_std.numel()  else self.moving_std *0.9+pose_std*0.1
 
                     if not torch.isnan(pose_range).any():
-                        self.moving_range=pose_range if self.moving_range is None else self.moving_range *0.9+pose_range*0.1
+                        self.moving_range=pose_range if self.moving_range is None or pose_range.numel()!=self.moving_range.numel() else self.moving_range *0.9+pose_range*0.1
 
                     print(f'alpha parameters moving std = {self.moving_std[0:3].mean()}')
                     print(f'alpha parameters range = {self.moving_range[0:3].mean()}')

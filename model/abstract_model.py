@@ -48,7 +48,7 @@ class G(nn.Module):
 
         gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
 
-        grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+        grasp_quality_x = self.grasp_quality_(features, gripper_pose_x)
 
         return grasp_quality_x
 

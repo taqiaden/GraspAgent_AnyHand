@@ -122,7 +122,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
                          test_mode=False,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
-                         process_pose=process_pose,n_joints=16,train_policy_only=True,explore_mode=True)
+                         process_pose=process_pose,n_joints=16,train_policy_only=False,explore_mode=False)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         self.sim_env.plt_obj_dict_statistics()
