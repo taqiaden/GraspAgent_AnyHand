@@ -495,11 +495,8 @@ class AbstractGraspAgentTraining:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
     def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
-        standarized_depth_=depth_normalization(depth[None,None,...])
 
-        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
-
-        grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+        grasp_quality_x = self.gan.generator.quality_forward(depth[None,None,...],grasp_pose,features)
 
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
@@ -523,7 +520,37 @@ class AbstractGraspAgentTraining:
         loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
         loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()#.detach()
 
-        print(f'loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+
+        return loss_p++loss_n
+
+    def get_repulsive_loss_col(self,depth,grasp_pose,features,floor_mask):
+
+        grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
+
+        grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
+
+        grasp_quality_obj_x = grasp_quality_x[~floor_mask]
+
+        grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
+
+        high_quality = grasp_quality_obj_x[grasp_quality_obj_x >= 0.5]
+        low_quality = grasp_quality_obj_x[grasp_quality_obj_x < 0.5]
+
+        # Only update if both groups have elements
+        if len(high_quality) > 0 and len(low_quality) > 0:
+            self.discrimination_dist.update(
+                high_quality.mean().item() - low_quality.mean().item()
+            )
+
+            self.confidence_indicator.update(high_quality.mean().item() )
+
+        # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
+
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean()
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()#.detach()
+
+        print(f'collision loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
         return loss_p++loss_n
 
@@ -590,6 +617,8 @@ class AbstractGraspAgentTraining:
             # spatial_consistency_loss=(grasp_pose[:,5:7].reshape(2, -1).permute(1, 0)[~floor_mask] * weight[:,None]).sum()**2
 
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
+            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features.detach(), floor_mask)
+
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 

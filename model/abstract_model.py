@@ -43,6 +43,24 @@ class G(nn.Module):
         self.grasp_quality_.apply(init_weights_he_normal)
         self.collision.apply(init_weights_he_normal)
 
+    def quality_forward(self, depth,grasp_pose,features):
+        standarized_depth_ = depth_normalization(depth)
+
+        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
+
+        grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
+
+        return grasp_quality_x
+
+    def collision_forward(self, depth,grasp_pose,features):
+        standarized_depth_ = depth_normalization(depth)
+
+        gripper_pose_x = torch.cat([grasp_pose[:, 0:5], grasp_pose[:, 8:11],grasp_pose[:,self.static_joints],standarized_depth_], dim=1)
+
+        collision_score = self.collision(features, gripper_pose_x)
+
+        return collision_score
+
     def forward(self, depth,  detach_sampler=False,detach_quality=False,detach_collision=False):
         standarized_depth_=depth_normalization(depth)
 
