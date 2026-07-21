@@ -216,6 +216,9 @@ class AbstractGraspAgentTraining:
         self.dist_bias = MovingRate(self.model_key + '_dist_bias',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+        self.dist_bias_pre = MovingRate(self.model_key + '_dist_bias_pre',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
         self.collision_tendency = MovingRate(self.model_key + '_collision_tendency',
                                                        decay_rate=0.01,
@@ -327,6 +330,7 @@ class AbstractGraspAgentTraining:
             None, ...]
 
         sampled_pose[:,7]+=self.dist_bias.val
+        sampled_pose[:,10]+=self.dist_bias_pre.val
 
         sampled_pose = sampled_pose * sampling_ratios + (1 - sampling_ratios) * ref_pose
         assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
@@ -941,8 +945,13 @@ class AbstractGraspAgentTraining:
 
                         d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision))
 
-                if k>0: self.dist_bias.update(target_ref_pose[7].item())
-                if k<0: self.dist_bias.update(target_generated_pose[7].item())
+                if k>0:
+                    self.dist_bias.update(target_ref_pose[7].item())
+                    self.dist_bias_pre.update(target_ref_pose[10].item())
+                if k<0:
+                    self.dist_bias.update(target_generated_pose[7].item())
+                    self.dist_bias_pre.update(target_generated_pose[10].item())
+
                 if grasp_quality[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
@@ -1340,6 +1349,8 @@ class AbstractGraspAgentTraining:
             self.collision_tendency.view()
             self.data_update_rate.view()
             self.dist_bias.view()
+            self.dist_bias_pre.view()
+
             self.Ave_max_prop.view()
 
             self.balanced_set_grasp_quality_statistics.print()
@@ -1366,6 +1377,7 @@ class AbstractGraspAgentTraining:
         self.collision_tendency.save()
         self.data_update_rate.save()
         self.dist_bias.save()
+        self.dist_bias_pre.save()
 
 
         self.cond_argmax_policy_statistics.save()
