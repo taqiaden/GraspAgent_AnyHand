@@ -123,23 +123,17 @@ def generate_random_CH_poses(size):
     alpha_ = F.normalize(alpha_, dim=-1)
 
     beta_ = random_unit_circle(size)
-    # beta_[:,1]=beta_[:,1].abs()*-1
-
-    # values = torch.tensor([-1., 0., 1.])
-    # beta_=sample_vectors(size,2,values).to(device)
     beta_ = F.normalize(beta_, dim=-1)
 
-    # values = torch.tensor([-0.5, 0.,0.2, 0.5])
-    # fingers_=sample_vectors(size,3,values).to(device)
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    # values = torch.tensor([ 0.,0.3,0.5,0.7, 1.])
-    # transition_=sample_vectors(size, 1, values).to(device)
+    zeta = torch.randn((size, 3), device=device)
+
     fingers = torch.randn((size, 3), device=device)+0.5
 
-    sampled_pose = torch.cat([alpha_,beta_, delta, fingers], dim=1)
+    sampled_pose = torch.cat([alpha_,beta_, delta,zeta, fingers], dim=1)
     return sampled_pose
 
 def generate_random_SH_poses(size):
@@ -158,7 +152,10 @@ def generate_random_SH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
+    zeta = torch.randn((size, 3), device=device)
+
+
+    sampled_pose = torch.cat([alpha_,beta_,delta,zeta, fingers_], dim=1)
     return sampled_pose
 
 def generate_random_SH_5F_poses(size):
@@ -199,7 +196,10 @@ def generate_random_SH_5F_poses(size):
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
-    sampled_pose = torch.cat([alpha_,beta_,delta,gamma, fingers_], dim=1)
+
+    zeta = torch.randn((size, 3), device=device)
+
+    sampled_pose = torch.cat([alpha_,beta_,delta,zeta,gamma, fingers_], dim=1)
 
     return sampled_pose
 
@@ -235,7 +235,10 @@ def generate_random_Allergo_poses(size):
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
-    sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
+
+    zeta = torch.randn((size, 3), device=device)
+
+    sampled_pose = torch.cat([alpha_,beta_,delta, zeta,fingers_], dim=1)
 
     return sampled_pose
 
@@ -251,7 +254,10 @@ def generate_random_r_2f85_poses(size):
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
-    sampled_pose = torch.cat([alpha_,beta_,delta], dim=1)
+
+    zeta = torch.randn((size, 3), device=device)
+
+    sampled_pose = torch.cat([alpha_,beta_,delta,zeta], dim=1)
 
     return sampled_pose
 

@@ -18,6 +18,9 @@ def process_pose(target_point, target_pose, view=False):
 
     target_point_=target_point_+delta
 
+    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
+    pre_grasp_point=target_point_+zeta
+
     alpha = target_pose_[:3]
 
     beta = target_pose_[3:5]
@@ -42,14 +45,14 @@ def process_pose(target_point, target_pose, view=False):
 
         print('target_point_: ', target_point_)
 
-    return quat, None, target_point_.tolist()
+    return quat, None, target_point_.tolist(),pre_grasp_point.tolist()
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,epochs=1):
 
         super().__init__(args=args,sampler_policy_model=R_2F85_G,critic_model=R_2F85_D,  epochs=epochs ,model_key=R_2F85_model_key,
-                         test_mode=False,randomization_unit=generate_random_r_2f85_poses,
-                         process_pose=process_pose,n_param=8,train_policy_only=True,explore_mode=True)
+                         test_mode=True,randomization_unit=generate_random_r_2f85_poses,
+                         process_pose=process_pose,n_joints=0,train_policy_only=True,explore_mode=True)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()

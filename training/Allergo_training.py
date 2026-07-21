@@ -77,9 +77,12 @@ def process_fingers(target_pose_):
 def process_pose(target_point, target_pose, view=False):
     target_pose_ = target_pose.clone()
     target_point_ = target_point.cpu().numpy() if torch.is_tensor(target_point) else target_point
-    delta=target_pose_[5:5 + 3].cpu().numpy()/15
 
+    delta=target_pose_[5:5 + 3].cpu().numpy()/15
     target_point_=target_point_+delta
+
+    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
+    pre_grasp_point=target_point_+zeta
 
     alpha = target_pose_[:3]
 
@@ -109,17 +112,17 @@ def process_pose(target_point, target_pose, view=False):
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat, fingers, target_point_.tolist()
+    return quat, fingers, target_point_.tolist(),pre_grasp_point.tolist()
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
                          test_mode=False,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
-                         process_pose=process_pose,n_param=24,train_policy_only=True,explore_mode=True)
+                         process_pose=process_pose,n_joints=16,train_policy_only=True,explore_mode=True)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
-        # self.sim_env.plt_obj_dict_statistics()
+        self.sim_env.plt_obj_dict_statistics()
 
 
 def train_N_grasp_GAN(args,n=1):

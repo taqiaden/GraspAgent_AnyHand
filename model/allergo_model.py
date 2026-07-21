@@ -5,10 +5,10 @@ Allergo_model_key = 'Allergo_model'
 
 class Allergo_G(G):
     def __init__(self):
-        super().__init__(PoseSampler(n_joint=16),25)
+        super().__init__(PoseSampler(n_joint=16),25+3)
 
 
 class Allergo_D(C):
     def __init__(self):
-        super().__init__(n_params=24)
+        super().__init__(n_params=24+3)
 

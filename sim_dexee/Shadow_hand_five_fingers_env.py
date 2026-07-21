@@ -53,14 +53,13 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             self.static_view(1000)
 
         return  contact_with_obj , contact_with_floor
-    def check_graspness(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None):
+
+    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None):
 
         self.restore_simulation_state()
 
         if obj_pose is None: obj_pose=self.objects_poses
 
-        in_scope =True# max(hand_fingers)<=1. and min(hand_fingers)>=0.
-        # if not in_scope: hand_fingers = torch.clamp(torch.tensor(hand_fingers),min=0.01,max=0.99).tolist()
         hand_fingers[0]=min(max(hand_fingers[0],-0.523599),0.174533)
         hand_fingers[1]=min(max(hand_fingers[1],-0.698132),0.488692)
 
@@ -69,36 +68,35 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         warning_flag = False
 
         self.d.time = 0.0
-        self.d.mocap_pos[0] = hand_pos
+
+        self.d.mocap_pos[0] = pre_point
         self.d.mocap_quat[0] = hand_quat
-        # try:
-        self.d.qpos = hand_pos + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
-        # except:
-        #     print(len(self.default_finger_joints),' ',len(hand_pos),' ',len(hand_quat),' ',len(obj_pose),' ',len(self.objects))
-        #     assert False
+        self.d.qpos = pre_point + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
         self.d.ctrl = self.decode_finger_ctrl(hand_fingers)
+
         mujoco.mj_step(self.m, self.d)
 
         # self.static_view(1000)
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         if ini_contact_with_obj or ini_contact_with_floor:
             # self.static_view(1000)
-            return in_scope, False, ini_contact_with_obj, ini_contact_with_floor,None,None,None,warning_flag,grasped_obj
+            return  False, ini_contact_with_obj, ini_contact_with_floor,None,None,None,warning_flag,grasped_obj
         # print('+++++++++++++++++++++++++++++++++++++++++++++++++++',self.default_finger_joints)
         delta=[0, 0, 0.003]
         # decoded_fingers = self.close_grip(hand_fingers)
         # max_fingers = self.max_finger_ctrl()
+        self.d.mocap_pos[0] = hand_pos
         self.d.ctrl = hand_fingers
         shake_amp = .003
         shake_f = 20  # Hz
 
         for i in range(600):
             #Rise phase
-            if i==200:
-                _, collide_with_floor = self.check_hand_contact()
-                if collide_with_floor:
-                    # self.static_view(1000)
-                    return in_scope, False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
+            # if i==200:
+            #     _, collide_with_floor = self.check_hand_contact()
+            #     if collide_with_floor:
+            #         # self.static_view(1000)
+            #         return  False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
 
             if 200 < i < 400:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
@@ -145,29 +143,27 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                 # if stable_grasp:print(Fore.GREEN,f"object {grasped_obj} grasped successfully",Fore.RESET)
                 self.step_obj_prop(grasped_obj,scale=update_obj_prob)
 
-            return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,min(n_grasp_contact1,n_grasp_contact2),self_collide1 or self_collide2,stable_grasp,warning_flag,grasped_obj
+            return grasp_success,ini_contact_with_obj, ini_contact_with_floor,min(n_grasp_contact1,n_grasp_contact2),self_collide1 or self_collide2,stable_grasp,warning_flag,grasped_obj
         else:
-            return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact1,self_collide1,None,warning_flag,grasped_obj
+            return grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact1,self_collide1,None,warning_flag,grasped_obj
 
-    def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
+    def view_grasp(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
         self.restore_simulation_state()
 
         if obj_pose is None: obj_pose = self.objects_poses
 
-        in_scope = True#max(hand_fingers) <= 1. and min(hand_fingers) >= 0.
         hand_fingers[0]=min(max(hand_fingers[0],-0.523599),0.174533)
         hand_fingers[1]=min(max(hand_fingers[1],-0.698132),0.488692)
 
-        # if not in_scope: hand_fingers = torch.clamp(torch.tensor(hand_fingers), min=0.01, max=0.99).tolist()
         grasped_obj = None
 
         warning_flag = False
 
         self.d.time = 0.0
-        self.d.mocap_pos[0] = hand_pos
+        self.d.mocap_pos[0] = pre_point
         self.d.mocap_quat[0] = hand_quat
         # try:
-        self.d.qpos = hand_pos + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
+        self.d.qpos = pre_point + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
         # except:
         #     print(len(self.default_finger_joints),' ',len(hand_pos),' ',len(hand_quat),' ',len(obj_pose),' ',len(self.objects))
         #     assert False
@@ -181,6 +177,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         delta=[0, 0, 0.003]
         # decoded_fingers=self.close_grip(hand_fingers)
         # max_fingers=self.max_finger_ctrl()
+        self.d.mocap_pos[0] = hand_pos
         self.d.ctrl = hand_fingers
         shake_amp = .003
         shake_f = 20  # Hz
@@ -267,7 +264,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             self.hide_below_elevation()
             self.static_view(1000)
 
-        return in_scope,grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact,self_collide,None
+        return grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact,self_collide,None
 
 if __name__ == "__main__":
     root_dir = os.getcwd()  # current working directory

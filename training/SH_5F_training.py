@@ -50,6 +50,9 @@ def process_pose(target_point, target_pose, view=False):
 
     target_point_=target_point_+delta
 
+    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
+    pre_grasp_point=target_point_+zeta
+
     alpha = target_pose_[:3]
 
     beta = target_pose_[3:5]
@@ -78,7 +81,7 @@ def process_pose(target_point, target_pose, view=False):
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat, fingers, target_point_.tolist()
+    return quat, fingers, target_point_.tolist(),pre_grasp_point.tolist()
 
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
@@ -86,12 +89,12 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D,  epochs=epochs ,model_key=SH_model_key,
                          test_mode=False,randomization_unit=generate_random_SH_5F_poses,
-                         process_pose=process_pose,n_param=28,exclude_collision_from_grasp_quality=True,force_balance=True,train_policy_only=True,explore_mode=True)
+                         process_pose=process_pose,n_joints=20,exclude_collision_from_grasp_quality=True,force_balance=True,train_policy_only=True,explore_mode=True)
 
         root_dir = os.getcwd()  # current working directory
 
         self.sim_env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/", max_obj_per_scene=10)
-        # self.sim_env.plt_obj_dict_statistics()
+        self.sim_env.plt_obj_dict_statistics()
 
 def train_N_grasp_GAN(args, n=1):
 

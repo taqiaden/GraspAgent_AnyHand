@@ -88,7 +88,7 @@ class AbstractGraspAgentTraining:
                  test_mode=False,
                  randomization_unit=None,
                  process_pose=None,
-                 n_param=1,
+                 n_joints=0,
                  track_statistics_history=False,
                  check_kinematics=False,
                  exclude_collision_from_grasp_quality=True,
@@ -151,7 +151,7 @@ class AbstractGraspAgentTraining:
         self.critic_loss_statistics = None
 
 
-        self.n_param = n_param
+        self.n_param = n_joints+11
 
         self.max_scenes = 1000
 
@@ -179,10 +179,8 @@ class AbstractGraspAgentTraining:
         self.moving_std=torch.load( self.model_key + '_moving_std') if os.path.exists(self.model_key + '_moving_std') else None
         self.moving_range=torch.load(self.model_key + '_moving_range') if os.path.exists(self.model_key + '_moving_range') else None
 
-        if  torch.isnan(self.moving_std).any():self.moving_std=None
-        if  torch.isnan(self.moving_range).any():self.moving_range=None
-
-
+        # if  torch.isnan(self.moving_std).any():self.moving_std=None
+        # if  torch.isnan(self.moving_range).any():self.moving_range=None
 
 
         self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.01,use_euclidean_dist=False,static_centers=alpha_beta)
@@ -733,28 +731,26 @@ class AbstractGraspAgentTraining:
 
         return grasp_quality_loss_
 
-
-
     def check_collision(self, target_point, target_pose, view=False):
         with torch.no_grad():
-            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=view)
+            quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=view)
 
-        return self.sim_env.check_collision(hand_pos=shifted_point, hand_quat=quat, hand_fingers=fingers, view=view)
+        return self.sim_env.check_collision(hand_pos=pre_point, hand_quat=quat, hand_fingers=fingers, view=view)
 
     def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
                        update_obj_prob=None):
         grasped_obj = None
         with torch.no_grad():
-            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=self.test_mode)
+            quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=self.test_mode)
 
             if view:
-                in_scope, grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp = self.sim_env.view_grasp(
-                    hand_pos=shifted_point, hand_quat=quat, hand_fingers=fingers,
+                grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp = self.sim_env.view_grasp(
+                    hand_pos=shifted_point,pre_point=pre_point, hand_quat=quat, hand_fingers=fingers,
                     view=view, hard_level=hard_level)
                 warning_flag = False
             else:
-                in_scope, grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp, warning_flag, grasped_obj = self.sim_env.check_graspness(
-                    hand_pos=shifted_point, hand_quat=quat, hand_fingers=fingers,
+                grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp, warning_flag, grasped_obj = self.sim_env.check_graspness(
+                    hand_pos=shifted_point,pre_point=pre_point, hand_quat=quat, hand_fingers=fingers,
                     view=view, hard_level=hard_level, shake=shake, update_obj_prob=update_obj_prob)
 
             initial_collision = contact_with_obj or contact_with_floor
@@ -1190,7 +1186,13 @@ class AbstractGraspAgentTraining:
                             #     option2[0:5]).item()
                             grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
-                            grasp_pose_ref[index][0:5] = pose[0:5]
+                            if pose.shape[0] == grasp_pose_ref[index].shape[0]-3:
+                                '''fill missing zeta'''
+                                grasp_pose_ref[index][0:8] = pose[0:8]
+                                grasp_pose_ref[index][8:11] = pose[5:8]
+                                grasp_pose_ref[index][11:] = pose[11:]
+                            else:
+                                grasp_pose_ref[index][0:8] = pose[0:8]
 
                     grasp_pose_ref = grasp_pose_ref.reshape(600, 600, self.n_param).permute(2, 0, 1).unsqueeze(0)
 
@@ -1288,11 +1290,12 @@ class AbstractGraspAgentTraining:
                     print(f'beta parameters range = {self.moving_range[3:5].mean()}')
                     print(f'delta parameters moving std = {self.moving_std[5:8].mean()}')
                     print(f'delta parameters range = {self.moving_range[5:8].mean()}')
-                    print(f'joints parameters moving std = {self.moving_std[8:].mean()}')
-                    print(f'joints parameters range = {self.moving_range[8:].mean()}')
+                    print(f'zeta parameters moving std = {self.moving_std[8:11].mean()}')
+                    print(f'zeta parameters range = {self.moving_range[8:11].mean()}')
+                    print(f'joints parameters moving std = {self.moving_std[11:].mean()}')
+                    print(f'joints parameters range = {self.moving_range[11:].mean()}')
                     torch.save(self.moving_std,self.model_key+'_moving_std')
                     torch.save(self.moving_range,self.model_key+'_moving_range')
-
 
                 else: print('No valid grasps')
 

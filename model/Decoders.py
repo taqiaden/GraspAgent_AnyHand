@@ -1,9 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-
 from Configurations.config import device
-from model.utils import add_spectral_norm_selective
 
 
 class LayerNorm2D(nn.Module):
@@ -28,6 +26,7 @@ class PoseSampler(nn.Module):
 
         self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.SiLU(),normalize=False).to(device) if n_joint>0 else None
 
+        self.zeta = FilmModulatedDecoder(in_c1=64, in_c2= 9+n_joint, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
 
 
     def forward(self, features,depth ):
@@ -40,14 +39,13 @@ class PoseSampler(nn.Module):
         beta = self.beta(features,torch.cat([depth,delta,alpha], dim=1))
         beta = F.normalize(beta, dim=1)
 
-
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
-
-
-            pose = torch.cat([alpha,beta,delta,fingers], dim=1)
+            zeta = self.zeta(features, torch.cat([depth, delta, alpha,beta,fingers], dim=1))
+            pose = torch.cat([alpha,beta,delta,zeta,fingers], dim=1)
         else:
-            pose = torch.cat([alpha,beta,delta], dim=1)
+            zeta = self.zeta(features, torch.cat([depth, delta, alpha,beta], dim=1))
+            pose = torch.cat([alpha,beta,delta,zeta], dim=1)
 
         return pose
 
@@ -123,7 +121,6 @@ class CriticDecoder(nn.Module):
 
         x = self.dist(main=context, others=condition)
         return x
-
 
 class FilmModulatedDecoder(nn.Module):
     def __init__(self, in_c1, in_c2, out_c,

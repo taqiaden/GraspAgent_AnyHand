@@ -136,9 +136,9 @@ class MojocoMultiFingersEnv():
         # Extract probability values
         prob_values = list(self.obj_dict.values())
         mean_=sum(prob_values)/len(prob_values)
-        above_5=sum(1 for item in prob_values if item > 0.5)
+        above_dot_one=sum(1 for item in prob_values if item > 0.1)
 
-        print(f'Mean scores={mean_}, objects with score above 0.5 {above_5}')
+        print(f'Mean scores={mean_}, objects with score above 0.1 {above_dot_one}')
 
         # Plot histogram
         plt.figure(figsize=(6, 4))
@@ -784,7 +784,7 @@ class MojocoMultiFingersEnv():
         return  contact_with_obj , contact_with_floor
 
     @abstractmethod
-    def check_graspness(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=50,shake_intensity=0.05):
+    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=50,shake_intensity=0.05):
         pass
 
     @abstractmethod

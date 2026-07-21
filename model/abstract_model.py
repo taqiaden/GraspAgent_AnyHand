@@ -1,10 +1,8 @@
 import torch
 from torch import nn
-
 from Configurations.config import device
 from  model.sparse_encoder import SparseEncoderIN
 from  model.Decoders import CriticDecoder, FilmModulatedDecoder
-from utils.NN_tools import replace_instance_with_groupnorm
 from  utils.model_init import init_weights_he_normal
 from model.resunet import res_unet
 
@@ -33,7 +31,7 @@ class G(nn.Module):
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
-        self.collision=FilmModulatedDecoder( 64, n_params, 1,
+        self.collision=FilmModulatedDecoder( 64, 8+1, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
@@ -74,8 +72,7 @@ class G(nn.Module):
         # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
         #       features2.std(dim=1).mean().item())
 
-
-
+        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose[:, 0:5], detached_dense_grasp_pose[:, 8:11],standarized_depth_], dim=1)
         if detach_collision:
             with torch.no_grad():
                 features3 = self.back_bone3_(standarized_depth_)
