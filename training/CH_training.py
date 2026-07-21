@@ -33,7 +33,7 @@ def process_pose(target_point, target_pose, view=False):
     default_quat = quat_between(approach_ref, torch.tensor([0., 0., -1.],device=device))
     quat=grasp_frame_to_quat(alpha, beta, default_quat).cpu().tolist()
 
-    fingers = target_pose[5+3:].cpu().numpy().tolist()
+    fingers = target_pose[11:].cpu().numpy().tolist()
 
     fingers=[min(1,max(0,x+0.5)) for x in fingers]
 
@@ -52,7 +52,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args, sampler_policy_model=CH_G,critic_model=CH_D,epochs=epochs ,model_key=CH_model_key,
-                         test_mode=False,randomization_unit=generate_random_CH_poses,
+                         test_mode=True,randomization_unit=generate_random_CH_poses,
                          process_pose=process_pose,n_joints=3,check_kinematics=True,train_policy_only=True,explore_mode=True)
 
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)

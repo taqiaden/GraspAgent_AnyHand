@@ -97,7 +97,8 @@ class AbstractGraspAgentTraining:
                  ,train_policy_only=False
                  ,domain_randomization=False
                  ,cip_fingers=None
-                 ,explore_mode=False):
+                 ,explore_mode=False
+                 ,static_joints=None):
 
         self.args = args
         self.model_key=model_key
@@ -107,6 +108,7 @@ class AbstractGraspAgentTraining:
         self.view=False
         self.domain_randomization=domain_randomization
         self.explore_mode=explore_mode
+        self.static_joints=[] if static_joints is None else static_joints
 
         self.cip_fingers=cip_fingers
 
@@ -1190,7 +1192,7 @@ class AbstractGraspAgentTraining:
                                 '''fill missing zeta'''
                                 grasp_pose_ref[index][0:8] = pose[0:8]
                                 grasp_pose_ref[index][8:11] = pose[5:8]
-                                grasp_pose_ref[index][11:] = pose[11:]
+                                grasp_pose_ref[index][11:] = pose[8:]
                             else:
                                 grasp_pose_ref[index][0:8] = pose[0:8]
 

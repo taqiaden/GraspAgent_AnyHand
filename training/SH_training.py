@@ -20,7 +20,7 @@ bce_with_logits=nn.BCEWithLogitsLoss()
 print = custom_print
 
 def process_fingers(target_pose_):
-    fingers = torch.clip(target_pose_[5+3:] + 0.5, 0, 1)
+    fingers = torch.clip(target_pose_[11:] + 0.5, 0, 1)
     fingers = fingers
     return fingers
 
@@ -67,7 +67,8 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
                          test_mode=False, randomization_unit=generate_random_SH_poses,
-                         process_pose=process_pose, n_joints=3,train_policy_only=True,explore_mode=True)
+                         process_pose=process_pose, n_joints=3,train_policy_only=True,explore_mode=True
+                         ,static_joints=[0,1,2])
 
         root_dir = os.getcwd()  # current working directory
 

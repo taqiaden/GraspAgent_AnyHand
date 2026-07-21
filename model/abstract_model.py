@@ -13,8 +13,10 @@ def depth_normalization(depth):
     standarized_depth_ = (standarized_depth_ - 0.5) / 0.5
     return standarized_depth_
 class G(nn.Module):
-    def __init__(self,sampler_decoder,n_params):
+    def __init__(self,sampler_decoder,n_params,static_joints=None):
         super().__init__()
+        self.static_joints=[] if static_joints is None else static_joints
+
         self.back_bone = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
                                   relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False,
                                   activate_skip=False).to(device)
@@ -31,7 +33,7 @@ class G(nn.Module):
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
-        self.collision=FilmModulatedDecoder( 64, 8+1, 1,
+        self.collision=FilmModulatedDecoder( 64, 8+1+len(self.static_joints), 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
@@ -72,7 +74,7 @@ class G(nn.Module):
         # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
         #       features2.std(dim=1).mean().item())
 
-        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose[:, 0:5], detached_dense_grasp_pose[:, 8:11],standarized_depth_], dim=1)
+        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose[:, 0:5], detached_dense_grasp_pose[:, 8:11],detached_dense_grasp_pose[:,self.static_joints],standarized_depth_], dim=1)
         if detach_collision:
             with torch.no_grad():
                 features3 = self.back_bone3_(standarized_depth_)

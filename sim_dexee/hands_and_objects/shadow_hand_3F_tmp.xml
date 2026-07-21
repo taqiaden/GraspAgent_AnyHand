@@ -1,6 +1,6 @@
 <mujoco model="shadow dex-ee hand scene">
   <include file="shadow_hand/right_hand.xml" />
-  <include file="/media/taqiaden/42c447a4-49c0-4d74-9b1f-4b4b5cbe7486/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_58.xml" /><compiler meshdir="assets" />
+  <include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_616.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_93.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_612.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_409.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_610.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_135.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_615.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_89.xml" /><compiler meshdir="assets" />
   <statistic extent=".5" center="0 0 0.1" />
   <default>
     <default class="object/visual">

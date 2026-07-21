@@ -20,7 +20,7 @@ def cip_fingers(target_pose_):
     return target_pose_
 
 def process_fingers(target_pose_):
-    fingers = target_pose_[5+3: ]
+    fingers = target_pose_[11: ]
 
     ''''''
     fingers[0:1]-=0.5

@@ -23,7 +23,7 @@ print = custom_print
 cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
 
 def process_fingers(target_pose_):
-    fingers = target_pose_[5+3: ]
+    fingers = target_pose_[11: ]
 
     fingers[0:2]/=2 #gamma
 
@@ -88,13 +88,14 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,  epochs=1 ):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D,  epochs=epochs ,model_key=SH_model_key,
-                         test_mode=False,randomization_unit=generate_random_SH_5F_poses,
-                         process_pose=process_pose,n_joints=20,exclude_collision_from_grasp_quality=True,force_balance=True,train_policy_only=True,explore_mode=True)
+                         test_mode=True,randomization_unit=generate_random_SH_5F_poses,
+                         process_pose=process_pose,n_joints=20,exclude_collision_from_grasp_quality=True,
+                         force_balance=True,train_policy_only=True,explore_mode=True,static_joints=[0,1])
 
         root_dir = os.getcwd()  # current working directory
 
         self.sim_env = ShadowHandEnv(root=root_dir + "/sim_dexee/hands_and_objects/", max_obj_per_scene=10)
-        self.sim_env.plt_obj_dict_statistics()
+        # self.sim_env.plt_obj_dict_statistics()
 
 def train_N_grasp_GAN(args, n=1):
 
