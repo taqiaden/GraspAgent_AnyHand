@@ -34,7 +34,7 @@ class G(nn.Module):
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.collision=FilmModulatedDecoder( 64, n_params, 1,
-        activation=nn.SiLU(),  normalize=True).to(device)
+        activation=nn.ReLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
         self.back_bone2_.apply(init_weights_he_normal)
