@@ -402,17 +402,18 @@ class AbstractGraspAgentTraining:
             k = pairs[j][1]
             margin = pairs[j][2]
             is_col=pairs[j][4]
+            q_score=pairs[j][5]
 
             target_generated_pose = grasp_pose[target_index].detach()
             target_ref_pose = grasp_pose_ref[target_index].detach()
 
             if k < 0:
                 print(Fore.GREEN,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col} ',
+                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col},  q_score={q_score} ',
                       Fore.RESET)
             elif k > 0:
                 print(Fore.LIGHTCYAN_EX,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col} ',
+                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col}, q_score={q_score} ',
                       Fore.RESET)
 
     def get_generator_loss(self, cropped_local_point_clouds, depth, clean_depth, grasp_pose, grasp_pose_ref, pairs, floor_mask    ):
@@ -498,13 +499,13 @@ class AbstractGraspAgentTraining:
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
-    def get_repulsive_loss(self,depth,grasp_pose,features,floor_mask):
+    def get_repulsive_loss(self,depth,grasp_pose,features,mask):
 
         grasp_quality_x = self.gan.generator.quality_forward(depth[None,None,...],grasp_pose,features)
 
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
-        grasp_quality_obj_x = grasp_quality_x[~floor_mask]
+        grasp_quality_obj_x = grasp_quality_x[mask]
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
@@ -521,20 +522,22 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else 0.
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 else 0.
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor([0.],device=device)
+
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 else torch.tensor([0.],device=device)
+
 
         print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
         return loss_p+loss_n
 
-    def get_repulsive_loss_col(self,depth,grasp_pose,features,floor_mask):
+    def get_repulsive_loss_col(self,depth,grasp_pose,features,mask):
 
         grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
 
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
-        grasp_quality_obj_x = grasp_quality_x[~floor_mask]
+        grasp_quality_obj_x = grasp_quality_x[mask]
 
         grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
 
@@ -551,12 +554,14 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else 0.
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 else 0.
+        loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor([0.],device=device)
 
-        print(f'collision loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean().detach() if low_quality.numel()>1 else torch.tensor([0.],device=device)
 
-        return loss_p+loss_n
+
+        print(f'collision loss_p: {loss_p.item()}')
+
+        return loss_p#+loss_n
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
@@ -566,7 +571,7 @@ class AbstractGraspAgentTraining:
         self.gan.sampler_optimizer.zero_grad(set_to_none=True)
 
         '''generated grasps'''
-        grasp_pose, grasp_quality_logits ,features,grasp_collision_logits= self.gan.generator(
+        grasp_pose, grasp_quality_logits ,features2,features3,grasp_collision_logits= self.gan.generator(
             depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=not self.train_policy_only)
 
         grasp_pose_PW = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
@@ -619,9 +624,10 @@ class AbstractGraspAgentTraining:
                 [0.], device=grasp_pose.device)
 
             # spatial_consistency_loss=(grasp_pose[:,5:7].reshape(2, -1).permute(1, 0)[~floor_mask] * weight[:,None]).sum()**2
-
-            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features.detach(), floor_mask)
-            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features.detach(), floor_mask)
+            mask_ = (~floor_mask) & (coll_props>0.5)
+            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
+            mask_ = (~floor_mask) & (probs>0.5)
+            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -939,11 +945,11 @@ class AbstractGraspAgentTraining:
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val)**2)*2.0, report=False)
                 if not not_unique:
-                    if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                        margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        # if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                    # if (importance > 0.1) or (self.skip_rate.val > 0.5):
+                    margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
+                    # if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
-                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision))
+                    d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
 
                 if k>0:
                     self.dist_bias.update(target_ref_pose[7].item())
@@ -959,7 +965,7 @@ class AbstractGraspAgentTraining:
 
                 margin =  0.
 
-                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision))
+                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
@@ -1188,7 +1194,7 @@ class AbstractGraspAgentTraining:
 
             with torch.no_grad():
                 self.gan.generator.eval()
-                grasp_pose, grasp_quality_logits,features,grasp_collision_logits = self.gan.generator( depth[None, None, ...],detach_sampler=True,detach_quality=True,detach_collision=True)
+                grasp_pose, grasp_quality_logits,features2,features3,grasp_collision_logits = self.gan.generator( depth[None, None, ...],detach_sampler=True,detach_quality=True,detach_collision=True)
                 self.gan.generator.train()
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
@@ -1476,7 +1482,7 @@ class AbstractGraspAgentTraining:
 
                 with torch.no_grad():
                     self.gan.generator.eval()
-                    grasp_pose, grasp_quality_logits, features, grasp_collision_logits = self.gan.generator(
+                    grasp_pose, grasp_quality_logits, features2,features3, grasp_collision_logits = self.gan.generator(
                         depth[None, None, ...], detach_sampler=True,detach_quality=True,detach_collision=True)
 
                     grasp_quality = logits_to_probs(grasp_quality_logits)

@@ -103,7 +103,7 @@ class G(nn.Module):
             collision = self.collision(features3, detached_dense_grasp_pose)
 
 
-        return dense_grasp_pose, grasp_quality_logits,features2.detach(),collision
+        return dense_grasp_pose, grasp_quality_logits,features2.detach(),features3.detach(),collision
 
 class C(nn.Module):
     def __init__(self,n_params):
