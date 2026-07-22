@@ -37,6 +37,11 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
 
     def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=False,update_obj_prob=None):
 
+        pre_point = np.array(pre_point)  # Starting position
+        hand_pos = np.array(hand_pos)  # Target position
+        distance = np.linalg.norm(pre_point - hand_pos)
+        approach_steps = int(distance / 0.003)
+
         self.restore_simulation_state()
 
         if obj_pose is None: obj_pose=self.objects_poses
@@ -47,9 +52,9 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
 
         self.d.time = 0.0
 
-        self.d.mocap_pos[0] = pre_point
+        self.d.mocap_pos[0] = pre_point.tolist()
         self.d.mocap_quat[0] = hand_quat
-        self.d.qpos = pre_point + hand_quat + self.default_finger_joints + obj_pose
+        self.d.qpos = pre_point.tolist() + hand_quat + self.default_finger_joints + obj_pose
         self.d.ctrl *= 0
 
         mujoco.mj_step(self.m, self.d)
@@ -63,13 +68,21 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         delta=[0, 0, 0.003]
         # decoded_fingers = self.close_grip(hand_fingers)
         # max_fingers = self.max_finger_ctrl()
-        self.d.ctrl = hand_fingers
-        self.d.mocap_pos[0] = hand_pos
+        # self.d.ctrl = hand_fingers
+        # self.d.mocap_pos[0] = hand_pos
 
         shake_amp = .003
         shake_f = 20  # Hz
 
-        for i in range(600):
+        for i in range(600+approach_steps):
+            if i<approach_steps:
+                t = (i + 1) / approach_steps
+                self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
+            if i==approach_steps:
+                self.d.mocap_pos[0] =hand_pos.tolist()
+
+            if 200+approach_steps>i>approach_steps:
+                self.d.ctrl = hand_fingers
             #Rise phase
             # if i==200:
                 # _, collide_with_floor = self.check_hand_contact()
@@ -77,12 +90,12 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
                 #     # self.static_view(1000)
                 #     return  False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
 
-            if 200 < i < 400:
+            if 200+approach_steps < i < 400+approach_steps:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
 
             # shake phase
-            if 500 > i > 400:
-                if i==401:
+            if 500+approach_steps > i > 400+approach_steps:
+                if i==401+approach_steps:
                     grasp_success, n_grasp_contact1, self_collide1,max_force1,max_penetration1 = self.check_valid_grasp(minimum_contact_points=0)
                     if not grasp_success or not shake: break
                 # self.d.ctrl = max_fingers #if i < 400 else decoded_fingers

@@ -941,7 +941,7 @@ class AbstractGraspAgentTraining:
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        # if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
                         d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision))
 
