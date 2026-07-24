@@ -638,27 +638,33 @@ class MojocoMultiFingersEnv():
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
         contact_with_obj=False
-        n_contact=0
-        accumulate_dist=0
+        n_obj_contact=0
+        accumulate_obj_dist=0
+        n_floor_contact=0
+        accumulate_floor_dist=0
         for i in range(self.d.ncon):
             c = self.d.contact[i]
             if c.dist < margin and (is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ==1) :
                 # if is_hand_geom(c.geom1) and is_hand_geom(c.geom2): return False,False,True # fingers collision
-                if report:
-                    geom1_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom1)
-                    geom2_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom2)
-                    print(f"⚠️ Interference between geom {geom1_name} and geom {geom2_name}, depth = {c.dist:.6f}")
-                    print(is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ,'---- ',is_hand_geom(c.geom1) , is_hand_geom(c.geom2))
-                    print(c.geom1,'-----',c.geom2)
+                # if report:
+                #     geom1_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom1)
+                #     geom2_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom2)
+                #     print(f"⚠️ Interference between geom {geom1_name} and geom {geom2_name}, depth = {c.dist:.6f}")
+                #     print(is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ,'---- ',is_hand_geom(c.geom1) , is_hand_geom(c.geom2))
+                #     print(c.geom1,'-----',c.geom2)
                 if c.geom1==0 or c.geom2==0:
                     contact_with_floor=True
+                    n_floor_contact+=1
+                    accumulate_floor_dist+=c.dist
                 else:
                     contact_with_obj=True
-                n_contact+=1
-                accumulate_dist+=c.dist
+                    n_obj_contact+=1
+                    accumulate_obj_dist+=c.dist
 
                 # print(f"⚠️ Interference between geom {c.geom1} and geom {c.geom2}, depth = {c.dist:.6f}")
-        # print(f'------------------------n_contact:{n_contact}, accumulate_dist={accumulate_dist}')
+        if report:
+            print(f'------------------------n_obj_contact:{n_obj_contact}, accumulate_obj_dist={accumulate_obj_dist}')
+            print(f'------------------------n_floor_contact:{n_floor_contact}, accumulate_floor_dist={accumulate_floor_dist}')
         return contact_with_obj,contact_with_floor
     def get_grasped_obj(self):
         k = 3 + 4 + len(self.default_finger_joints)

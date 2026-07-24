@@ -1154,7 +1154,7 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last or self.skip_rate.val>np.random.random() or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode)):
+        if (self.skipped_last or self.skip_rate.val>np.random.random() or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode )) and not self.test_mode :
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
