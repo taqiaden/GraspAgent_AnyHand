@@ -528,7 +528,7 @@ class AbstractGraspAgentTraining:
 
         loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 and torch.nonzero(loss_p).numel() > 0  else torch.tensor(0.,device=device)
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
 
         print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
@@ -560,7 +560,7 @@ class AbstractGraspAgentTraining:
 
         loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 and torch.nonzero(loss_p).numel() > 0  else torch.tensor(0.,device=device)
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean() if low_quality.numel()>1 and high_quality.numel()>1  else torch.tensor(0.,device=device)
 
 
         print(f'collision loss_p: {loss_p.item()}, loss_n: {loss_n.item()}')
