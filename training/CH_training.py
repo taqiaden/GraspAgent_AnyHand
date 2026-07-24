@@ -54,14 +54,14 @@ def process_pose(target_point, target_pose, view=False):
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat,fingers,target_point_.tolist(),pre_grasp_point.tolist()
+    return quat,fingers,target_point_,pre_grasp_point
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args, sampler_policy_model=CH_G,critic_model=CH_D,epochs=epochs ,model_key=CH_model_key,
-                         test_mode=True,randomization_unit=generate_random_CH_poses,
-                         process_pose=process_pose,n_joints=3,check_kinematics=True,train_policy_only=True,explore_mode=True)
+                         test_mode=False,randomization_unit=generate_random_CH_poses,
+                         process_pose=process_pose,n_joints=3,check_kinematics=True,train_policy_only=False,explore_mode=False)
 
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()
@@ -75,7 +75,7 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        Train_grasp_GAN.show_overlaid_graphs()
+        # Train_grasp_GAN.show_overlaid_graphs()
 
         Train_grasp_GAN.begin(iterations=10)
 

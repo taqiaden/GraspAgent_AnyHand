@@ -115,7 +115,7 @@ def process_pose(target_point, target_pose, view=False):
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat, fingers, target_point_.tolist(),pre_grasp_point.tolist()
+    return quat, fingers, target_point_,pre_grasp_point
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):

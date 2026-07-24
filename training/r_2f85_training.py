@@ -47,13 +47,13 @@ def process_pose(target_point, target_pose, view=False):
 
         print('target_point_: ', target_point_)
 
-    return quat, None, target_point_.tolist(),pre_grasp_point.tolist()
+    return quat, None, target_point_,pre_grasp_point
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,epochs=1):
 
         super().__init__(args=args,sampler_policy_model=R_2F85_G,critic_model=R_2F85_D,  epochs=epochs ,model_key=R_2F85_model_key,
-                         test_mode=True,randomization_unit=generate_random_r_2f85_poses,
+                         test_mode=False,randomization_unit=generate_random_r_2f85_poses,
                          process_pose=process_pose,n_joints=0,train_policy_only=False,explore_mode=False)
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
