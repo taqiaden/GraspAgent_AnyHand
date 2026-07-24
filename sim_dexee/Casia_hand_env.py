@@ -137,7 +137,7 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
                 self.d.ctrl = decoded_fingers
 
             if i==200+approach_steps:
-                _, collide_with_floor = self.check_hand_contact()
+                _, collide_with_floor = self.check_hand_contact(floor_margin=0.01)
                 if collide_with_floor:
                     return  False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
 

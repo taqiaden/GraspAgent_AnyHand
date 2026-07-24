@@ -634,7 +634,7 @@ class MojocoMultiFingersEnv():
 
 
 
-    def check_hand_contact(self,margin=0,report=False):
+    def check_hand_contact(self,report=False,floor_margin=0,obj_margin=0.):
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
         contact_with_obj=False
@@ -644,19 +644,18 @@ class MojocoMultiFingersEnv():
         accumulate_floor_dist=0
         for i in range(self.d.ncon):
             c = self.d.contact[i]
-            if c.dist < margin and (is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ==1) :
-                # if is_hand_geom(c.geom1) and is_hand_geom(c.geom2): return False,False,True # fingers collision
+            if c.dist < 0.0 and (is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ==1) :
                 # if report:
                 #     geom1_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom1)
                 #     geom2_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom2)
                 #     print(f"⚠️ Interference between geom {geom1_name} and geom {geom2_name}, depth = {c.dist:.6f}")
                 #     print(is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ,'---- ',is_hand_geom(c.geom1) , is_hand_geom(c.geom2))
                 #     print(c.geom1,'-----',c.geom2)
-                if c.geom1==0 or c.geom2==0:
+                if (c.geom1==0 or c.geom2==0) and c.dist<-abs(floor_margin):
                     contact_with_floor=True
                     n_floor_contact+=1
                     accumulate_floor_dist+=c.dist
-                else:
+                elif c.dist<-abs(obj_margin):
                     contact_with_obj=True
                     n_obj_contact+=1
                     accumulate_obj_dist+=c.dist
@@ -684,9 +683,10 @@ class MojocoMultiFingersEnv():
                     grasped_obj = self.objects[i]
 
         return grasped_obj
-    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False):
+    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.1):
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
+        safe_penetration=True
         self_collide=False
         n_contact=0
         max_force=0.
@@ -706,6 +706,7 @@ class MojocoMultiFingersEnv():
                     contact_with_floor=True
                 else:
                     in_contact_with_hand=True
+                    if abs(c.dist)>allowed_penetration_margin:safe_penetration=False
                     pad_geom_id=None
                     if self.contact_pads_geom_ids is not None:
                         if is_contact_pad(c.geom1):
@@ -739,6 +740,8 @@ class MojocoMultiFingersEnv():
         # if n_contact>0:
         #     print(Fore.LIGHTCYAN_EX,geom_groups,'--',contacted_groups,'---',n_contact,Fore.RESET)
         grasp_success=contacted_groups>=minimum_contact_points if minimum_contact_points>0 else in_contact_with_hand
+        grasp_success=grasp_success and safe_penetration
+        if not safe_penetration: print(Fore.LIGHTCYAN_EX, 'Excessive object hand interference',Fore.RESET)
         return grasp_success , contacted_groups,self_collide,max_force,max_penetration
 
     def static_view(self,period=5):
