@@ -501,7 +501,11 @@ class AbstractGraspAgentTraining:
 
     def get_repulsive_loss(self,depth,grasp_pose,features,mask):
 
-        grasp_quality_x = self.gan.generator.quality_forward(depth[None,None,...],grasp_pose,features)
+        standarized_depth_ = depth_normalization(depth[None, None, ...])
+
+        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
+
+        grasp_quality_x = self.gan.generator.grasp_quality_(features, gripper_pose_x)
 
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
@@ -623,11 +627,9 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            # spatial_consistency_loss=(grasp_pose[:,5:7].reshape(2, -1).permute(1, 0)[~floor_mask] * weight[:,None]).sum()**2
-            mask_ = (~floor_mask) & (coll_props>0.5)
+            mask_ = (~floor_mask)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
-            mask_ = (~floor_mask) & (probs>0.5)
-            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
+
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()

@@ -84,6 +84,10 @@ class R2F85Env(MojocoMultiFingersEnv):
             if 200+approach_steps>i>approach_steps:
                 self.d.ctrl = [255]
 
+            if i==200+approach_steps:
+                _, collide_with_floor = self.check_hand_contact()
+                if collide_with_floor:
+                    return  False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
 
             if 200+approach_steps < i < 400+approach_steps:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
