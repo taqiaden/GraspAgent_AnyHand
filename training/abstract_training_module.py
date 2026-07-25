@@ -659,7 +659,7 @@ class AbstractGraspAgentTraining:
         positive_counter = 0
         negative_counter = 0
         n = 2
-        s = n
+        s = n/2
         for k in range(n):
             '''grasp quality'''
             while True:
@@ -716,7 +716,7 @@ class AbstractGraspAgentTraining:
         positive_counter = 0
         negative_counter = 0
         n = 2
-        s = n
+        s = n/2
         for k in range(n):
             '''grasp quality'''
             while True:
