@@ -13,9 +13,9 @@ import torch
 
 def cip_fingers(target_pose_):
     if target_pose_.ndim==2:
-        target_pose_[:,8:]=target_pose_[:,8:].clamp(min=0.,max=1.)
+        target_pose_[:,11:]=target_pose_[:,11:].clamp(min=0.,max=1.)
     else:
-        target_pose_[8:]=target_pose_[8:].clamp(min=0.,max=1.)
+        target_pose_[11:]=target_pose_[11:].clamp(min=0.,max=1.)
 
     return target_pose_
 

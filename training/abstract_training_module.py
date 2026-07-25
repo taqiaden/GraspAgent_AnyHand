@@ -576,7 +576,7 @@ class AbstractGraspAgentTraining:
 
         '''generated grasps'''
         grasp_pose, grasp_quality_logits ,features2,features3,grasp_collision_logits= self.gan.generator(
-            depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=not self.train_policy_only)
+            depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=False)
 
         grasp_pose_PW = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
         grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
@@ -824,8 +824,6 @@ class AbstractGraspAgentTraining:
         grasp_quality = grasp_quality[0, 0].reshape(-1)
         grasp_feasiblity=grasp_feasiblity[0,0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
-        clipped_grasp_pose_PW = grasp_pose_PW.clone()
-        clipped_grasp_pose_PW[:, 5:5 + 3] = torch.clip(clipped_grasp_pose_PW[:, 5:5 + 3], 0, 1)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
         selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality
