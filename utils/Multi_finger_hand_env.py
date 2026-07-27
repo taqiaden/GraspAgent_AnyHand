@@ -683,6 +683,7 @@ class MojocoMultiFingersEnv():
                     grasped_obj = self.objects[i]
 
         return grasped_obj
+
     def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.1):
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
@@ -692,7 +693,7 @@ class MojocoMultiFingersEnv():
         max_force=0.
         in_contact_with_hand=False
         max_penetration=0.
-        # contacts = [] # store (pos, force)
+
         geom_groups=[0]*len(self.contact_pads_geom_ids) if self.contact_pads_geom_ids is not None else [0]
         is_contact_pad = lambda n: any(n == x or (isinstance(x, list) and n in x) for x in self.contact_pads_geom_ids) if self.contact_pads_geom_ids is not None else None
         for i in range(self.d.ncon):

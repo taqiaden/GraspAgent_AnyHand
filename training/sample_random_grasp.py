@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from Configurations.config import device
+from utils.math_utils import rotation_matrix_from_vectors
+
 
 def generate_random_beta_dist_widh( size):
     sampled_approach = (torch.rand((size, 2), device=device) - 0.5)  # *1.5
@@ -122,14 +124,16 @@ def generate_random_CH_poses(size):
     alpha_[:,-1]=alpha_[:,-1].abs()*-1
     alpha_ = F.normalize(alpha_, dim=-1)
 
+    approach_alignment_mat=rotation_matrix_from_vectors(torch.tensor([0.866, -0.5, 0],device=device),torch.tensor([0.0, 0.0, 1.0],device=device))
+    approach=alpha_ @ approach_alignment_mat.T
+
     beta_ = random_unit_circle(size)
     beta_ = F.normalize(beta_, dim=-1)
-
 
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = torch.randn((size, 3), device=device)
+    zeta = -torch.rand((size, 1), device=device)*approach
 
     fingers = torch.randn((size, 3), device=device)+0.5
 
@@ -152,7 +156,7 @@ def generate_random_SH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = torch.randn((size, 3), device=device)
+    zeta = -torch.rand((size, 1), device=device)*alpha_
 
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta, fingers_], dim=1)
@@ -197,7 +201,7 @@ def generate_random_SH_5F_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = torch.randn((size, 3), device=device)
+    zeta = -torch.rand((size, 1), device=device)*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta,gamma, fingers_], dim=1)
 
@@ -235,7 +239,7 @@ def generate_random_Allergo_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = torch.randn((size, 3), device=device)
+    zeta = -torch.rand((size, 1), device=device)*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta, zeta,fingers_], dim=1)
 
@@ -254,7 +258,7 @@ def generate_random_r_2f85_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = torch.randn((size, 3), device=device)
+    zeta = -torch.rand((size, 1), device=device)*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta], dim=1)
 

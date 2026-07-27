@@ -199,6 +199,7 @@ class AbstractGraspAgentTraining:
         env=detect_environment()
         print(Fore.GREEN,f"Environment: {env}",Fore.RESET)
 
+
     def initialize(self):
 
         '''Moving rates'''
@@ -814,11 +815,11 @@ class AbstractGraspAgentTraining:
         g_pairs = []
         all_pairs = []
 
-        selection_mask = (~floor_mask.clone())
         grasp_quality = grasp_quality[0, 0].reshape(-1)
         grasp_feasiblity=grasp_feasiblity[0,0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
+        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) & (grasp_feasiblity>0.5) if self.test_mode else (~floor_mask.clone())
 
         selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
@@ -857,12 +858,12 @@ class AbstractGraspAgentTraining:
             target_ref_pose = grasp_pose_ref_PW[target_index]
 
             if self.test_mode:
-                contact_with_obj, contact_with_floor = self.check_collision(target_point, target_ref_pose,
+                contact_with_obj, contact_with_floor = self.check_collision(target_point, target_generated_pose,
                                                                             view=False)
                 if contact_with_obj or contact_with_floor: continue
 
                 view_r = self.evaluate_grasp(
-                    target_point, target_ref_pose, view=True, shake=self.shake)
+                    target_point, target_generated_pose, view=True, shake=self.shake)
                 if print_details:print(Fore.LIGHTCYAN_EX,
                       f'return f1: {view_r}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
 

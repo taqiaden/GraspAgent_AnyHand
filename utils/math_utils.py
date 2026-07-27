@@ -1,13 +1,9 @@
 import math
 import random
-
 import numpy as np
 import torch
 import transforms3d.euler as eul
 from scipy.spatial.transform import Rotation as R
-
-from Configurations import config
-
 
 def seeds(x):
     random.seed(x)
@@ -37,7 +33,6 @@ def fibonacci_sphere(samples=1000,angle_limit=None):
         points.append((x, y, z))
 
     return points
-semi_sphere_of_points=np.asarray( fibonacci_sphere(samples=1000,angle_limit=config.theta_scope))
 
 def asSpherical_b(xyz):
     # takes list xyz (single coord)
@@ -378,6 +373,37 @@ def angle_between_vectors_cross(u, v):
     return angle_radians, angle_degrees
 
 
+def rotation_matrix_from_vectors(a, b, eps=1e-8):
+    """
+    Compute the 3x3 rotation matrix that rotates vector a to vector b.
+
+    Args:
+        a: (..., 3) tensor
+        b: (..., 3) tensor
+
+    Returns:
+        R: (..., 3, 3) rotation matrix
+    """
+    a = a / (torch.norm(a, dim=-1, keepdim=True) + eps)
+    b = b / (torch.norm(b, dim=-1, keepdim=True) + eps)
+
+    v = torch.cross(a, b, dim=-1)
+    c = torch.sum(a * b, dim=-1, keepdim=True)
+    s = torch.norm(v, dim=-1, keepdim=True)
+
+    vx = torch.zeros((*a.shape[:-1], 3, 3), device=a.device, dtype=a.dtype)
+    vx[..., 0, 1] = -v[..., 2]
+    vx[..., 0, 2] =  v[..., 1]
+    vx[..., 1, 0] =  v[..., 2]
+    vx[..., 1, 2] = -v[..., 0]
+    vx[..., 2, 0] = -v[..., 1]
+    vx[..., 2, 1] =  v[..., 0]
+
+    I = torch.eye(3, device=a.device, dtype=a.dtype).expand(vx.shape)
+
+    R = I + vx + vx @ vx * ((1 - c) / (s**2 + eps))[..., None]
+
+    return R
 
 if __name__ == "__main__":
     vec1 = np.array([1, 0, 0])
