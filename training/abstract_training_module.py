@@ -529,12 +529,11 @@ class AbstractGraspAgentTraining:
 
         loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean().detach() if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
-
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
         print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
-        return loss_p#+loss_n
+        return loss_p+loss_n
 
     def get_repulsive_loss_col(self,depth,grasp_pose,features,mask):
 
@@ -624,8 +623,8 @@ class AbstractGraspAgentTraining:
 
             mask_ = (~floor_mask) #&(coll_props>0.5)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
-            mask_ = (~floor_mask) &(probs>0.5)
-            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
+            # mask_ = (~floor_mask) &(probs>0.5)
+            # contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -946,7 +945,7 @@ class AbstractGraspAgentTraining:
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        # if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
                         d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
 
