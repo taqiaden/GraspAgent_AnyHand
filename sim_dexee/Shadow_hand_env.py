@@ -48,7 +48,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             self.static_view(1000)
 
         return  contact_with_obj , contact_with_floor
-    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None):
+    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None,check_feasible_traj=True):
 
         pre_point = np.array(pre_point)  # Starting position
         hand_pos = np.array(hand_pos)  # Target position
@@ -92,10 +92,11 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                 self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
             if i==approach_steps:
                 self.d.mocap_pos[0] =hand_pos.tolist()
-                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
-                if ini_contact_with_obj or ini_contact_with_floor:
-                    # self.static_view(1000)
-                    return False, ini_contact_with_obj, ini_contact_with_floor, None, None, None, warning_flag, grasped_obj
+                if check_feasible_traj :
+                    ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
+                    if ini_contact_with_obj or ini_contact_with_floor:
+                        # self.static_view(1000)
+                        return False, ini_contact_with_obj, ini_contact_with_floor, None, None, None, warning_flag, grasped_obj
 
             if 200+approach_steps>i>approach_steps:
                 self.d.ctrl = decoded_fingers

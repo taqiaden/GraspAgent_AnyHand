@@ -463,7 +463,7 @@ class AbstractGraspAgentTraining:
             grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                 grasp_target_point, grasp_target_pose, view=False,
                 shake=self.shake, check_kinematics=False,
-                update_obj_prob=None)
+                update_obj_prob=None,check_feasible_traj=False)
 
             label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
                 grasp_prediction_)
@@ -487,7 +487,7 @@ class AbstractGraspAgentTraining:
                 grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
-                    update_obj_prob=None)
+                    update_obj_prob=None,check_feasible_traj=False)
                 if l==0:
                     self.Ave_max_prop.update(grasp_prediction_.item())
 
@@ -671,7 +671,7 @@ class AbstractGraspAgentTraining:
                 grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
-                    update_obj_prob=None)
+                    update_obj_prob=None,check_feasible_traj=False)
 
                 if warning_flag: continue
                 if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
@@ -774,7 +774,7 @@ class AbstractGraspAgentTraining:
         return self.sim_env.check_collision(hand_pos=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers, view=view)
 
     def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
-                       update_obj_prob=None):
+                       update_obj_prob=None,check_feasible_traj=True):
         grasped_obj = None
         with torch.no_grad():
             quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=self.test_mode)
@@ -787,7 +787,7 @@ class AbstractGraspAgentTraining:
             else:
                 grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp, warning_flag, grasped_obj = self.sim_env.check_graspness(
                     hand_pos=shifted_point.tolist(),pre_point=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers,
-                    view=view, hard_level=hard_level, shake=shake, update_obj_prob=update_obj_prob)
+                    view=view, hard_level=hard_level, shake=shake, update_obj_prob=update_obj_prob,check_feasible_traj=check_feasible_traj)
 
             initial_collision = contact_with_obj or contact_with_floor
 
