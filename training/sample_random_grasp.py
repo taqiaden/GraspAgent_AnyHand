@@ -232,7 +232,6 @@ def generate_random_Allergo_poses(size):
     fingers_[:,14:15]=1-torch.rand((size, 1), device=device)**2
     fingers_[:,15:16]=torch.rand((size, 1), device=device)
 
-
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
