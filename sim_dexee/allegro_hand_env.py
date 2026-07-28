@@ -63,7 +63,7 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
         if ini_contact_with_obj or ini_contact_with_floor:
             # self.static_view(1000)
-            return  False, ini_contact_with_obj, ini_contact_with_floor,None,None,None,warning_flag,grasped_obj
+            return  False, ini_contact_with_obj, ini_contact_with_floor,warning_flag,grasped_obj
         # print('+++++++++++++++++++++++++++++++++++++++++++++++++++',self.default_finger_joints)
         delta=[0, 0, 0.003]
         # decoded_fingers = self.close_grip(hand_fingers)
@@ -85,15 +85,15 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
                     ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
                     if ini_contact_with_obj or ini_contact_with_floor:
                         # self.static_view(1000)
-                        return False, ini_contact_with_obj, ini_contact_with_floor, None, None, None, warning_flag, grasped_obj
+                        return False, ini_contact_with_obj, ini_contact_with_floor, warning_flag, grasped_obj
 
             if 200+approach_steps>i>approach_steps:
                 self.d.ctrl = hand_fingers
 
             if i==200+approach_steps:
-                _, collide_with_floor = self.check_hand_contact(floor_margin=0.01)
-                if collide_with_floor:
-                    return  False, ini_contact_with_obj, collide_with_floor, None, None, None, warning_flag, grasped_obj
+                collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                if collide_with_floor or collide_with_obj:
+                    return False, collide_with_obj, collide_with_floor,warning_flag, grasped_obj
 
             if 200+approach_steps < i < 400+approach_steps:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
@@ -101,8 +101,10 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
             # shake phase
             if 500+approach_steps > i > 400+approach_steps:
                 if i==401+approach_steps:
-                    grasp_success, n_grasp_contact1, self_collide1,max_force1,max_penetration1 = self.check_valid_grasp(minimum_contact_points=0)
-                    if not grasp_success or not shake: break
+                    collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                    if collide_with_floor or collide_with_obj:
+                        return False, collide_with_obj, collide_with_floor, warning_flag, grasped_obj
+                    if not shake: break
                 # self.d.ctrl = max_fingers #if i < 400 else decoded_fingers
                 t = i * self.m.opt.timestep
                 phase = 2 * np.pi * shake_f * t
@@ -128,21 +130,13 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
             if bad:
                 warning_flag = True
 
+        grasp_success, n_grasp_contact2, self_collide2, max_force2, max_penetration2 = self.check_valid_grasp(
+            minimum_contact_points=0)
         if grasp_success:
-            stable_grasp,n_grasp_contact2,self_collide2,max_force2,max_penetration2 = self.check_valid_grasp(minimum_contact_points=0)
-            # print(f'---test------------------------------{max_force1,max_penetration1,max_force2,max_penetration2}')
             grasped_obj = self.get_grasped_obj()
             if update_obj_prob is not None and not warning_flag:
-
-                # print(f'grasped_obj_: {grasped_obj}')
-
-                # s=1.0 if stable_grasp else 0.9
-                # if stable_grasp:print(Fore.GREEN,f"object {grasped_obj} grasped successfully",Fore.RESET)
-                self.step_obj_prop(grasped_obj,scale=update_obj_prob)
-
-            return grasp_success,ini_contact_with_obj, ini_contact_with_floor,min(n_grasp_contact1,n_grasp_contact2),self_collide1 or self_collide2,stable_grasp,warning_flag,grasped_obj
-        else:
-            return grasp_success,ini_contact_with_obj, ini_contact_with_floor,n_grasp_contact1,self_collide1,None,warning_flag,grasped_obj
+                self.step_obj_prop(grasped_obj, scale=update_obj_prob)
+        return grasp_success, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
 
     def view_grasp(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
         self.restore_simulation_state()

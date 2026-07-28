@@ -684,7 +684,7 @@ class MojocoMultiFingersEnv():
 
         return grasped_obj
 
-    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.1):
+    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.01):
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
         safe_penetration=True

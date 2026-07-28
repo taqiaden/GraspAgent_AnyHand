@@ -299,8 +299,8 @@ class AbstractGraspAgentTraining:
 
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
         # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
-        # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
-        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
+        self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
+        # self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0.)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
@@ -460,7 +460,7 @@ class AbstractGraspAgentTraining:
 
 
             grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-            grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
+            grasp_success, initial_collision,  plan_found, grasped_obj = self.evaluate_grasp(
                 grasp_target_point, grasp_target_pose, view=False,
                 shake=self.shake, check_kinematics=False,
                 update_obj_prob=None,check_feasible_traj=False)
@@ -484,7 +484,7 @@ class AbstractGraspAgentTraining:
                 probs[grasp_target_index]=float('-inf')
 
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-                grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_success, initial_collision, plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None,check_feasible_traj=False)
@@ -668,7 +668,7 @@ class AbstractGraspAgentTraining:
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
 
 
-                grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_success, initial_collision,  plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None,check_feasible_traj=False)
@@ -785,7 +785,7 @@ class AbstractGraspAgentTraining:
                     view=view, hard_level=hard_level)
                 warning_flag = False
             else:
-                grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp, warning_flag, grasped_obj = self.sim_env.check_graspness(
+                grasp_success, contact_with_obj, contact_with_floor,  warning_flag, grasped_obj = self.sim_env.check_graspness(
                     hand_pos=shifted_point.tolist(),pre_point=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers,
                     view=view, hard_level=hard_level, shake=shake, update_obj_prob=update_obj_prob,check_feasible_traj=check_feasible_traj)
 
@@ -795,16 +795,16 @@ class AbstractGraspAgentTraining:
 
 
             if grasp_success is not None:
-                if grasp_success and not contact_with_obj and not contact_with_floor:
+                if grasp_success and not contact_with_obj and not contact_with_floor and not warning_flag:
                     if check_kinematics:
                         plan_found = self.kinematics.kinematic_plan_exist(quat, shifted_point)
                     else: plan_found=True
                     if update_obj_prob is not None:
                         approach_distance = np.linalg.norm(shifted_point - pre_point)
                         self.Ave_approach_distance.update(approach_distance)
-                    return grasp_success, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, plan_found, grasped_obj
+                    return grasp_success, initial_collision, plan_found, grasped_obj
 
-        return False, initial_collision, n_grasp_contact, self_collide, stable_grasp, warning_flag, None, grasped_obj
+        return False, initial_collision,  None, grasped_obj
 
     def sample_contrastive_pairs(self, pc, floor_mask, grasp_pose, grasp_pose_ref,
                                  grasp_quality,grasp_feasiblity ):
@@ -870,15 +870,14 @@ class AbstractGraspAgentTraining:
                 d_pairs.append((target_index, 1, 1))
                 return d_pairs, g_pairs, 1
 
-            ref_success, ref_initial_collision, ref_n_grasp_contact, ref_self_collide, stable_ref_grasp, warning_flag, ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
+            ref_success, ref_initial_collision,  ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
                 target_point, target_ref_pose, view=False, shake=self.shake, update_obj_prob=None, check_kinematics=self.check_kinematics)
 
 
             if self.loaded_synthesised_data is None :self.random_sampler_acceptance_rate.update(ref_success)
 
-            if warning_flag:
-                break
-            gen_success, gen_initial_collision, gen_n_grasp_contact, gen_self_collide, stable_gen_grasp, warning_flag, gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
+
+            gen_success, gen_initial_collision,gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
                 update_obj_prob=grasp_quality[target_index].item() if self.loaded_synthesised_data is None  else None)
 
@@ -1024,8 +1023,6 @@ class AbstractGraspAgentTraining:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
-
-
 
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
