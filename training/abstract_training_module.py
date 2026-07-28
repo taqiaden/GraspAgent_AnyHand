@@ -673,7 +673,6 @@ class AbstractGraspAgentTraining:
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None,check_feasible_traj=False)
 
-                if warning_flag: continue
                 if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
                     return torch.tensor(0., device=device)
                 if initial_collision and self.exclude_collision_from_grasp_quality:continue
@@ -885,8 +884,7 @@ class AbstractGraspAgentTraining:
                 ref_success=ref_success and ref_plan_found
                 gen_success=gen_success and gen_plan_found
 
-            if warning_flag:
-                break
+
 
             if t == 1 and self.skip_rate() > 0.9 and print_details:
                 print(
