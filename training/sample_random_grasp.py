@@ -133,7 +133,7 @@ def generate_random_CH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.rand((size, 1), device=device)*approach
+    zeta = -torch.randn((size, 1), device=device).abs()*2*approach
 
     fingers = torch.randn((size, 3), device=device)+0.5
 
@@ -156,7 +156,7 @@ def generate_random_SH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.rand((size, 1), device=device)*alpha_
+    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta, fingers_], dim=1)
@@ -201,7 +201,7 @@ def generate_random_SH_5F_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.rand((size, 1), device=device)*alpha_
+    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta,gamma, fingers_], dim=1)
 
@@ -239,7 +239,7 @@ def generate_random_Allergo_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.rand((size, 1), device=device)*alpha_
+    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta, zeta,fingers_], dim=1)
 
@@ -258,7 +258,7 @@ def generate_random_r_2f85_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.rand((size, 1), device=device)*alpha_
+    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
     sampled_pose = torch.cat([alpha_,beta_,delta,zeta], dim=1)
 

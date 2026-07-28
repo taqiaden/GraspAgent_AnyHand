@@ -21,8 +21,8 @@ class G(nn.Module):
                                   relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False,
                                   activate_skip=False).to(device)
 
-        self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
+        self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=False,
+                                    relu_negative_slope=0., activation=nn.SiLU(), IN_affine=False, activate_skip=False).to(device)
 
         self.back_bone3_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=False,
                                     relu_negative_slope=0., activation=nn.SiLU(), IN_affine=False, activate_skip=False).to(device)

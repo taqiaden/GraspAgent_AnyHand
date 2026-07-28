@@ -133,11 +133,11 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
             if i==approach_steps:
                 self.d.mocap_pos[0] =hand_pos.tolist()
 
-                if check_feasible_traj:
-                    ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
-                    if ini_contact_with_obj or ini_contact_with_floor:
-                        # self.static_view(1000)
-                        return False, ini_contact_with_obj, ini_contact_with_floor, warning_flag, grasped_obj
+                # if check_feasible_traj:
+                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                if ini_contact_with_obj or ini_contact_with_floor:
+                    # self.static_view(1000)
+                    return False, ini_contact_with_obj, ini_contact_with_floor, warning_flag, grasped_obj
 
             if 200+approach_steps>i>approach_steps:
                 self.d.ctrl = decoded_fingers
