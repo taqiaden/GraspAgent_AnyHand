@@ -943,7 +943,7 @@ class AbstractGraspAgentTraining:
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val))*2.0, report=False)
-                not_important = self.Ave_importance.lower_rejection_criteria(importance, k=((1-self.Ave_uniquness.val))*5.0,report=print_details)
+                not_important = self.Ave_importance.lower_rejection_criteria(importance, k=((1-self.Ave_uniquness.val))*5.0,report=False)
 
                 if not (not_unique or not_important):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
