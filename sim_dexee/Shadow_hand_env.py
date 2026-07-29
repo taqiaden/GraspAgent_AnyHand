@@ -90,12 +90,14 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             if i<approach_steps:
                 t = (i + 1) / approach_steps
                 self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
+                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
+                if ini_contact_with_obj or ini_contact_with_floor:
+                    return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
             if i==approach_steps:
                 self.d.mocap_pos[0] =hand_pos.tolist()
-                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(floor_margin=0.0, obj_margin=0.0)
+                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
                 if ini_contact_with_obj or ini_contact_with_floor:
-                    # self.static_view(1000)
-                    return False, ini_contact_with_obj, ini_contact_with_floor, warning_flag, grasped_obj
+                    return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
 
             if 200+approach_steps>i>approach_steps:
                 self.d.ctrl = decoded_fingers

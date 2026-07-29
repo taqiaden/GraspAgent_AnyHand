@@ -634,37 +634,42 @@ class MojocoMultiFingersEnv():
 
 
 
-    def check_hand_contact(self,report=False,floor_margin=0,obj_margin=0.):
-        is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
-        contact_with_floor=False
-        contact_with_obj=False
-        n_obj_contact=0
-        accumulate_obj_dist=0
-        n_floor_contact=0
-        accumulate_floor_dist=0
-        for i in range(self.d.ncon):
-            c = self.d.contact[i]
-            if c.dist < 0.0 and (is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ==1) :
-                # if report:
-                #     geom1_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom1)
-                #     geom2_name = mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_GEOM, c.geom2)
-                #     print(f"⚠️ Interference between geom {geom1_name} and geom {geom2_name}, depth = {c.dist:.6f}")
-                #     print(is_hand_geom(c.geom1) + is_hand_geom(c.geom2) ,'---- ',is_hand_geom(c.geom1) , is_hand_geom(c.geom2))
-                #     print(c.geom1,'-----',c.geom2)
-                if (c.geom1==0 or c.geom2==0) and c.dist<-abs(floor_margin):
-                    contact_with_floor=True
-                    n_floor_contact+=1
-                    accumulate_floor_dist+=c.dist
-                elif c.dist<-abs(obj_margin):
-                    contact_with_obj=True
-                    n_obj_contact+=1
-                    accumulate_obj_dist+=c.dist
+    def check_hand_contact(self,report=False,floor_margin=0,obj_margin=0.,return_on_first_incidence=False):
+        if self.d.ncon == 0:
+            return False, False
+        contacts = self.d.contact[:self.d.ncon]
+        is_hand1 = (contacts.geom1 >= 1) & (contacts.geom1 <= self.last_hand_geom_id)
+        is_hand2 = (contacts.geom2 >= 1) & (contacts.geom2 <= self.last_hand_geom_id)
+        valid = (is_hand1 | is_hand2) & ~(is_hand1 & is_hand2) & (contacts.dist < 0)
 
-                # print(f"⚠️ Interference between geom {c.geom1} and geom {c.geom2}, depth = {c.dist:.6f}")
+        if return_on_first_incidence:
+            if np.any(valid):
+                return True, True
+            return False, False
+
+        # If no valid contacts, return False
+        if not np.any(valid):
+            return False, False
+
+        # Get non-hand geoms
+        non_hand = np.where((contacts.geom1 >= 1) & (contacts.geom1 <= self.last_hand_geom_id),
+                            contacts.geom2, contacts.geom1)[valid]
+
+        # Separate floor and object
+        floor_contacts = (non_hand == 0) & (contacts.dist[valid] < -abs(floor_margin))
+        obj_contacts = (non_hand != 0) & (contacts.dist[valid] < -abs(obj_margin))
+
+        n_floor = np.sum(floor_contacts)
+        n_obj = np.sum(obj_contacts)
+
         if report:
-            print(f'------------------------n_obj_contact:{n_obj_contact}, accumulate_obj_dist={accumulate_obj_dist}')
-            print(f'------------------------n_floor_contact:{n_floor_contact}, accumulate_floor_dist={accumulate_floor_dist}')
-        return contact_with_obj,contact_with_floor
+            print(
+                f'------------------------n_obj_contact:{n_obj}, accumulate_obj_dist={np.sum(contacts.dist[valid][obj_contacts], initial=0.0)}')
+            print(
+                f'------------------------n_floor_contact:{n_floor}, accumulate_floor_dist={np.sum(contacts.dist[valid][floor_contacts], initial=0.0)}')
+
+        return n_obj > 0, n_floor > 0
+
     def get_grasped_obj(self):
         k = 3 + 4 + len(self.default_finger_joints)
         objects_poses = self.d.qpos[k:]
