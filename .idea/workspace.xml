@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/Allergo_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/Allergo_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,94 +177,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00088" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1781761598597</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1781761598597</updated>
-    </task>
-    <task id="LOCAL-00089" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1781830385061</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1781830385061</updated>
-    </task>
-    <task id="LOCAL-00090" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1781920795355</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1781920795355</updated>
-    </task>
-    <task id="LOCAL-00091" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1781925717486</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1781925717487</updated>
-    </task>
-    <task id="LOCAL-00092" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782217338052</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1782217338053</updated>
-    </task>
-    <task id="LOCAL-00093" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782379785528</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1782379785528</updated>
-    </task>
-    <task id="LOCAL-00094" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782381519250</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1782381519251</updated>
-    </task>
-    <task id="LOCAL-00095" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782381794416</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1782381794416</updated>
-    </task>
-    <task id="LOCAL-00096" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782448472329</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1782448472330</updated>
-    </task>
-    <task id="LOCAL-00097" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782531261747</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1782531261747</updated>
-    </task>
-    <task id="LOCAL-00098" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1782622069860</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1782622069860</updated>
     </task>
     <task id="LOCAL-00099" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -572,7 +482,95 @@
       <option name="project" value="LOCAL" />
       <updated>1784900183574</updated>
     </task>
-    <option name="localTasksCounter" value="137" />
+    <task id="LOCAL-00137" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1784940003566</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1784940003567</updated>
+    </task>
+    <task id="LOCAL-00138" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1784941490666</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1784941490667</updated>
+    </task>
+    <task id="LOCAL-00139" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785120159705</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1785120159705</updated>
+    </task>
+    <task id="LOCAL-00140" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785157079302</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1785157079302</updated>
+    </task>
+    <task id="LOCAL-00141" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785158094869</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1785158094869</updated>
+    </task>
+    <task id="LOCAL-00142" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785212562443</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1785212562444</updated>
+    </task>
+    <task id="LOCAL-00143" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785212939387</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1785212939387</updated>
+    </task>
+    <task id="LOCAL-00144" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785243850285</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1785243850285</updated>
+    </task>
+    <task id="LOCAL-00145" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785326806753</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1785326806753</updated>
+    </task>
+    <task id="LOCAL-00146" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785326926669</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1785326926669</updated>
+    </task>
+    <task id="LOCAL-00147" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1785327691465</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1785327691465</updated>
+    </task>
+    <option name="localTasksCounter" value="148" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -587,7 +585,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/training/sample_random_grasp.py</url>
-          <line>8</line>
+          <line>10</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
