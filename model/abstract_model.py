@@ -55,7 +55,7 @@ class G(nn.Module):
     def collision_forward(self, depth,grasp_pose,features):
         standarized_depth_ = depth_normalization(depth)
 
-        gripper_pose_x = torch.cat([grasp_pose[:, 0:5], grasp_pose[:, 8:11],grasp_pose[:,self.static_joints],standarized_depth_], dim=1)
+        gripper_pose_x = torch.cat([grasp_pose[:, 0:5].detach(), grasp_pose[:, 8:11],grasp_pose[:,self.static_joints].detach(),standarized_depth_], dim=1)
 
         collision_score = self.collision(features, gripper_pose_x)
 

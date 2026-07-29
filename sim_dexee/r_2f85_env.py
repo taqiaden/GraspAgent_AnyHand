@@ -34,7 +34,7 @@ class R2F85Env(MojocoMultiFingersEnv):
 
         return  contact_with_obj , contact_with_floor
 
-    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers=None,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=False,update_obj_prob=None,check_feasible_traj=True):
+    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers=None,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=False,update_obj_prob=None ):
 
         pre_point = np.array(pre_point)  # Starting position
         hand_pos = np.array(hand_pos)  # Target position
@@ -80,9 +80,7 @@ class R2F85Env(MojocoMultiFingersEnv):
                 self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
             if i==approach_steps:
                 self.d.mocap_pos[0] =hand_pos.tolist()
-
-                # if check_feasible_traj :
-                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(floor_margin=0.0, obj_margin=0.0)
                 if ini_contact_with_obj or ini_contact_with_floor:
                     # self.static_view(1000)
                     return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
