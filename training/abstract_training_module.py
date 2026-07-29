@@ -213,6 +213,10 @@ class AbstractGraspAgentTraining:
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
+        self.Ave_importance = MovingRate(self.model_key + '_Ave_importance',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
         self.dist_bias = MovingRate(self.model_key + '_dist_bias',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
@@ -939,10 +943,12 @@ class AbstractGraspAgentTraining:
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val))*2.0, report=False)
-                if not not_unique:
+                not_important = self.Ave_importance.lower_rejection_criteria(importance, k=((1-self.Ave_uniquness.val))*5.0,report=print_details)
+
+                if not (not_unique or not_important):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        # if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
                         d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
 
@@ -956,8 +962,6 @@ class AbstractGraspAgentTraining:
                 if grasp_quality[target_index].item()>0.5 and grasp_feasiblity[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
-
-
                 margin =  0.
 
                 g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
@@ -1021,10 +1025,13 @@ class AbstractGraspAgentTraining:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
+                    ave_importance = sum(importance)/len(importance)
 
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
+                        self.Ave_importance.update(ave_importance)
+
 
                         if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
                             if print_details:print(Fore.GREEN,
@@ -1044,16 +1051,19 @@ class AbstractGraspAgentTraining:
             else:
                 importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                 ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                max_importance=max(importance)
+                ave_importance = sum(importance) / len(importance)
+
                 self.Ave_uniquness.update(ave_uniqueness)
+                self.Ave_importance.update(ave_importance)
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
                 not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details)
+                not_important = self.Ave_importance.lower_rejection_criteria(ave_importance, k=((1-self.Ave_uniquness.val))*5.0,report=print_details)
 
-                if len(self.DDM)-len(self.DDM.low_quality_samples_tracker) >= self.max_scenes and (not_unique or (max_importance<0.1)):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if len(self.DDM)-len(self.DDM.low_quality_samples_tracker) >= self.max_scenes and (not_unique or not_important):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
-                          f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, max_importance:{max_importance} ',
+                          f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, ave_importance:{ave_importance} ',
                           Fore.RESET)
                     self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
@@ -1342,6 +1352,7 @@ class AbstractGraspAgentTraining:
             self.skip_rate.view()
 
             self.Ave_uniquness.view()
+            self.Ave_importance.view()
             self.random_sampler_acceptance_rate.view()
             self.confidence_indicator.view()
             self.discrimination_dist.view()
@@ -1378,6 +1389,7 @@ class AbstractGraspAgentTraining:
         self.dist_bias.save()
         self.dist_bias_pre.save()
         self.Ave_approach_distance.save()
+        self.Ave_importance.save()
 
         self.cond_argmax_policy_statistics.save()
         self.argmax_policy_statistics.save()
