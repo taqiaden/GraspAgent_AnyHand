@@ -464,7 +464,7 @@ class AbstractGraspAgentTraining:
 
 
             grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-            grasp_success, initial_collision,  plan_found, grasped_obj = self.evaluate_grasp(
+            grasp_success, initial_collision,  plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
                 grasp_target_point, grasp_target_pose, view=False,
                 shake=self.shake, check_kinematics=False,
                 update_obj_prob=None)
@@ -488,7 +488,7 @@ class AbstractGraspAgentTraining:
                 probs[grasp_target_index]=float('-inf')
 
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
-                grasp_success, initial_collision, plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_success, initial_collision, plan_found, grasped_obj ,warning_flag= self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
@@ -497,7 +497,7 @@ class AbstractGraspAgentTraining:
 
                 self.collision_tendency.update(1. if initial_collision else 0.)
 
-                if not initial_collision:
+                if not initial_collision and not warning_flag:
                     label = torch.ones_like(grasp_prediction_) if grasp_success else torch.zeros_like(
                         grasp_prediction_)
                     self.cond_argmax_policy_statistics.update_confession_matrix(label.detach(),
@@ -665,13 +665,15 @@ class AbstractGraspAgentTraining:
                 grasp_prediction_logits = grasp_quality_logits[grasp_target_index].squeeze()
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
 
-                grasp_success, initial_collision,  plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_success, initial_collision,  plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
 
+
                 if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
                     return torch.tensor(0., device=device)
+                if warning_flag:continue
                 if initial_collision and self.exclude_collision_from_grasp_quality:continue
                 label = torch.ones_like(grasp_prediction_logits) if grasp_success else torch.zeros_like(grasp_prediction_logits)
                 self.grasp_quality_statistics.update_confession_matrix(label.detach(),
@@ -729,7 +731,7 @@ class AbstractGraspAgentTraining:
                 #     if warning_flag: continue
                 #
                 # else:
-                grasp_success, initial_collision, plan_found, grasped_obj = self.evaluate_grasp(
+                grasp_success, initial_collision, plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
@@ -744,6 +746,10 @@ class AbstractGraspAgentTraining:
                 self.grasp_safety_statistics.update_confession_matrix(label.detach(),
                                                                        logits_to_probs(
                                                                            grasp_prediction_logits.detach()))
+                if warning_flag:
+                    if time.time() - start > 5 * s:
+                        return torch.tensor(0., device=device)
+                    continue
 
                 if self.force_balance and  time.time() - start < 5 * s:
                     if grasp_success and positive_counter >= s: continue
@@ -777,6 +783,7 @@ class AbstractGraspAgentTraining:
     def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
                        update_obj_prob=None ):
         grasped_obj = None
+        warning_flag=False
         with torch.no_grad():
             quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=self.test_mode)
 
@@ -803,9 +810,9 @@ class AbstractGraspAgentTraining:
                     if update_obj_prob is not None:
                         approach_distance = np.linalg.norm(shifted_point - pre_point)
                         self.Ave_approach_distance.update(approach_distance)
-                    return grasp_success, initial_collision, plan_found, grasped_obj
+                    return grasp_success, initial_collision, plan_found, grasped_obj,warning_flag
 
-        return False, initial_collision,  None, grasped_obj
+        return False, initial_collision,  None, grasped_obj,warning_flag
 
     def sample_contrastive_pairs(self, pc, floor_mask, grasp_pose, grasp_pose_ref,
                                  grasp_quality,grasp_feasiblity ):
@@ -871,16 +878,17 @@ class AbstractGraspAgentTraining:
                 d_pairs.append((target_index, 1, 1))
                 return d_pairs, g_pairs, 1
 
-            ref_success, ref_initial_collision,  ref_plan_found, ref_grasped_obj = self.evaluate_grasp(
+            ref_success, ref_initial_collision,  ref_plan_found, ref_grasped_obj,warning_flag = self.evaluate_grasp(
                 target_point, target_ref_pose, view=False, shake=self.shake, update_obj_prob=None, check_kinematics=self.check_kinematics)
 
-
+            if warning_flag: continue
             if self.loaded_synthesised_data is None :self.random_sampler_acceptance_rate.update(ref_success)
 
 
-            gen_success, gen_initial_collision,gen_plan_found, gen_grasped_obj = self.evaluate_grasp(
+            gen_success, gen_initial_collision,gen_plan_found, gen_grasped_obj,warning_flag = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake, check_kinematics=self.check_kinematics,
                 update_obj_prob=grasp_quality[target_index].item() if self.loaded_synthesised_data is None  else None)
+            if warning_flag: continue
 
             if self.check_kinematics:
                 ref_success=ref_success and ref_plan_found
