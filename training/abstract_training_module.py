@@ -621,8 +621,8 @@ class AbstractGraspAgentTraining:
 
             mask_ = (~floor_mask) #&(coll_props>0.5)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
-            mask_ = (~floor_mask) & (probs>0.5)
-            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
+            # mask_ = (~floor_mask) & (probs>0.5)
+            # contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -1201,7 +1201,7 @@ class AbstractGraspAgentTraining:
                 grasp_quality = logits_to_probs(grasp_quality_logits)
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
-                annealing_factor = (1 - grasp_quality.detach())
+                annealing_factor = (1 - grasp_feasiblity.detach())
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
