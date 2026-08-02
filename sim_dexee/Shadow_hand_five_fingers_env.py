@@ -114,7 +114,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             if i==200+approach_steps:
                 collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
                 if collide_with_floor or collide_with_obj:
-                    return False, collide_with_obj, collide_with_floor,warning_flag, grasped_obj
+                    return False, False, False,warning_flag, grasped_obj
 
             if 200+approach_steps < i < 400+approach_steps:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
@@ -124,7 +124,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                 if i==401+approach_steps:
                     collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
                     if collide_with_floor or collide_with_obj:
-                        return False, collide_with_obj, collide_with_floor,  warning_flag, grasped_obj
+                        return False, False, False,  warning_flag, grasped_obj
                     if not shake: break
                 # self.d.ctrl = max_fingers #if i < 400 else decoded_fingers
                 t = i * self.m.opt.timestep

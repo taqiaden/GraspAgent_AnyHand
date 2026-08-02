@@ -552,18 +552,14 @@ class AbstractGraspAgentTraining:
         # high_quality = grasp_quality_obj_x[grasp_quality_obj_x >= 0.5]
         # low_quality = grasp_quality_obj_x[grasp_quality_obj_x < 0.5]
 
-        # Only update if both groups have elements
-
-        # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
         loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.)*2)**2).mean() if grasp_quality_obj_x.numel()>1 else torch.tensor(0.,device=device)
 
-        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean().detach() if low_quality.numel()>1 and high_quality.numel()>1  else torch.tensor(0.,device=device)
-
+        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
         print(f'collision loss_p: {loss_p.item()}')
 
-        return loss_p#+loss_n
+        return loss_p
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
@@ -588,7 +584,6 @@ class AbstractGraspAgentTraining:
         grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
         # collision_loss_=torch.tensor([0.],device=device)
 
-
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask)
@@ -602,7 +597,6 @@ class AbstractGraspAgentTraining:
             self.gan.generator_optimizer.zero_grad(set_to_none=True)
         else:
             print("Tensor has no gradient",policy_loss)
-
 
         grasp_quality_loss_=grasp_quality_loss_.item()
 
@@ -671,7 +665,6 @@ class AbstractGraspAgentTraining:
                 grasp_prediction_logits = grasp_quality_logits[grasp_target_index].squeeze()
                 grasp_target_pose = grasp_pose_PW[grasp_target_index].detach()
 
-
                 grasp_success, initial_collision,  plan_found, grasped_obj = self.evaluate_grasp(
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
@@ -736,8 +729,13 @@ class AbstractGraspAgentTraining:
                 #     if warning_flag: continue
                 #
                 # else:
-                contact_with_obj , contact_with_floor=self.check_collision(grasp_target_point,grasp_target_pose)
-                grasp_success=not(contact_with_obj or contact_with_floor)
+                grasp_success, initial_collision, plan_found, grasped_obj = self.evaluate_grasp(
+                    grasp_target_point, grasp_target_pose, view=False,
+                    shake=self.shake, check_kinematics=False,
+                    update_obj_prob=None)
+
+                # contact_with_obj , contact_with_floor=self.check_collision(grasp_target_point,grasp_target_pose)
+                # grasp_success=not(contact_with_obj or contact_with_floor)
 
                 # if time.time() - start > 5 * s:
                 #     return torch.tensor(0., device=device)
@@ -901,7 +899,7 @@ class AbstractGraspAgentTraining:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
                 v=grasp_quality[target_index].item()
-                importance = max(0.01,v)
+                importance = max(0.01,v) if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
@@ -943,9 +941,8 @@ class AbstractGraspAgentTraining:
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val))*2.0, report=False)
-                not_important = self.Ave_importance.lower_rejection_criteria(importance, k=((1-self.Ave_uniquness.val**2))*10.0,report=False)
 
-                if not (not_unique or not_important):
+                if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
                         if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
@@ -1030,7 +1027,7 @@ class AbstractGraspAgentTraining:
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
-                        self.Ave_importance.update(ave_importance)
+                        self.Ave_importance.update(ave_importance*ave_uniqueness)
 
 
                         if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
@@ -1054,12 +1051,13 @@ class AbstractGraspAgentTraining:
                 ave_importance = sum(importance) / len(importance)
 
                 self.Ave_uniquness.update(ave_uniqueness)
-                self.Ave_importance.update(ave_importance)
+                self.Ave_importance.update(ave_importance*ave_uniqueness)
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
                 not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details)
-                not_important = self.Ave_importance.lower_rejection_criteria(ave_importance, k=((1-self.Ave_uniquness.val**2))*10.0,report=print_details)
+                # not_important = self.Ave_importance.lower_rejection_criteria(ave_importance, k=((1-self.Ave_uniquness.val**2))*10.0,report=print_details)
+                not_important=ave_importance<0.1
 
                 if len(self.DDM)-len(self.DDM.low_quality_samples_tracker) >= self.max_scenes and (not_unique or not_important):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,

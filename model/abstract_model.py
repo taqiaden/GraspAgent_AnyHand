@@ -30,10 +30,10 @@ class G(nn.Module):
         self.PoseSampler = sampler_decoder
 
 
-        self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
+        self.grasp_quality_=FilmModulatedDecoder( 64, n_params-3, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
-        self.collision=FilmModulatedDecoder( 64, 8+1+len(self.static_joints), 1,
+        self.collision=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
@@ -46,7 +46,7 @@ class G(nn.Module):
     def quality_forward(self, depth,grasp_pose,features):
         standarized_depth_ = depth_normalization(depth)
 
-        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
+        gripper_pose_x = torch.cat([grasp_pose[:, 0:8],grasp_pose[:, 11:], standarized_depth_], dim=1)
 
         grasp_quality_x = self.grasp_quality_(features, gripper_pose_x)
 
@@ -55,7 +55,7 @@ class G(nn.Module):
     def collision_forward(self, depth,grasp_pose,features):
         standarized_depth_ = depth_normalization(depth)
 
-        gripper_pose_x = torch.cat([grasp_pose[:, 0:5].detach(), grasp_pose[:, 8:11],grasp_pose[:,self.static_joints].detach(),standarized_depth_], dim=1)
+        gripper_pose_x = torch.cat([grasp_pose[:, 0:8].detach(), grasp_pose[:, 8:11],grasp_pose[:, 11:].detach(),standarized_depth_], dim=1)
 
         collision_score = self.collision(features, gripper_pose_x)
 
@@ -75,32 +75,32 @@ class G(nn.Module):
             dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
 
         detached_dense_grasp_pose = dense_grasp_pose.detach().clone()
-        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose, standarized_depth_], dim=1)
+        detached_dense_grasp_pose_1 = torch.cat([detached_dense_grasp_pose[:, 0:8],detached_dense_grasp_pose[:, 11:], standarized_depth_], dim=1)
+        detached_dense_grasp_pose_2 = torch.cat([detached_dense_grasp_pose, standarized_depth_], dim=1)
 
         if detach_quality:
             with torch.no_grad():
                 features2 = self.back_bone2_(standarized_depth_)
-                grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
+                grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose_1)
 
 
         else:
             features2 = self.back_bone2_(standarized_depth_)
-            grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose)
+            grasp_quality_logits = self.grasp_quality_(features2, detached_dense_grasp_pose_1)
 
         # print('G b1 max val= ', features.max().item(), 'mean:', features.mean().item(), ' std:',
         #       features.std(dim=1).mean().item())
         # print('G b2 max val= ', features2.max().item(), 'mean:', features2.mean().item(), ' std:',
         #       features2.std(dim=1).mean().item())
 
-        detached_dense_grasp_pose = torch.cat([detached_dense_grasp_pose[:, 0:5], detached_dense_grasp_pose[:, 8:11],detached_dense_grasp_pose[:,self.static_joints],standarized_depth_], dim=1)
         if detach_collision:
             with torch.no_grad():
                 features3 = self.back_bone3_(standarized_depth_)
-                collision = self.collision(features3, detached_dense_grasp_pose)
+                collision = self.collision(features3, detached_dense_grasp_pose_2)
 
         else:
             features3 = self.back_bone3_(standarized_depth_)
-            collision = self.collision(features3, detached_dense_grasp_pose)
+            collision = self.collision(features3, detached_dense_grasp_pose_2)
 
 
         return dense_grasp_pose, grasp_quality_logits,features2.detach(),features3.detach(),collision
