@@ -1035,7 +1035,7 @@ class AbstractGraspAgentTraining:
                     if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
-                        self.Ave_importance.update(ave_importance*ave_uniqueness)
+                        self.Ave_importance.update(ave_importance)
 
 
                         if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
@@ -1059,7 +1059,7 @@ class AbstractGraspAgentTraining:
                 ave_importance = sum(importance) / len(importance)
 
                 self.Ave_uniquness.update(ave_uniqueness)
-                self.Ave_importance.update(ave_importance*ave_uniqueness)
+                self.Ave_importance.update(ave_importance)
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
@@ -1209,7 +1209,7 @@ class AbstractGraspAgentTraining:
                 grasp_quality = logits_to_probs(grasp_quality_logits)
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
-                annealing_factor = (1 - grasp_feasiblity.detach())
+                annealing_factor = (1 - grasp_quality.detach())
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
