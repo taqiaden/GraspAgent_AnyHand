@@ -964,7 +964,7 @@ class AbstractGraspAgentTraining:
                     self.dist_bias.update(target_generated_pose[7].item())
                     self.dist_bias_pre.update(target_generated_pose[10].item())
 
-                if grasp_quality[target_index].item()>0.5 and grasp_feasiblity[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
+                if grasp_quality[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
                 margin =  0.
