@@ -553,7 +553,7 @@ class AbstractGraspAgentTraining:
         # low_quality = grasp_quality_obj_x[grasp_quality_obj_x < 0.5]
 
 
-        loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.)*2)**2).mean() if grasp_quality_obj_x.numel()>1 else torch.tensor(0.,device=device)
+        loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.))**2).mean() if grasp_quality_obj_x.numel()>1 else torch.tensor(0.,device=device)
 
         # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
@@ -621,8 +621,8 @@ class AbstractGraspAgentTraining:
 
             mask_ = (~floor_mask) #&(coll_props>0.5)
             contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
-            # mask_ = (~floor_mask) & (probs>0.5)
-            # contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
+            mask_ = (~floor_mask) & (probs>0.5)
+            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -907,7 +907,7 @@ class AbstractGraspAgentTraining:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
                 v=grasp_quality[target_index].item()
-                importance = max(0.01,v) if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
+                importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 

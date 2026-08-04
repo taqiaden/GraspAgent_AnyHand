@@ -10,4 +10,4 @@ class R_2F85_G(G):
 
 class R_2F85_D(C):
     def __init__(self):
-        super().__init__(n_params=8+3)
+        super().__init__(n_params=8)

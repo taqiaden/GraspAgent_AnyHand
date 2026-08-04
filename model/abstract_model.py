@@ -128,6 +128,6 @@ class C(nn.Module):
         #       ' std:',
         #       anchor.std(dim=1).mean().item())
 
-        scores = self.decoder(anchor[:,None], pose)
+        scores = self.decoder(anchor[:,None], torch.cat([pose[:,:,0:8],pose[:,:,11:]],dim=-1))
 
         return scores

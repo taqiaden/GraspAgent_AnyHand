@@ -41,10 +41,10 @@ class PoseSampler(nn.Module):
 
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
-            zeta = self.zeta(features, torch.cat([depth, delta, alpha,beta,fingers], dim=1))
+            zeta = self.zeta(features.detach(), torch.cat([depth, delta, alpha,beta,fingers], dim=1).detach())
             pose = torch.cat([alpha,beta,delta,zeta,fingers], dim=1)
         else:
-            zeta = self.zeta(features, torch.cat([depth, delta, alpha,beta], dim=1))
+            zeta = self.zeta(features.detach(), torch.cat([depth, delta, alpha,beta], dim=1).detach())
             pose = torch.cat([alpha,beta,delta,zeta], dim=1)
 
         return pose
