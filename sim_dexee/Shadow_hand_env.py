@@ -48,12 +48,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
             self.static_view(1000)
 
         return  contact_with_obj , contact_with_floor
-    def check_graspness(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None ):
-
-        pre_point = np.array(pre_point)  # Starting position
-        hand_pos = np.array(hand_pos)  # Target position
-        distance = np.linalg.norm(pre_point - hand_pos)
-        approach_steps = int(distance / 0.003)
+    def check_graspness(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=600,hard_level=0.,shake=True,update_obj_prob=None ):
 
         self.restore_simulation_state()
 
@@ -65,9 +60,9 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
 
         self.d.time = 0.0
 
-        self.d.mocap_pos[0] = pre_point.tolist()
+        self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat
-        self.d.qpos = pre_point.tolist() + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
+        self.d.qpos = hand_pos + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
         self.d.ctrl = self.decode_finger_ctrl(hand_fingers)
 
         mujoco.mj_step(self.m, self.d)
@@ -86,33 +81,22 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         shake_amp = .003
         shake_f = 20  # Hz
 
-        for i in range(600+approach_steps):
-            if i<approach_steps:
-                t = (i + 1) / approach_steps
-                self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
-                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
-                if ini_contact_with_obj or ini_contact_with_floor:
-                    return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
-            if i==approach_steps:
-                self.d.mocap_pos[0] =hand_pos.tolist()
-                ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
-                if ini_contact_with_obj or ini_contact_with_floor:
-                    return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
+        for i in range(600):
 
-            if 200+approach_steps>i>approach_steps:
+            if 200>i:
                 self.d.ctrl = decoded_fingers
 
-            if i==200+approach_steps:
+            if i==200:
                 collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01,obj_margin=0.01)
                 if collide_with_floor or collide_with_obj:
                     return  False, False, False, warning_flag, grasped_obj
 
-            if 200 +approach_steps< i < 400+approach_steps:
+            if 200 < i < 400:
                 self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
 
             # shake phase
-            if 500+approach_steps > i > 400+approach_steps:
-                if i==401+approach_steps:
+            if 500 > i > 400:
+                if i==401:
                     collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
                     if collide_with_floor or collide_with_obj:
                         return False, False, False, warning_flag, grasped_obj

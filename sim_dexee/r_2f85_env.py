@@ -54,7 +54,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         mujoco.mj_step(self.m, self.d)
 
         # self.static_view(1000)
-        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
+        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
         if ini_contact_with_obj or ini_contact_with_floor:
             # self.static_view(1000)
             return  False, ini_contact_with_obj, ini_contact_with_floor,warning_flag,grasped_obj
@@ -68,9 +68,6 @@ class R2F85Env(MojocoMultiFingersEnv):
         shake_f = 20  # Hz
 
         for i in range(600):
-            ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
-            if ini_contact_with_obj or ini_contact_with_floor:
-                return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
 
             if 200>i:
                 self.d.ctrl = [255]

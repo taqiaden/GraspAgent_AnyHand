@@ -98,7 +98,6 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
 
         warning_flag = False
 
-
         self.d.time = 0.0
 
         self.d.mocap_pos[0] = hand_pos
@@ -108,7 +107,7 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
 
         mujoco.mj_step(self.m, self.d)
 
-        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact()
+        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
         if ini_contact_with_obj or ini_contact_with_floor:
             # self.static_view(1000)
             return  False, ini_contact_with_obj, ini_contact_with_floor,warning_flag,grasped_obj
@@ -122,12 +121,6 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
         shake_f = 20  # Hz
 
         for i in range(600):
-
-
-            ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
-            if ini_contact_with_obj or ini_contact_with_floor:
-                return False, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
-
             if 200>i:
                 self.d.ctrl = decoded_fingers
 

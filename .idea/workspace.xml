@@ -6,10 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/Decoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Decoders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/abstract_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/abstract_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Multi_finger_hand_env.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,12 +38,71 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/taqiaden/GraspAgent_AnyHand.git&quot;,
-    &quot;accountId&quot;: &quot;575d3d9a-c63c-407d-8a57-bd13a7f97edc&quot;
+    &quot;accountId&quot;: &quot;43b54402-4706-40ed-a887-df7554654e23&quot;
   }
 }</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.2465581761233397" />
+      <entry key="MS500" value="1.7557599641581132" />
+      <entry key="S2" value="1.9323864864368325" />
+      <entry key="S5" value="1.972385307580636" />
+      <entry key="S10" value="1.9860966158116242" />
+      <entry key="S30" value="2.003883179553755" />
+      <entry key="S60" value="2.0900785195248965" />
+      <entry key="M2" value="2.3028230178831466" />
+      <entry key="M5" value="2.620607212430346" />
+      <entry key="M10" value="2.7878490381401564" />
+      <entry key="M15" value="2.853038349622211" />
+      <entry key="M30" value="2.9237115444661588" />
+      <entry key="H1" value="2.9712626229705466" />
+      <entry key="H2" value="3.0814054230690946" />
+      <entry key="H4" value="3.308039719760053" />
+      <entry key="D1" value="3.824486096110412" />
+      <entry key="W1" value="3.972847990643915" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.4763839630223625" />
+      <entry key="MS500" value="1.0075335502110774" />
+      <entry key="S2" value="1.5810910669305156" />
+      <entry key="S5" value="1.8098953467071934" />
+      <entry key="S10" value="1.9006968234533432" />
+      <entry key="S30" value="1.9742937246425203" />
+      <entry key="S60" value="2.0744252177536895" />
+      <entry key="M2" value="2.2940371642286648" />
+      <entry key="M5" value="2.6165282654817363" />
+      <entry key="M10" value="2.785661489126033" />
+      <entry key="M15" value="2.8515415336195846" />
+      <entry key="M30" value="2.9229422981341013" />
+      <entry key="H1" value="2.9708708566050777" />
+      <entry key="H2" value="3.081200815534774" />
+      <entry key="H4" value="3.3079283398230244" />
+      <entry key="D1" value="3.8244640777855103" />
+      <entry key="W1" value="3.972844703301529" />
+    </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -65,6 +127,7 @@
     "Python.allegro_hand_env.executor": "Run",
     "Python.margin.executor": "Run",
     "Python.r_2f85_training.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -73,6 +136,8 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "pProject Default",
@@ -162,7 +227,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-c59985aa861c-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.24374.152" />
+        <option value="bundled-python-sdk-6fa658e1df1a-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.8665.369" />
       </set>
     </attachedChunks>
   </component>
@@ -182,14 +247,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00107" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783225697078</created>
-      <option name="number" value="00107" />
-      <option name="presentableId" value="LOCAL-00107" />
-      <option name="project" value="LOCAL" />
-      <updated>1783225697079</updated>
     </task>
     <task id="LOCAL-00108" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -575,7 +632,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785804870642</updated>
     </task>
-    <option name="localTasksCounter" value="156" />
+    <task id="LOCAL-00156" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786420071760</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1786420071762</updated>
+    </task>
+    <option name="localTasksCounter" value="157" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
