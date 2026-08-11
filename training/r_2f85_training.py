@@ -18,9 +18,6 @@ def process_pose(target_point, target_pose, view=False):
 
     target_point_=target_point_+delta
 
-    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
-    pre_grasp_point=target_point_+zeta
-
     alpha = target_pose_[:3]
 
     beta = target_pose_[3:5]
@@ -40,14 +37,12 @@ def process_pose(target_point, target_pose, view=False):
         print('alpha: ', alpha)
         print('beta: ', beta)
         print('delta: ', delta)
-        print('zeta: ', zeta)
 
-        print('pre_grasp_point: ', pre_grasp_point)
         print('target_pose: ', target_pose)
 
         print('target_point_: ', target_point_)
 
-    return quat, None, target_point_,pre_grasp_point
+    return quat, None, target_point_
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args,epochs=1):

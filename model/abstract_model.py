@@ -29,11 +29,10 @@ class G(nn.Module):
 
         self.PoseSampler = sampler_decoder
 
-
-        self.grasp_quality_=FilmModulatedDecoder( 64, n_params-3, 1,
+        self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
-        self.collision=FilmModulatedDecoder( 64, n_params, 1,
+        self.collision=FilmModulatedDecoder( 64, 8+len(self.static_joints)+1, 1,
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.back_bone.apply(init_weights_he_normal)
@@ -46,7 +45,7 @@ class G(nn.Module):
     def quality_forward(self, depth,grasp_pose,features):
         standarized_depth_ = depth_normalization(depth)
 
-        gripper_pose_x = torch.cat([grasp_pose[:, 0:8],grasp_pose[:, 11:], standarized_depth_], dim=1)
+        gripper_pose_x = torch.cat([grasp_pose, standarized_depth_], dim=1)
 
         grasp_quality_x = self.grasp_quality_(features, gripper_pose_x)
 
@@ -55,7 +54,7 @@ class G(nn.Module):
     def collision_forward(self, depth,grasp_pose,features):
         standarized_depth_ = depth_normalization(depth)
 
-        gripper_pose_x = torch.cat([grasp_pose[:, 0:8].detach(), grasp_pose[:, 8:11],grasp_pose[:, 11:].detach(),standarized_depth_], dim=1)
+        gripper_pose_x = torch.cat([grasp_pose[:,:8],grasp_pose[:,self.static_joints],standarized_depth_], dim=1)
 
         collision_score = self.collision(features, gripper_pose_x)
 
@@ -75,8 +74,8 @@ class G(nn.Module):
             dense_grasp_pose = self.PoseSampler(features, standarized_depth_)
 
         detached_dense_grasp_pose = dense_grasp_pose.detach().clone()
-        detached_dense_grasp_pose_1 = torch.cat([detached_dense_grasp_pose[:, 0:8],detached_dense_grasp_pose[:, 11:], standarized_depth_], dim=1)
-        detached_dense_grasp_pose_2 = torch.cat([detached_dense_grasp_pose, standarized_depth_], dim=1)
+        detached_dense_grasp_pose_1 = torch.cat([detached_dense_grasp_pose,standarized_depth_], dim=1)
+        detached_dense_grasp_pose_2 = torch.cat([detached_dense_grasp_pose[:,:8],detached_dense_grasp_pose[:,self.static_joints], standarized_depth_], dim=1)
 
         if detach_quality:
             with torch.no_grad():

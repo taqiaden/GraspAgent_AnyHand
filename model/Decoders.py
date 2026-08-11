@@ -3,7 +3,6 @@ from torch import nn
 import torch.nn.functional as F
 from Configurations.config import device
 
-
 class LayerNorm2D(nn.Module):
     def __init__(self,channels,elementwise_affine=True):
         super().__init__()
@@ -26,8 +25,6 @@ class PoseSampler(nn.Module):
 
         self.fingers=FilmModulatedDecoder(in_c1=64, in_c2=9, out_c=n_joint,activation=nn.SiLU(),normalize=False).to(device) if n_joint>0 else None
 
-        self.zeta = FilmModulatedDecoder(in_c1=64, in_c2= 9+n_joint, out_c=3,activation=nn.SiLU(), normalize=False).to(device)
-
 
     def forward(self, features,depth ):
 
@@ -41,11 +38,9 @@ class PoseSampler(nn.Module):
 
         if self.fingers is not None:
             fingers= self.fingers(features, torch.cat([depth,delta,alpha,beta], dim=1))
-            zeta = self.zeta(features.detach(), torch.cat([depth, delta, alpha,beta,fingers], dim=1).detach())
-            pose = torch.cat([alpha,beta,delta,zeta,fingers], dim=1)
+            pose = torch.cat([alpha,beta,delta,fingers], dim=1)
         else:
-            zeta = self.zeta(features.detach(), torch.cat([depth, delta, alpha,beta], dim=1).detach())
-            pose = torch.cat([alpha,beta,delta,zeta], dim=1)
+            pose = torch.cat([alpha,beta,delta], dim=1)
 
         return pose
 

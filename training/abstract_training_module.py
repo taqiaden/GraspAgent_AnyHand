@@ -25,6 +25,21 @@ from torch_scatter import scatter_mean
 import numpy as np
 from utils.visualiztion import view_npy_open3d
 from utils.where_I_am import detect_environment
+import builtins
+
+original_print = builtins.print
+
+def custom_print(*args, **kwargs):
+    formatted_args = []
+    for arg in args:
+        if isinstance(arg, float):
+            formatted_args.append(f"{arg:.4f}")
+        else:
+            formatted_args.append(arg)
+    original_print(*formatted_args, **kwargs)
+
+# Replace print with custom version
+builtins.print = custom_print
 
 print_details=True
 
@@ -152,7 +167,7 @@ class AbstractGraspAgentTraining:
         self.critic_loss_statistics = None
 
 
-        self.n_param = n_joints+11
+        self.n_param = n_joints+8
 
         self.max_scenes = 1000
 
@@ -207,8 +222,6 @@ class AbstractGraspAgentTraining:
                                     decay_rate=0.1,
                                     initial_val=1.,track_history=self.track_statistics_history)
 
-
-
         self.Ave_uniquness = MovingRate(self.model_key + 'Ave_uniquness',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
@@ -218,13 +231,6 @@ class AbstractGraspAgentTraining:
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
         self.dist_bias = MovingRate(self.model_key + '_dist_bias',
-                                                       decay_rate=0.01,
-                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
-        self.Ave_approach_distance = MovingRate(self.model_key + '_Ave_approach_distance',
-                                                       decay_rate=0.01,
-                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
-
-        self.dist_bias_pre = MovingRate(self.model_key + '_dist_bias_pre',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
@@ -338,7 +344,6 @@ class AbstractGraspAgentTraining:
             None, ...]
 
         sampled_pose[:,7]+=self.dist_bias.val
-        sampled_pose[:,10]+=self.dist_bias_pre.val
 
         sampled_pose = sampled_pose * sampling_ratios + (1 - sampling_ratios) * ref_pose
         assert not torch.isnan(sampled_pose).any(), f'{sampled_pose}, {sampling_ratios.min()}, {sampled_pose.max()}'
@@ -411,17 +416,30 @@ class AbstractGraspAgentTraining:
             margin = pairs[j][2]
             is_col=pairs[j][4]
             q_score=pairs[j][5]
+            c_score=pairs[j][6]
 
             target_generated_pose = grasp_pose[target_index].detach()
             target_ref_pose = grasp_pose_ref[target_index].detach()
 
             if k < 0:
                 print(Fore.GREEN,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col},  q_score={q_score} ',
+                      target_ref_pose.cpu().numpy(),
+                      target_generated_pose.cpu().detach().numpy(),
+                      ', m=', margin,
+                      ', is_col=', is_col,
+                      ',  q_score=', q_score,
+                      ', c_score=', c_score,
+                      ' ',
                       Fore.RESET)
             elif k > 0:
                 print(Fore.LIGHTCYAN_EX,
-                      f'{target_ref_pose.cpu().numpy()} {target_generated_pose.cpu().detach().numpy()} , m={margin}, is_col={is_col}, q_score={q_score} ',
+                      target_ref_pose.cpu().numpy(),
+                      target_generated_pose.cpu().detach().numpy(),
+                      ', m=', margin,
+                      ', is_col=', is_col,
+                      ', q_score=', q_score,
+                      ', c_score=', c_score,
+                      ' ',
                       Fore.RESET)
 
     def get_generator_loss(self, cropped_local_point_clouds, depth, clean_depth, grasp_pose, grasp_pose_ref, pairs, floor_mask    ):
@@ -455,7 +473,7 @@ class AbstractGraspAgentTraining:
 
     def supplementary_statistics(self, probs, pc, grasp_pose_PW, floor_mask, coll_props):
         try:
-            mask_ = (~floor_mask) & (coll_props > 0.5) & (probs>0.5)
+            mask_ = (~floor_mask) & (coll_props > 0.5)
 
             dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=mask_)
             grasp_target_index = dist.probs.argmax()
@@ -507,10 +525,30 @@ class AbstractGraspAgentTraining:
         except Exception as e:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
-    def get_repulsive_loss(self,depth,grasp_pose,features,mask):
+    def get_repulsive_loss_pi_one(self,depth,grasp_pose,features,mask):
 
         grasp_quality_x = self.gan.generator.quality_forward(depth[None,None,...],grasp_pose,features)
 
+
+        grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
+
+        grasp_quality_obj_x = grasp_quality_x[mask]
+
+        grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
+
+
+        loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.))**2).mean() if grasp_quality_obj_x.numel()>1 else torch.tensor(0.,device=device)
+
+        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+
+        print(f'Pi1 loss_p: {loss_p.item()}')
+
+        return loss_p
+
+
+    def get_repulsive_loss_pi_two(self,depth,grasp_pose,features,mask):
+
+        grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
 
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
@@ -535,31 +573,9 @@ class AbstractGraspAgentTraining:
 
         loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        print(f'quality loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        print(f'Pi2 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
         return loss_p+loss_n
-
-    def get_repulsive_loss_col(self,depth,grasp_pose,features,mask):
-
-        grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
-
-        grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
-
-        grasp_quality_obj_x = grasp_quality_x[mask]
-
-        grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
-
-        # high_quality = grasp_quality_obj_x[grasp_quality_obj_x >= 0.5]
-        # low_quality = grasp_quality_obj_x[grasp_quality_obj_x < 0.5]
-
-
-        loss_p = ((torch.clamp(1.0- grasp_quality_obj_x, min=0.))**2).mean() if grasp_quality_obj_x.numel()>1 else torch.tensor(0.,device=device)
-
-        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
-
-        print(f'collision loss_p: {loss_p.item()}')
-
-        return loss_p
 
     def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
         '''zero grad'''
@@ -619,10 +635,10 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) #&(coll_props>0.5)
-            contrast_loss=self.get_repulsive_loss( depth, grasp_pose, features2.detach(), mask_)
-            mask_ = (~floor_mask) & (probs>0.5)
-            contrast_loss+=self.get_repulsive_loss_col( depth, grasp_pose, features3.detach(), mask_)
+            # mask_ = (~floor_mask) &(coll_props>0.5)
+            # contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
+            mask_ = (~floor_mask) #& (probs>0.5)
+            contrast_loss=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -776,25 +792,24 @@ class AbstractGraspAgentTraining:
 
     def check_collision(self, target_point, target_pose, view=False):
         with torch.no_grad():
-            quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=view)
-
-        return self.sim_env.check_collision(hand_pos=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers, view=view)
+            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=view)
+        return self.sim_env.check_collision(hand_pos=shifted_point.tolist(), hand_quat=quat, hand_fingers=fingers, view=view)
 
     def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
                        update_obj_prob=None ):
         grasped_obj = None
         warning_flag=False
         with torch.no_grad():
-            quat, fingers, shifted_point,pre_point = self.process_pose(target_point, target_pose, view=self.test_mode)
+            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=self.test_mode)
 
             if view:
                 grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp = self.sim_env.view_grasp(
-                    hand_pos=shifted_point.tolist(),pre_point=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers,
+                    hand_pos=shifted_point.tolist(), hand_quat=quat, hand_fingers=fingers,
                     view=view, hard_level=hard_level)
                 warning_flag = False
             else:
                 grasp_success, contact_with_obj, contact_with_floor,  warning_flag, grasped_obj = self.sim_env.check_graspness(
-                    hand_pos=shifted_point.tolist(),pre_point=pre_point.tolist(), hand_quat=quat, hand_fingers=fingers,
+                    hand_pos=shifted_point.tolist(), hand_quat=quat, hand_fingers=fingers,
                     view=view, hard_level=hard_level, shake=shake, update_obj_prob=update_obj_prob)
 
             initial_collision = contact_with_obj or contact_with_floor
@@ -807,9 +822,6 @@ class AbstractGraspAgentTraining:
                     if check_kinematics:
                         plan_found = self.kinematics.kinematic_plan_exist(quat, shifted_point)
                     else: plan_found=True
-                    if update_obj_prob is not None:
-                        approach_distance = np.linalg.norm(shifted_point - pre_point)
-                        self.Ave_approach_distance.update(approach_distance)
                     return grasp_success, initial_collision, plan_found, grasped_obj,warning_flag
 
         return False, initial_collision,  None, grasped_obj,warning_flag
@@ -894,8 +906,6 @@ class AbstractGraspAgentTraining:
                 ref_success=ref_success and ref_plan_found
                 gen_success=gen_success and gen_plan_found
 
-
-
             if t == 1 and self.skip_rate() > 0.9 and print_details:
                 print(
                     f' ref ---- {target_ref_pose}, {ref_success, ref_initial_collision}')
@@ -906,7 +916,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=grasp_quality[target_index].item()
+                v=grasp_feasiblity[target_index].item()
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -915,8 +925,8 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                v=grasp_quality[target_index].item()
-                importance = v*importance if importance is not None else max(0.01,1-v)
+                v=grasp_feasiblity[target_index].item()
+                importance = v*importance if importance is not None else max(0.01,1-abs(0.5-v)*2)
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
@@ -952,24 +962,22 @@ class AbstractGraspAgentTraining:
 
                 if not not_unique:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                        margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        margin = ((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        if ref_initial_collision or gen_initial_collision:margin=0.0#((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
 
-                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
+                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item()))
 
                 if k>0:
                     self.dist_bias.update(target_ref_pose[7].item())
-                    self.dist_bias_pre.update(target_ref_pose[10].item())
                 if k<0:
                     self.dist_bias.update(target_generated_pose[7].item())
-                    self.dist_bias_pre.update(target_generated_pose[10].item())
 
-                if grasp_quality[target_index].item()>0.5: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
+                if grasp_feasiblity[target_index].item()>0.5 and  k<0.: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
                 margin =  0.
 
-                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item()))
+                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item()))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
@@ -1223,7 +1231,6 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
                         pose = self.loaded_synthesised_data.grasp_parameters[t]
@@ -1231,21 +1238,11 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            # option1=pose*0.99+grasp_pose_gen[index]*0.01
-                            # option2=pose*0.9+grasp_pose_gen[index]*0.1
-                            # u1 = self.approach_beta_clusters.get_uniqueness_score(
-                            #     option1[0:5]).item()
-                            # u2 = self.approach_beta_clusters.get_uniqueness_score(
-                            #     option2[0:5]).item()
                             grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
-                            if pose.shape[0] == grasp_pose_ref[index].shape[0]-3:
-                                '''fill missing zeta'''
-                                grasp_pose_ref[index][0:8] = pose[0:8]
-                                grasp_pose_ref[index][8:11] = pose[5:8]
-                                grasp_pose_ref[index][11:] = pose[8:]
-                            else:
-                                grasp_pose_ref[index][0:8] = pose[0:8]
+                            grasp_pose_ref[index][0:8] = pose[0:8]
+                        elif pose.shape[0]>grasp_pose_ref.shape[1]:
+                            grasp_pose_ref[index] = torch.cat([pose[0:8],pose[11:]],dim=0)
 
                     grasp_pose_ref = grasp_pose_ref.reshape(600, 600, self.n_param).permute(2, 0, 1).unsqueeze(0)
 
@@ -1343,10 +1340,8 @@ class AbstractGraspAgentTraining:
                     print(f'beta parameters range = {self.moving_range[3:5].mean()}')
                     print(f'delta parameters moving std = {self.moving_std[5:8].mean()}')
                     print(f'delta parameters range = {self.moving_range[5:8].mean()}')
-                    print(f'zeta parameters moving std = {self.moving_std[8:11].mean()}')
-                    print(f'zeta parameters range = {self.moving_range[8:11].mean()}')
-                    print(f'joints parameters moving std = {self.moving_std[11:].mean()}')
-                    print(f'joints parameters range = {self.moving_range[11:].mean()}')
+                    print(f'joints parameters moving std = {self.moving_std[8:].mean()}')
+                    print(f'joints parameters range = {self.moving_range[8:].mean()}')
                     torch.save(self.moving_std,self.model_key+'_moving_std')
                     torch.save(self.moving_range,self.model_key+'_moving_range')
 
@@ -1365,8 +1360,6 @@ class AbstractGraspAgentTraining:
             self.collision_tendency.view()
             self.data_update_rate.view()
             self.dist_bias.view()
-            self.dist_bias_pre.view()
-            self.Ave_approach_distance.view()
             self.Ave_max_prop.view()
 
             self.balanced_set_grasp_quality_statistics.print()
@@ -1393,8 +1386,6 @@ class AbstractGraspAgentTraining:
         self.collision_tendency.save()
         self.data_update_rate.save()
         self.dist_bias.save()
-        self.dist_bias_pre.save()
-        self.Ave_approach_distance.save()
         self.Ave_importance.save()
 
         self.cond_argmax_policy_statistics.save()

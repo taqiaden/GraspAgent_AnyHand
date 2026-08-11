@@ -133,15 +133,13 @@ def generate_random_CH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.randn((size, 1), device=device).abs()*2*approach
 
     fingers = torch.randn((size, 3), device=device)+0.5
 
-    sampled_pose = torch.cat([alpha_,beta_, delta,zeta, fingers], dim=1)
+    sampled_pose = torch.cat([alpha_,beta_, delta, fingers], dim=1)
     return sampled_pose
 
 def generate_random_SH_poses(size):
-
     alpha_=torch.randn((size, 3), device=device)
     alpha_[:,-1]=-1
     alpha_[:,0:2]*=torch.rand((size, 2), device=device)**2
@@ -156,10 +154,8 @@ def generate_random_SH_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
+    sampled_pose = torch.cat([alpha_,beta_,delta, fingers_], dim=1)
 
-
-    sampled_pose = torch.cat([alpha_,beta_,delta,zeta, fingers_], dim=1)
     return sampled_pose
 
 def generate_random_SH_5F_poses(size):
@@ -201,9 +197,8 @@ def generate_random_SH_5F_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
-    sampled_pose = torch.cat([alpha_,beta_,delta,zeta,gamma, fingers_], dim=1)
+    sampled_pose = torch.cat([alpha_,beta_,delta,gamma, fingers_], dim=1)
 
     return sampled_pose
 
@@ -239,9 +234,8 @@ def generate_random_Allergo_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
-    sampled_pose = torch.cat([alpha_,beta_,delta, zeta,fingers_], dim=1)
+    sampled_pose = torch.cat([alpha_,beta_,delta,fingers_], dim=1)
 
     return sampled_pose
 
@@ -258,9 +252,8 @@ def generate_random_r_2f85_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-    zeta = -torch.randn((size, 1), device=device).abs()*2*alpha_
 
-    sampled_pose = torch.cat([alpha_,beta_,delta,zeta], dim=1)
+    sampled_pose = torch.cat([alpha_,beta_,delta], dim=1)
 
     return sampled_pose
 

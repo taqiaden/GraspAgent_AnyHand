@@ -19,7 +19,7 @@ bce_with_logits=nn.BCEWithLogitsLoss()
 print = custom_print
 
 def process_fingers(target_pose_):
-    fingers = torch.clip(target_pose_[11:] + 0.5, 0, 1)
+    fingers = torch.clip(target_pose_[8:] + 0.5, 0, 1)
     fingers = fingers
     return fingers
 
@@ -29,9 +29,6 @@ def process_pose(target_point, target_pose, view=False):
     delta=target_pose_[5:5 + 3].cpu().numpy()/15
 
     target_point_=target_point_+delta
-
-    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
-    pre_grasp_point=target_point_+zeta
 
     alpha=target_pose_[:3]
 
@@ -55,15 +52,13 @@ def process_pose(target_point, target_pose, view=False):
         print('alpha: ', alpha)
         print('beta: ', beta)
         print('delta: ', delta)
-        print('zeta: ', zeta)
 
-        print('pre_grasp_point: ', pre_grasp_point)
         print('target_pose: ', target_pose)
 
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat,fingers,target_point_,pre_grasp_point
+    return quat,fingers,target_point_
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):

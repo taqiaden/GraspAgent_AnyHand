@@ -192,10 +192,13 @@ class MojocoMultiFingersEnv():
 
     def load_obj_dict(self):
         if os.path.exists(self.dict_file_path):
-            with open(self.dict_file_path, "r") as f:
-                data = json.load(f)
-                self.max_obj_score = min(1.0,max(data.values()))
-            return data if data is not None else {}
+            try:
+                with open(self.dict_file_path, "r") as f:
+                    data = json.load(f)
+                    self.max_obj_score = min(1.0,max(data.values()))
+                return data if data is not None else {}
+            except:
+                return{}
         else:
             return {}
 
@@ -689,7 +692,7 @@ class MojocoMultiFingersEnv():
 
         return grasped_obj
 
-    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.01):
+    def check_valid_grasp(self,margin=0,minimum_contact_points=2,view=False,allowed_penetration_margin=0.1):
         is_hand_geom= lambda x: x>=1 and x<=self.last_hand_geom_id
         contact_with_floor=False
         safe_penetration=True

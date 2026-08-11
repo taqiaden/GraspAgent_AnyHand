@@ -4,9 +4,9 @@ SH_model_key = 'SH_model'
 
 class SH_G(G):
     def __init__(self):
-        super().__init__(PoseSampler(n_joint=3),12+3)
+        super().__init__(PoseSampler(n_joint=3),12)
 
 
 class SH_D(C):
     def __init__(self):
-        super().__init__(n_params=11+3)
+        super().__init__(n_params=11)

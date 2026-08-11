@@ -13,14 +13,14 @@ import torch
 
 def cip_fingers(target_pose_):
     if target_pose_.ndim==2:
-        target_pose_[:,11:]=target_pose_[:,11:].clamp(min=0.,max=1.)
+        target_pose_[:,8:]=target_pose_[:,8:].clamp(min=0.,max=1.)
     else:
-        target_pose_[11:]=target_pose_[11:].clamp(min=0.,max=1.)
+        target_pose_[8:]=target_pose_[8:].clamp(min=0.,max=1.)
 
     return target_pose_
 
 def process_fingers(target_pose_):
-    fingers = target_pose_[11: ]
+    fingers = target_pose_[8: ]
 
     ''''''
     fingers[0:1]-=0.5
@@ -81,9 +81,6 @@ def process_pose(target_point, target_pose, view=False):
     delta=target_pose_[5:5 + 3].cpu().numpy()/15
     target_point_=target_point_+delta
 
-    zeta=target_pose_[8:8 + 3].cpu().numpy()/15
-    pre_grasp_point=target_point_+zeta
-
     alpha = target_pose_[:3]
 
     beta = target_pose_[3:5]
@@ -106,16 +103,13 @@ def process_pose(target_point, target_pose, view=False):
         print('alpha: ', alpha)
         print('beta: ', beta)
         print('delta: ', delta)
-        print('zeta: ', zeta)
 
-        print('pre_grasp_point: ', pre_grasp_point)
         print('target_pose: ', target_pose)
-
 
         print('fingers: ', fingers)
         print('target_point_: ', target_point_)
 
-    return quat, fingers, target_point_,pre_grasp_point
+    return quat, fingers, target_point_
 
 class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
