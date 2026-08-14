@@ -610,8 +610,8 @@ class AbstractGraspAgentTraining:
 
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
-        mask_ = (~floor_mask)
-        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
+        mask_ = (~floor_mask) & (probs>0.5)
+        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=True)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -923,7 +923,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=grasp_quality[target_index].item()
+                v=min(grasp_feasiblity[target_index].item(),grasp_quality[target_index].item())
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -932,7 +932,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                v=grasp_quality[target_index].item()
+                v=min(grasp_feasiblity[target_index].item(),grasp_quality[target_index].item())
                 importance = v*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
@@ -979,7 +979,7 @@ class AbstractGraspAgentTraining:
                 if k<0:
                     self.dist_bias.update(target_generated_pose[7].item())
 
-                if grasp_quality[target_index].item()>0.5 and  k<0.: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
+                if grasp_quality[target_index].item()>0.5 and  grasp_feasiblity[target_index].item()>0.5 and  k<0.: self.approach_beta_clusters.update(target_generated_pose[0:5].detach().clone())
 
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
                 margin =  0.
