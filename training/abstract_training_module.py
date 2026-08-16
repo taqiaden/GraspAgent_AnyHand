@@ -611,7 +611,7 @@ class AbstractGraspAgentTraining:
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask) & (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=True)
+        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -923,7 +923,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=min(grasp_feasiblity[target_index].item(),grasp_quality[target_index].item())
+                v=grasp_quality[target_index].item()
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -932,7 +932,7 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                v=min(grasp_feasiblity[target_index].item(),grasp_quality[target_index].item())
+                v=grasp_quality[target_index].item()
                 importance = v*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
@@ -940,10 +940,6 @@ class AbstractGraspAgentTraining:
 
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
 
-                if ref_grasped_obj in sampled_obj_ids:
-                    if len(self.loaded_synthesised_data) > 0: continue
-                else:
-                    sampled_obj_ids.append(sampled_obj_ids)
 
             if not ref_success and not gen_success:
                 if self.loaded_synthesised_data is None: self.sim_env.update_obj_info(1e-2, decay=0.99)
@@ -967,10 +963,13 @@ class AbstractGraspAgentTraining:
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
                 not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val))*2.0, report=False)
 
-                if not not_unique:
+                grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
+                if (not not_unique) and (not grasped_obj in sampled_obj_ids):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
                         if ref_initial_collision or gen_initial_collision:margin=0.0#((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
+
+                        sampled_obj_ids.append(grasped_obj)
 
                         d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item()))
 
