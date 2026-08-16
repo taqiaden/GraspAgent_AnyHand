@@ -413,6 +413,7 @@ class AbstractGraspAgentTraining:
             is_col=pairs[j][4]
             q_score=pairs[j][5]
             c_score=pairs[j][6]
+            obj_id=pairs[j][7]
 
             target_generated_pose = grasp_pose[target_index].detach()
             target_ref_pose = grasp_pose_ref[target_index].detach()
@@ -425,6 +426,7 @@ class AbstractGraspAgentTraining:
                       ', is_col=', is_col,
                       ',  q_score=', q_score,
                       ', c_score=', c_score,
+                      ', obj_id:', obj_id,
                       ' ',
                       Fore.RESET)
             elif k > 0:
@@ -435,6 +437,7 @@ class AbstractGraspAgentTraining:
                       ', is_col=', is_col,
                       ', q_score=', q_score,
                       ', c_score=', c_score,
+                      ', obj_id:', obj_id,
                       ' ',
                       Fore.RESET)
 
@@ -971,7 +974,7 @@ class AbstractGraspAgentTraining:
 
                         sampled_obj_ids.append(grasped_obj)
 
-                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item()))
+                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),grasped_obj))
 
                 if k>0:
                     self.dist_bias.update(target_ref_pose[7].item())
@@ -983,7 +986,7 @@ class AbstractGraspAgentTraining:
             if len(g_pairs) < self.batch_size and ref_success and not gen_success:
                 margin =  0.
 
-                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item()))
+                g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),ref_grasped_obj))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
