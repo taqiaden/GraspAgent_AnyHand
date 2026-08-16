@@ -1436,6 +1436,13 @@ class AbstractGraspAgentTraining:
                     try:
                         self.step(report=i == iterations - 1)
                         pi.step(i)
+                    except torch.cuda.OutOfMemoryError as e:
+                        print(Fore.RED, f"CUDA OOM: {e}. Pause for 1 min.", Fore.RESET)
+                        torch.cuda.empty_cache()
+                        time.sleep(60)  # Sleep only for OOM
+                        self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
+                        if self.loaded_synthesised_data is not None:
+                            self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
                     except Exception as e:
                         print(Fore.RED, str(e), Fore.RESET)
                         traceback.print_exc()
