@@ -937,7 +937,7 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 v=grasp_quality[target_index].item()
-                importance = (1-grasp_feasiblity[target_index].item())*importance if importance is not None else max(0.01,1-v)
+                importance = 0.5*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
@@ -971,7 +971,7 @@ class AbstractGraspAgentTraining:
                 if (not not_unique) and (not grasped_obj in d_sampled_obj_ids):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
                         margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
 
                         d_sampled_obj_ids.append(grasped_obj)
 
