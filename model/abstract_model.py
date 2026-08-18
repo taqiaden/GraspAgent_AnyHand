@@ -33,7 +33,7 @@ class G(nn.Module):
         activation=nn.SiLU(),  normalize=True).to(device)
 
         self.collision=FilmModulatedDecoder( 64, 8+len(self.static_joints)+1, 1,
-        activation=nn.ReLU(),  normalize=True).to(device)
+        activation=nn.SiLU(),  normalize=True).to(device)
 
         replace_instance_with_groupnorm(self.back_bone3_,max_groups=16)
 
