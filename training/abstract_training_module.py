@@ -65,7 +65,10 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         x = x[idx]
         weights=weights[idx]
 
+    weights = weights / (weights.sum() + 1e-6)
+
     w = weights[:, None] * weights[None, :]
+
 
     diff = x[:, None, :] - x[None, :, :]
     dist = diff.abs()
@@ -561,6 +564,7 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
 
+
         grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
 
         grasp_quality_obj_x = grasp_quality_x[mask]
@@ -577,8 +581,9 @@ class AbstractGraspAgentTraining:
         #     )
 
             # self.confidence_indicator.update(high_quality.mean().item() )
+        weight = weight[mask] / (weight[mask].sum() + 1e-6)
 
-        loss = (torch.clamp(1.0 - grasp_quality_obj_x, min=0.)*weight[mask]).sum()
+        loss = ((torch.clamp(1.0 - grasp_quality_obj_x, min=0.)**2)*weight).sum()
 
         # loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
         #
@@ -639,7 +644,6 @@ class AbstractGraspAgentTraining:
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
             weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
-            weight = weight / (weight.sum() + 1e-6)
 
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
@@ -649,7 +653,6 @@ class AbstractGraspAgentTraining:
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             mask_ = (~floor_mask) #& (probs>0.5)
             weight=probs.detach().clone()**2
-            weight = weight / (weight.sum() + 1e-6)
             contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_,weight)
 
             with torch.no_grad():
@@ -938,8 +941,9 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
+                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
                 v=grasp_quality[target_index].item()
-                importance = 0.5*importance if importance is not None else max(0.01,1-v)
+                importance = u*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
                     (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
@@ -967,7 +971,7 @@ class AbstractGraspAgentTraining:
 
             if len(d_pairs) < self.batch_size and  (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=((1-self.Ave_uniquness.val))*2.0, report=False)
+                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
                 if (not not_unique) and (not grasped_obj in d_sampled_obj_ids):
@@ -1053,13 +1057,13 @@ class AbstractGraspAgentTraining:
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
                     ave_importance = sum(importance)/len(importance)
 
-                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details):
+                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
                         self.Ave_importance.update(ave_importance)
 
 
-                        if len(self.DDM)-len(self.DDM.low_quality_samples_tracker)<self.max_scenes:
+                        if len(self.DDM.low_quality_samples_tracker)>0:
                             if print_details:print(Fore.GREEN,
                                   f'Replace sample, criteria: ave_uniqueness : { ave_uniqueness} ',
                                   Fore.RESET)
@@ -1079,19 +1083,18 @@ class AbstractGraspAgentTraining:
                 ave_uniqueness = sum(uniqueness)/len(uniqueness)
                 ave_importance = sum(importance) / len(importance)
 
-                self.Ave_uniquness.update(ave_uniqueness)
-                self.Ave_importance.update(ave_importance)
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=((1-self.Ave_uniquness.val))*2.0,report=print_details)
+                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.0,report=print_details)
                 # not_important = self.Ave_importance.lower_rejection_criteria(ave_importance, k=((1-self.Ave_uniquness.val**2))*10.0,report=print_details)
                 not_important=ave_importance<0.1
 
-                if len(self.DDM)-len(self.DDM.low_quality_samples_tracker) >= self.max_scenes and (not_unique or not_important):# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if not_unique or not_important:# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
                           f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, ave_importance:{ave_importance} ',
                           Fore.RESET)
+
                     self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
                     if len(self.DDM) > self.max_scenes: self.DDM.try_compress()
@@ -1099,6 +1102,8 @@ class AbstractGraspAgentTraining:
                     self.data_update_rate.update(1.)
                 else:
                     self.data_update_rate.update(0.)
+                    self.Ave_uniquness.update(ave_uniqueness)
+                    self.Ave_importance.update(ave_importance)
 
         else:
 

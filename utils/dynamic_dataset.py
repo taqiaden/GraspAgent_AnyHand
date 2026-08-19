@@ -168,6 +168,8 @@ class DynamicDataManagement:
 
     def try_compress(self):
         if len(self.low_quality_samples_tracker)>0:
+
+
             id = self.low_quality_samples_tracker.pop()
             last_data=self.load_data_point(self.last_id)
             self.save_at_id(last_data, id)
@@ -181,6 +183,9 @@ class DynamicDataManagement:
 
 
             self.last_id=self.last_id-1
+
+            if len(self.low_quality_samples_tracker) > 10:self.low_quality_samples_tracker.pop()
+
 
     def save_data_point(self,obj:SynthesisedData):
         if len(self.low_quality_samples_tracker)>0:
