@@ -553,11 +553,12 @@ class AbstractGraspAgentTraining:
 
         loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        # print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        print(f'Pi1 loss_p: {loss_p.item()},  loss_n: { ((torch.clamp(low_quality, min=0.)*2)**2).mean().item()}')
 
-        return loss_p+loss_n
+        return loss_p#+loss_n
 
 
     def get_repulsive_loss_pi_two(self,depth,grasp_pose,features,mask,weight):
@@ -619,7 +620,7 @@ class AbstractGraspAgentTraining:
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask) & (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
+        collision_loss_=self.get_grasp_collision_loss(coll_props,probs, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -732,7 +733,7 @@ class AbstractGraspAgentTraining:
 
         return grasp_quality_loss_
 
-    def get_grasp_collision_loss(self,coll_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_collision_loss(self,coll_probs,q_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
@@ -746,7 +747,7 @@ class AbstractGraspAgentTraining:
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(coll_probs), mask=mask_)
                 else:
-                    dist = MaskedCategorical(probs=coll_probs.clamp(min=0.1), mask=mask_)
+                    dist = MaskedCategorical(probs=q_probs.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
@@ -1257,7 +1258,7 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            grasp_pose_ref[index] = pose*0.8+grasp_pose_gen[index]*0.1+grasp_pose_ref[index]*0.1 if self.cip_fingers is None else self.cip_fingers(pose*0.8+grasp_pose_gen[index]*0.1+grasp_pose_ref[index]*0.1)
+                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
