@@ -555,7 +555,7 @@ class AbstractGraspAgentTraining:
 
         loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        print(f'Pi2 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
+        print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
 
         return loss_p+loss_n
 
@@ -651,8 +651,8 @@ class AbstractGraspAgentTraining:
 
             mask_ = (~floor_mask) #&(coll_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
-            mask_ = (~floor_mask) #& (probs>0.5)
-            weight=probs.detach().clone()**2
+            mask_ = (~floor_mask) & (probs>0.5)
+            weight=probs.detach().clone()
             contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_,weight)
 
             with torch.no_grad():
@@ -1083,6 +1083,8 @@ class AbstractGraspAgentTraining:
                 ave_uniqueness = sum(uniqueness)/len(uniqueness)
                 ave_importance = sum(importance) / len(importance)
 
+                self.Ave_uniquness.update(ave_uniqueness)
+                self.Ave_importance.update(ave_importance)
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
@@ -1102,8 +1104,7 @@ class AbstractGraspAgentTraining:
                     self.data_update_rate.update(1.)
                 else:
                     self.data_update_rate.update(0.)
-                    self.Ave_uniquness.update(ave_uniqueness)
-                    self.Ave_importance.update(ave_importance)
+
 
         else:
 
