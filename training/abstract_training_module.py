@@ -561,7 +561,40 @@ class AbstractGraspAgentTraining:
         return loss_p#+loss_n
 
 
-    def get_repulsive_loss_pi_two(self,depth,grasp_pose,features,mask,weight):
+    def get_repulsive_loss_pi_two(self,depth,grasp_pose,features,mask):
+
+        grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
+
+
+        grasp_quality_x = grasp_quality_x[0, 0].reshape(-1)
+
+        grasp_quality_obj_x = grasp_quality_x[mask]
+
+        grasp_quality_obj_x=logits_to_probs(grasp_quality_obj_x)
+
+        # high_quality = grasp_quality_obj_x[grasp_quality_obj_x >= 0.5]
+        # low_quality = grasp_quality_obj_x[grasp_quality_obj_x < 0.5]
+
+        # Only update if both groups have elements
+        # if len(high_quality) > 0 and len(low_quality) > 0:
+        #     self.discrimination_dist.update(
+        #         high_quality.mean().item() - low_quality.mean().item()
+        #     )
+
+            # self.confidence_indicator.update(high_quality.mean().item() )
+
+        loss = ((torch.clamp(1.0 - grasp_quality_obj_x, min=0.)**2)).mean()
+
+        # loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
+        #
+        # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+        #
+        print(f'Pi2 loss: {loss.item()}')
+
+        return loss
+
+
+    def get_repulsive_loss_pi_two_B(self,depth,grasp_pose,features,mask,weight):
 
         grasp_quality_x = self.gan.generator.collision_forward(depth[None,None,...],grasp_pose,features)
 
@@ -584,13 +617,13 @@ class AbstractGraspAgentTraining:
             # self.confidence_indicator.update(high_quality.mean().item() )
         weight = weight[mask] / (weight[mask].sum() + 1e-6)
 
-        loss = ((torch.clamp(1.0 - grasp_quality_obj_x, min=0.)**2)*weight).sum()
+        loss = ((torch.clamp(grasp_quality_obj_x, min=0.)**2)*weight).sum()
 
         # loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
         #
         # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
         #
-        print(f'Pi2 loss: {loss.item()}')
+        print(f'Pi2 N loss: {loss.item()}')
 
         return loss
 
@@ -619,8 +652,8 @@ class AbstractGraspAgentTraining:
 
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
-        mask_ = (~floor_mask) & (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(coll_props,probs, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
+        mask_ = (~floor_mask) #& (probs>0.5)
+        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -653,8 +686,7 @@ class AbstractGraspAgentTraining:
             mask_ = (~floor_mask) #&(coll_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             mask_ = (~floor_mask) & (probs>0.5)
-            weight=probs.detach().clone()
-            contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_,weight)
+            contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
@@ -733,7 +765,7 @@ class AbstractGraspAgentTraining:
 
         return grasp_quality_loss_
 
-    def get_grasp_collision_loss(self,coll_probs,q_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_collision_loss(self,coll_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
@@ -747,7 +779,7 @@ class AbstractGraspAgentTraining:
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(coll_probs), mask=mask_)
                 else:
-                    dist = MaskedCategorical(probs=q_probs.clamp(min=0.1), mask=mask_)
+                    dist = MaskedCategorical(probs=coll_probs.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
@@ -933,7 +965,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_PW[target_index][0:5]).item()
                 # u=min(u,0.99)
-                v=grasp_quality[target_index].item()
+                v=(grasp_quality[target_index].item()*grasp_feasiblity[target_index].item())**0.5
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -943,7 +975,7 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                v=grasp_quality[target_index].item()
+                v=(grasp_quality[target_index].item()*grasp_feasiblity[target_index].item())**0.5
                 importance = u*importance if importance is not None else max(0.01,1-v)
                 # if importance>0.1:
                 all_pairs.append(
@@ -977,8 +1009,15 @@ class AbstractGraspAgentTraining:
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
                 if (not not_unique) and (not grasped_obj in d_sampled_obj_ids):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
-                        margin = ((1-(0.5-  grasp_quality[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_quality[target_index]).abs().item()*2))
-                        if ref_initial_collision or gen_initial_collision:margin=0.#((1-(0.5-  grasp_feasiblity[target_index]).abs().item()*2) if k>0 else ((0.5-  grasp_feasiblity[target_index]).abs().item()*2))
+
+                        if k<0:
+                            margin = (1-(0.5-  grasp_quality[target_index]).abs().item()*2)
+                            if ref_initial_collision:
+                                margin *= grasp_feasiblity[target_index].item()
+                        else:
+                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
+                            if gen_initial_collision:
+                                margin*=1-grasp_feasiblity[target_index].item()
 
                         d_sampled_obj_ids.append(grasped_obj)
 
