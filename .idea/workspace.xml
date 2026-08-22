@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/CasiaHand_s_obj_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_obj_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/hands_and_objects/shadow_hand_obj_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,61 +40,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0613604917346367E-29" />
-      <entry key="MS500" value="1.6038826279751132E-6" />
-      <entry key="S2" value="0.0356611639317384" />
-      <entry key="S5" value="0.29705032454350017" />
-      <entry key="S10" value="0.7727612415323136" />
-      <entry key="S30" value="1.8132890670796757" />
-      <entry key="S60" value="2.3320204865571768" />
-      <entry key="M2" value="2.8025980942927275" />
-      <entry key="M5" value="3.660636094012383" />
-      <entry key="M10" value="4.407985133564297" />
-      <entry key="M15" value="4.800102848051034" />
-      <entry key="M30" value="5.313380477096921" />
-      <entry key="H1" value="5.630871854028067" />
-      <entry key="H2" value="5.80836510029443" />
-      <entry key="H4" value="5.902366579883058" />
-      <entry key="D1" value="6.552447328618719" />
-      <entry key="W1" value="9.023792301017043" />
-    </decayedCancelled>
-    <decayedSelected>
       <entry key="MS100" value="1.0" />
       <entry key="MS500" value="1.0" />
       <entry key="S2" value="1.0" />
       <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.0000000000002622" />
-      <entry key="S30" value="1.0000640074784115" />
-      <entry key="S60" value="1.0080004673870597" />
-      <entry key="M2" value="1.0894453318349244" />
-      <entry key="M5" value="1.3807352363553018" />
-      <entry key="M10" value="1.6170374675457737" />
-      <entry key="M15" value="1.7247824865393664" />
-      <entry key="M30" value="1.8513415804125661" />
-      <entry key="H1" value="1.92268173300037" />
-      <entry key="H2" value="1.9605632373770976" />
-      <entry key="H4" value="1.980083280837449" />
-      <entry key="D1" value="1.9966526597963599" />
-      <entry key="W1" value="1.9995211211162127" />
+      <entry key="S10" value="1.000000000318303" />
+      <entry key="S30" value="1.0018860022300182" />
+      <entry key="S60" value="1.0964465804395442" />
+      <entry key="M2" value="1.694256021773136" />
+      <entry key="M5" value="3.3367294776961427" />
+      <entry key="M10" value="4.730654630216496" />
+      <entry key="M15" value="5.533535727869104" />
+      <entry key="M30" value="6.780866965314506" />
+      <entry key="H1" value="7.71440084666859" />
+      <entry key="H2" value="8.30348135323294" />
+      <entry key="H4" value="8.656186752398284" />
+      <entry key="D1" value="12.049308617256946" />
+      <entry key="W1" value="40.9011967395003" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.2818277182777973E-25" />
+      <entry key="MS500" value="1.0509109850945566E-5" />
+      <entry key="S2" value="0.05693659390024019" />
+      <entry key="S5" value="0.31780197598150495" />
+      <entry key="S10" value="0.5637392801477514" />
+      <entry key="S30" value="0.8260879620902613" />
+      <entry key="S60" value="0.9095022091545509" />
+      <entry key="M2" value="0.9780311633203133" />
+      <entry key="M5" value="1.2139863167201548" />
+      <entry key="M10" value="1.5413628056983353" />
+      <entry key="M15" value="1.7802648904594405" />
+      <entry key="M30" value="2.197873394973112" />
+      <entry key="H1" value="2.530206553880964" />
+      <entry key="H2" value="2.7442841261638926" />
+      <entry key="H4" value="2.866393728107468" />
+      <entry key="D1" value="3.150947952705801" />
+      <entry key="W1" value="7.024982563662494" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.0949382561668636E-16" />
-      <entry key="MS500" value="6.425094271865223E-4" />
-      <entry key="S2" value="0.16622518510844891" />
-      <entry key="S5" value="0.6484141093925233" />
-      <entry key="S10" value="1.3151453721472222" />
-      <entry key="S30" value="2.606207281666108" />
-      <entry key="S60" value="3.2261488753728673" />
-      <entry key="M2" value="3.8294655086838545" />
-      <entry key="M5" value="5.01109473576517" />
-      <entry key="M10" value="6.007568878413991" />
-      <entry key="M15" value="6.512459780505218" />
-      <entry key="M30" value="7.158002439752933" />
-      <entry key="H1" value="7.550039506658768" />
-      <entry key="H2" value="7.767128538536824" />
-      <entry key="H4" value="7.881538690483286" />
-      <entry key="D1" value="8.548943233853707" />
-      <entry key="W1" value="11.023288952283828" />
+      <entry key="MS100" value="3.667268018986366E-18" />
+      <entry key="MS500" value="3.2666954037329784E-4" />
+      <entry key="S2" value="0.16541007070987687" />
+      <entry key="S5" value="0.697420636666572" />
+      <entry key="S10" value="1.1687460047442977" />
+      <entry key="S30" value="1.6699985319668378" />
+      <entry key="S60" value="1.9224709724121813" />
+      <entry key="M2" value="2.6273627096180565" />
+      <entry key="M5" value="4.529205959616992" />
+      <entry key="M10" value="6.259196679144595" />
+      <entry key="M15" value="7.304259744267992" />
+      <entry key="M30" value="8.97309232969712" />
+      <entry key="H1" value="10.241430187786738" />
+      <entry key="H2" value="11.046062337314043" />
+      <entry key="H4" value="11.521695327701298" />
+      <entry key="D1" value="15.200071908756309" />
+      <entry key="W1" value="47.92609160813686" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -243,110 +240,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00109" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783494088585</created>
-      <option name="number" value="00109" />
-      <option name="presentableId" value="LOCAL-00109" />
-      <option name="project" value="LOCAL" />
-      <updated>1783494088592</updated>
-    </task>
-    <task id="LOCAL-00110" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783554653820</created>
-      <option name="number" value="00110" />
-      <option name="presentableId" value="LOCAL-00110" />
-      <option name="project" value="LOCAL" />
-      <updated>1783554653820</updated>
-    </task>
-    <task id="LOCAL-00111" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783559158304</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
-      <option name="project" value="LOCAL" />
-      <updated>1783559158304</updated>
-    </task>
-    <task id="LOCAL-00112" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783567169833</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
-      <option name="project" value="LOCAL" />
-      <updated>1783567169833</updated>
-    </task>
-    <task id="LOCAL-00113" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783588125353</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1783588125353</updated>
-    </task>
-    <task id="LOCAL-00114" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783588554542</created>
-      <option name="number" value="00114" />
-      <option name="presentableId" value="LOCAL-00114" />
-      <option name="project" value="LOCAL" />
-      <updated>1783588554542</updated>
-    </task>
-    <task id="LOCAL-00115" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783588897798</created>
-      <option name="number" value="00115" />
-      <option name="presentableId" value="LOCAL-00115" />
-      <option name="project" value="LOCAL" />
-      <updated>1783588897798</updated>
-    </task>
-    <task id="LOCAL-00116" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783647856974</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1783647856974</updated>
-    </task>
-    <task id="LOCAL-00117" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783688369338</created>
-      <option name="number" value="00117" />
-      <option name="presentableId" value="LOCAL-00117" />
-      <option name="project" value="LOCAL" />
-      <updated>1783688369339</updated>
-    </task>
-    <task id="LOCAL-00118" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783760376110</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
-      <option name="project" value="LOCAL" />
-      <updated>1783760376111</updated>
-    </task>
-    <task id="LOCAL-00119" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783763556993</created>
-      <option name="number" value="00119" />
-      <option name="presentableId" value="LOCAL-00119" />
-      <option name="project" value="LOCAL" />
-      <updated>1783763556993</updated>
-    </task>
-    <task id="LOCAL-00120" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783938804971</created>
-      <option name="number" value="00120" />
-      <option name="presentableId" value="LOCAL-00120" />
-      <option name="project" value="LOCAL" />
-      <updated>1783938804971</updated>
-    </task>
-    <task id="LOCAL-00121" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1783940179796</created>
-      <option name="number" value="00121" />
-      <option name="presentableId" value="LOCAL-00121" />
-      <option name="project" value="LOCAL" />
-      <updated>1783940179796</updated>
     </task>
     <task id="LOCAL-00122" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -636,7 +529,111 @@
       <option name="project" value="LOCAL" />
       <updated>1786446152897</updated>
     </task>
-    <option name="localTasksCounter" value="158" />
+    <task id="LOCAL-00158" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786682266878</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1786682266878</updated>
+    </task>
+    <task id="LOCAL-00159" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786849620554</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1786849620554</updated>
+    </task>
+    <task id="LOCAL-00160" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786850292177</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
+      <option name="project" value="LOCAL" />
+      <updated>1786850292177</updated>
+    </task>
+    <task id="LOCAL-00161" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786850683812</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1786850683813</updated>
+    </task>
+    <task id="LOCAL-00162" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786851016532</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1786851016532</updated>
+    </task>
+    <task id="LOCAL-00163" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786852743757</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
+      <option name="project" value="LOCAL" />
+      <updated>1786852743758</updated>
+    </task>
+    <task id="LOCAL-00164" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1786931065871</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
+      <option name="project" value="LOCAL" />
+      <updated>1786931065871</updated>
+    </task>
+    <task id="LOCAL-00165" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787021639068</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1787021639068</updated>
+    </task>
+    <task id="LOCAL-00166" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787025263751</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
+      <option name="project" value="LOCAL" />
+      <updated>1787025263752</updated>
+    </task>
+    <task id="LOCAL-00167" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787113771915</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1787113771915</updated>
+    </task>
+    <task id="LOCAL-00168" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787193215529</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1787193215529</updated>
+    </task>
+    <task id="LOCAL-00169" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787200584299</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
+      <option name="project" value="LOCAL" />
+      <updated>1787200584299</updated>
+    </task>
+    <task id="LOCAL-00170" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787300375094</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
+      <option name="project" value="LOCAL" />
+      <updated>1787300375094</updated>
+    </task>
+    <option name="localTasksCounter" value="171" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -653,6 +650,11 @@
           <url>file://$PROJECT_DIR$/training/sample_random_grasp.py</url>
           <line>10</line>
           <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model/abstract_model.py</url>
+          <line>35</line>
+          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
