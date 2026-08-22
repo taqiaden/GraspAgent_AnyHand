@@ -1011,11 +1011,12 @@ class AbstractGraspAgentTraining:
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
 
                         if k<0:
-                            margin = (1-(0.5-  grasp_quality[target_index]).abs().item()*2)
+                            '''gen_success'''
+                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
                             if ref_initial_collision:
                                 margin *= grasp_feasiblity[target_index].item()
                         else:
-                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
+                            margin = (1-(0.5-  grasp_quality[target_index]).abs().item()*2)
                             if gen_initial_collision:
                                 margin*=1-grasp_feasiblity[target_index].item()
 
