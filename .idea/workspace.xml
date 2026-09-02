@@ -41,61 +41,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000000000000007" />
-      <entry key="MS500" value="1.0008948912545659" />
-      <entry key="S2" value="1.172958761179083" />
-      <entry key="S5" value="1.495652186549051" />
-      <entry key="S10" value="1.7040257002049364" />
-      <entry key="S30" value="1.8896028612369298" />
-      <entry key="S60" value="1.9431876065963984" />
-      <entry key="M2" value="1.971178721459756" />
-      <entry key="M5" value="1.9917523282848757" />
-      <entry key="M10" value="2.089039009560354" />
-      <entry key="M15" value="2.292176073411273" />
-      <entry key="M30" value="2.9344530409469987" />
-      <entry key="H1" value="3.672473857642918" />
-      <entry key="H2" value="4.240501311955255" />
-      <entry key="H4" value="4.672109296792498" />
-      <entry key="D1" value="10.24085282888692" />
-      <entry key="W1" value="44.015889975386195" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.000000030761539" />
+      <entry key="S5" value="1.0014706369906097" />
+      <entry key="S10" value="1.0629117934383356" />
+      <entry key="S30" value="1.81761400989404" />
+      <entry key="S60" value="2.563944627671259" />
+      <entry key="M2" value="3.16531162402986" />
+      <entry key="M5" value="3.6329646685493633" />
+      <entry key="M10" value="3.8104585912833357" />
+      <entry key="M15" value="3.8722609354490793" />
+      <entry key="M30" value="3.935431250516716" />
+      <entry key="H1" value="3.967538890518038" />
+      <entry key="H2" value="3.983725017924669" />
+      <entry key="H4" value="3.9918513841746486" />
+      <entry key="D1" value="4.392266299615242" />
+      <entry key="W1" value="32.02374629275815" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
       <entry key="MS500" value="0.0" />
       <entry key="S2" value="0.0" />
-      <entry key="S5" value="6.021499334366434E-282" />
-      <entry key="S10" value="2.4538743517887043E-141" />
-      <entry key="S30" value="1.3488099896056366E-47" />
-      <entry key="S60" value="3.6726148581162665E-24" />
-      <entry key="M2" value="1.916406756958518E-12" />
-      <entry key="M5" value="2.0558672930979456E-5" />
-      <entry key="M10" value="0.004534167280877434" />
-      <entry key="M15" value="0.027394603929205744" />
-      <entry key="M30" value="0.16551315334197983" />
-      <entry key="H1" value="0.4068330779840546" />
-      <entry key="H2" value="0.6378346791952438" />
-      <entry key="H4" value="0.7986458519788813" />
-      <entry key="D1" value="1.1823322767586677" />
-      <entry key="W1" value="5.794744317089661" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="4.256057124969924E-297" />
+      <entry key="M15" value="2.6262635066705384E-198" />
+      <entry key="M30" value="1.6205750543157616E-99" />
+      <entry key="H1" value="4.025636663082952E-50" />
+      <entry key="H2" value="2.0063989291971315E-25" />
+      <entry key="H4" value="4.479286279818696E-13" />
+      <entry key="D1" value="0.010736975832705158" />
+      <entry key="W1" value="2.96033145417172" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="2.2310338140366223E-4" />
-      <entry key="MS500" value="0.18611331951478802" />
-      <entry key="S2" value="0.7323865743166086" />
-      <entry key="S5" value="1.2011838953667557" />
-      <entry key="S10" value="1.5159853660586395" />
-      <entry key="S30" value="1.8142118081315137" />
-      <entry key="S60" value="1.903607880136743" />
-      <entry key="M2" value="1.9508925375800366" />
-      <entry key="M5" value="1.9835265336199697" />
-      <entry key="M10" value="2.0892740012659967" />
-      <entry key="M15" value="2.3164303178767516" />
-      <entry key="M30" value="3.0978709710971635" />
-      <entry key="H1" value="4.0779013650849825" />
-      <entry key="H2" value="4.877479087553034" />
-      <entry key="H4" value="5.470234950526141" />
-      <entry key="D1" value="11.42282538632507" />
-      <entry key="W1" value="49.81048650016945" />
+      <entry key="MS100" value="0.046070913040346904" />
+      <entry key="MS500" value="0.5403627010196758" />
+      <entry key="S2" value="0.8573760654842144" />
+      <entry key="S5" value="0.9417202432042096" />
+      <entry key="S10" value="1.0311819780408953" />
+      <entry key="S30" value="1.800471352002683" />
+      <entry key="S60" value="2.5520111649535413" />
+      <entry key="M2" value="3.157968101105441" />
+      <entry key="M5" value="3.629595116757818" />
+      <entry key="M10" value="3.808691437967571" />
+      <entry key="M15" value="3.871063681985617" />
+      <entry key="M30" value="3.934822828731402" />
+      <entry key="H1" value="3.9672321889323263" />
+      <entry key="H2" value="3.9835710391473853" />
+      <entry key="H4" value="3.9917742371214215" />
+      <entry key="D1" value="4.402984631609237" />
+      <entry key="W1" value="34.98399380193174" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -107,38 +107,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.Allergo_training.executor": "Run",
-    "Python.CH_training.executor": "Run",
-    "Python.Casia_hand_env.executor": "Run",
-    "Python.SH_5F_training.executor": "Run",
-    "Python.SH_training.executor": "Run",
-    "Python.Shadow_hand_env.executor": "Run",
-    "Python.Shadow_hand_five_fingers_env.executor": "Run",
-    "Python.abstract_training_module.executor": "Run",
-    "Python.allegro_hand_env.executor": "Run",
-    "Python.margin.executor": "Run",
-    "Python.r_2f85_training.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Allergo_training.executor&quot;: &quot;Run&quot;,
+    &quot;Python.CH_training.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Casia_hand_env.executor&quot;: &quot;Run&quot;,
+    &quot;Python.SH_5F_training.executor&quot;: &quot;Run&quot;,
+    &quot;Python.SH_training.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Shadow_hand_env.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Shadow_hand_five_fingers_env.executor&quot;: &quot;Run&quot;,
+    &quot;Python.abstract_training_module.executor&quot;: &quot;Run&quot;,
+    &quot;Python.allegro_hand_env.executor&quot;: &quot;Run&quot;,
+    &quot;Python.margin.executor&quot;: &quot;Run&quot;,
+    &quot;Python.r_2f85_training.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;//wsl.localhost/Ubuntu-22.04/home/taqiaden/GraspAgent_AnyHand&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="ENV_FILES" value="" />
@@ -217,6 +217,44 @@
       <option name="docutils_open_in_browser" value="false" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="tests" factoryName="Autodetect">
+      <module name="GraspAgent_AnyHand" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="GraspAgent_AnyHand" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -241,14 +279,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00126" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1784342478656</created>
-      <option name="number" value="00126" />
-      <option name="presentableId" value="LOCAL-00126" />
-      <option name="project" value="LOCAL" />
-      <updated>1784342478657</updated>
     </task>
     <task id="LOCAL-00127" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -634,7 +664,15 @@
       <option name="project" value="LOCAL" />
       <updated>1787631607879</updated>
     </task>
-    <option name="localTasksCounter" value="175" />
+    <task id="LOCAL-00175" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1787633200481</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1787633200481</updated>
+    </task>
+    <option name="localTasksCounter" value="176" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

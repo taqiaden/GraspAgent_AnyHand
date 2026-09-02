@@ -965,10 +965,10 @@ class AbstractGraspAgentTraining:
                     f' gen ---- {target_generated_pose}, {gen_success, gen_initial_collision}')
 
             if gen_success:
-                u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
+                # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
-                v=(grasp_quality[target_index].item()*grasp_feasiblity[target_index].item())**0.5
-                importance = max(0.01,v)*u #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
+                v= ((grasp_feasiblity[target_index].item()*((0.5 - grasp_quality[target_index]).abs().item() * 2))**0.5)
+                importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
@@ -977,14 +977,11 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                v=(grasp_quality[target_index].item()*grasp_feasiblity[target_index].item())**0.5
-                importance = (0.5*importance if importance is not None else max(0.01,1-v))*u
+                v=(((1-(0.5-  grasp_quality[target_index]).abs().item()*2)*(1-grasp_feasiblity[target_index].item()))**0.5)
+                importance = ((1-v)*importance if importance is not None else max(0.01,1-v))*u
                 # if importance>0.1:
-                all_pairs.append(
-                    (target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
-
+                all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
-
 
             if not ref_success and not gen_success:
                 if self.loaded_synthesised_data is None: self.sim_env.update_obj_info(1e-2, decay=0.99)
@@ -1014,13 +1011,14 @@ class AbstractGraspAgentTraining:
 
                         if k<0:
                             '''gen_success'''
-                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
-                            # if ref_initial_collision:
-                            margin *= grasp_feasiblity[target_index].item()*u
+                            margin =  ((0.5 - grasp_quality[target_index]).abs().item() * 2)
+                            if ref_initial_collision:
+                                margin = ((grasp_feasiblity[target_index].item()*((0.5 - grasp_quality[target_index]).abs().item() * 2))**0.5)
                         else:
-                            margin = (1-(0.5-  grasp_quality[target_index]).abs().item()*2)
-                            # if gen_initial_collision:
-                            margin*=1-grasp_feasiblity[target_index].item()*u
+                            margin =(1-(0.5-  grasp_quality[target_index]).abs().item()*2)
+                            if gen_initial_collision:
+                                margin = (((1 - (0.5 - grasp_quality[target_index]).abs().item() * 2) * (
+                                            1 - grasp_feasiblity[target_index].item())) ** 0.5)
 
                         d_sampled_obj_ids.append(grasped_obj)
 
@@ -1286,7 +1284,7 @@ class AbstractGraspAgentTraining:
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
 
-                annealing_factor = (1 - torch.minimum(grasp_quality.detach(), grasp_feasiblity.detach()))
+                annealing_factor = (1 - (grasp_quality.detach()* grasp_feasiblity.detach()))
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
@@ -1300,14 +1298,16 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
+
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
                         pose = self.loaded_synthesised_data.grasp_parameters[t]
 
                         pose = torch.tensor(pose).to(device)
 
+
                         if pose.shape==grasp_pose_ref[index].shape:
-                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
+                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 #if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
@@ -1360,7 +1360,6 @@ class AbstractGraspAgentTraining:
                 if not self.train_policy_only:
                     self.skipped_last = False
             else:
-
                 if self.skip_rate.val < 0.5 or self.train_policy_only:
                     self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
 
