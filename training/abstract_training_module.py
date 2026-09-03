@@ -967,7 +967,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
-                v= ((grasp_feasiblity[target_index].item()*((0.5 - grasp_quality[target_index]).abs().item() * 2))**0.5)
+                v= (grasp_feasiblity[target_index].item()* grasp_quality[target_index].item())**0.5
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -977,7 +977,7 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                v=(((1-(0.5-  grasp_quality[target_index]).abs().item()*2)*(1-grasp_feasiblity[target_index].item()))**0.5)
+                v=((1- grasp_quality[target_index].item())*(1-grasp_feasiblity[target_index].item()))**0.5
                 importance = ((1-v)*importance if importance is not None else max(0.01,1-v))*u
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
@@ -1284,11 +1284,10 @@ class AbstractGraspAgentTraining:
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
 
-                annealing_factor = (1 - (grasp_quality.detach()* grasp_feasiblity.detach()))
+                annealing_factor = 1 - grasp_quality.detach()
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
-
 
                 grasp_pose_ref =  self.pose_interpolation(grasp_pose,
                                                          annealing_factor=annealing_factor)  # [b,self.n_param,600,600]
@@ -1298,6 +1297,7 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
+                    annealing_factor=annealing_factor.reshape(-1)
 
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
@@ -1305,9 +1305,10 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
 
+                        recover_rate=annealing_factor[index]
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            grasp_pose_ref[index] = pose*0.9+grasp_pose_gen[index]*0.1 #if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
+                            grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
