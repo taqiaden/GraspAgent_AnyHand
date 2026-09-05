@@ -257,6 +257,10 @@ class AbstractGraspAgentTraining:
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
+        self.buffer_replay_rate = MovingRate(self.model_key + '_buffer_replay_rate',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
         '''initialize statistics records'''
         self.balanced_set_grasp_quality_statistics = TrainingTracker(name=self.model_key + '_balanced_set_grasp_quality',
                                                             track_label_balance=False,track_history=self.track_statistics_history)
@@ -967,7 +971,7 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
-                v= (grasp_feasiblity[target_index].item()* grasp_quality[target_index].item())**0.5
+                v= grasp_quality[target_index].item()
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -976,9 +980,9 @@ class AbstractGraspAgentTraining:
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
-                u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                v=((1- grasp_quality[target_index].item())*(1-grasp_feasiblity[target_index].item()))**0.5
-                importance = ((1-v)*importance if importance is not None else max(0.01,1-v))*u
+                # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
+                v=grasp_quality[target_index].item()
+                importance = ((1-v)*importance if importance is not None else max(0.01,1-v))
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
                 # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
@@ -999,26 +1003,27 @@ class AbstractGraspAgentTraining:
             counter += 1
             t = 0
             hh = (counter / self.batch_size) ** 2
+
             n = int(min(hh * self.max_n + n, avaliable_iterations))
 
             if   (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
+                # not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
-                if (not not_unique) and (not grasped_obj in d_sampled_obj_ids):
+                if (not grasped_obj in d_sampled_obj_ids):
                     if (importance > 0.1) or (self.skip_rate.val > 0.5):
 
                         if k<0:
                             '''gen_success'''
-                            margin =  ((0.5 - grasp_quality[target_index]).abs().item() * 2)
+                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
                             if ref_initial_collision:
-                                margin = ((grasp_feasiblity[target_index].item()*((0.5 - grasp_quality[target_index]).abs().item() * 2))**0.5)
+                                margin *= grasp_feasiblity[target_index].item()
+
                         else:
-                            margin =(1-(0.5-  grasp_quality[target_index]).abs().item()*2)
+                            margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                             if gen_initial_collision:
-                                margin = (((1 - (0.5 - grasp_quality[target_index]).abs().item() * 2) * (
-                                            1 - grasp_feasiblity[target_index].item())) ** 0.5)
+                                margin *= 1 - grasp_feasiblity[target_index].item()
 
                         d_sampled_obj_ids.append(grasped_obj)
 
@@ -1034,8 +1039,8 @@ class AbstractGraspAgentTraining:
             if ref_success and not gen_success:
                 margin =  0.
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                not_unique = self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
-                if (not not_unique) and ( not ref_grasped_obj in g_sampled_obj_ids):
+                # not_unique = self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
+                if not ref_grasped_obj in g_sampled_obj_ids:
 
                     g_sampled_obj_ids.append(ref_grasped_obj)
                     g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),ref_grasped_obj,u,importance))
@@ -1242,6 +1247,9 @@ class AbstractGraspAgentTraining:
             self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
             self.sim_env.reload()
 
+            if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
+                self.buffer_replay_rate.update(1.)
+
         else:
             self.loaded_synthesised_data = None
 
@@ -1251,6 +1259,10 @@ class AbstractGraspAgentTraining:
             max_=15 if self.train_policy_only else self.sim_env.max_obj_per_scene
 
             self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ))
+
+            if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
+                self.buffer_replay_rate.update(0.)
+
 
         if len(self.sim_env.objects)==0:return
 
@@ -1297,7 +1309,7 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-                    annealing_factor=annealing_factor.reshape(-1)
+                    # annealing_factor=annealing_factor.reshape(-1)
 
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
@@ -1305,10 +1317,10 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
 
-                        recover_rate=annealing_factor[index]
+                        recover_rate=.9#annealing_factor[index]
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
+                            grasp_pose_ref[index] = pose*recover_rate+grasp_pose_ref[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
@@ -1428,6 +1440,7 @@ class AbstractGraspAgentTraining:
             self.discrimination_dist.view()
             self.collision_tendency.view()
             self.data_update_rate.view()
+            self.buffer_replay_rate.view()
             self.dist_bias.view()
             self.Ave_max_prop.view()
 
@@ -1454,6 +1467,7 @@ class AbstractGraspAgentTraining:
         self.approach_beta_clusters.save()
         self.collision_tendency.save()
         self.data_update_rate.save()
+        self.buffer_replay_rate.save()
         self.dist_bias.save()
         self.Ave_importance.save()
 
