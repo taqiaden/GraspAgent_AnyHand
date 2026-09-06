@@ -144,9 +144,10 @@ class MovingRate():
 
     def update(self,value,influence_factor=1.0):
         with torch.no_grad():
+            old_mean = self.moving_rate
             self.moving_rate=(1-self.decay_rate*influence_factor)*self.moving_rate+self.decay_rate*influence_factor*value
             self.momentum=(1-self.decay_rate*influence_factor)*self.momentum+self.decay_rate*influence_factor*(value**2)
-            delta=value-self.moving_rate
+            delta=value-old_mean
             self.var_x=(1-self.decay_rate*influence_factor)*self.var_x+self.decay_rate*influence_factor*(delta**2)
             if self.last_value is not None:
                 change = value - self.last_value
@@ -154,12 +155,12 @@ class MovingRate():
             self.last_value=value
             self.counter+=1
 
-    def lower_rejection_criteria(self,x,k=2.0,report=False):
+    def is_lower_anomaly(self,x,k=2.0,report=False):
         threshold=self.moving_rate-k*math.sqrt(self.var_x)
         if report: print(f'lower criteria for {self.name},',Fore.YELLOW,f' x={x}, moving average= {self.moving_rate}, threshold={threshold}',Fore.RESET)
         return x<threshold
 
-    def upper_rejection_criteria(self,x,k=2.0,report=False):
+    def is_upper_anomaly(self,x,k=2.0,report=False):
         threshold=self.moving_rate+k*math.sqrt(self.var_x)
         if report: print(f'Upper criteria for {self.name},',Fore.YELLOW,f' x={x}, moving average= {self.moving_rate}, threshold={threshold}',Fore.RESET)
         return x>threshold

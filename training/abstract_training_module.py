@@ -229,6 +229,10 @@ class AbstractGraspAgentTraining:
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
 
+        self.learn_from_heurastic_rate = MovingRate(self.model_key + '_learn_from_heurastic_rate',
+                                                       decay_rate=0.01,
+                                                       initial_val=0.,load_last=True,track_history=self.track_statistics_history)
+
         self.dist_bias = MovingRate(self.model_key + '_dist_bias',
                                                        decay_rate=0.01,
                                                        initial_val=0.,load_last=True,track_history=self.track_statistics_history)
@@ -313,7 +317,7 @@ class AbstractGraspAgentTraining:
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
         # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
         # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
-        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.)
+        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=.0)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0.)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
@@ -698,7 +702,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss#+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss*(1-self.Ave_uniquness.val)#+contrast_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
@@ -976,7 +980,7 @@ class AbstractGraspAgentTraining:
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
-                # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
+                # if self.Ave_uniquness.is_lower_anomaly(u, k=2.,report=False): continue
 
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
@@ -985,7 +989,7 @@ class AbstractGraspAgentTraining:
                 importance = ((1-v)*importance if importance is not None else max(0.01,1-v))
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
-                # if self.Ave_uniquness.lower_rejection_criteria(u, k=2.,report=False): continue
+                # if self.Ave_uniquness.is_lower_anomaly(u, k=2.,report=False): continue
 
             if not ref_success and not gen_success:
                 if self.loaded_synthesised_data is None: self.sim_env.update_obj_info(1e-2, decay=0.99)
@@ -1008,26 +1012,26 @@ class AbstractGraspAgentTraining:
 
             if   (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                # not_unique=self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
+                # not_unique=self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
-                if (not grasped_obj in d_sampled_obj_ids):
-                    if (importance > 0.1) or (self.skip_rate.val > 0.5):
+                if not grasped_obj in d_sampled_obj_ids:
+                    self.learn_from_heurastic_rate.update(.0)
+                    if k<0:
+                        '''gen_success'''
+                        margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
+                        if ref_initial_collision:
+                            margin *= grasp_feasiblity[target_index].item()
 
-                        if k<0:
-                            '''gen_success'''
-                            margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
-                            if ref_initial_collision:
-                                margin *= grasp_feasiblity[target_index].item()
+                    else:
+                        self.learn_from_heurastic_rate.update(1.0)
+                        margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        if gen_initial_collision:
+                            margin *= 1 - grasp_feasiblity[target_index].item()
 
-                        else:
-                            margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
-                            if gen_initial_collision:
-                                margin *= 1 - grasp_feasiblity[target_index].item()
+                    d_sampled_obj_ids.append(grasped_obj)
 
-                        d_sampled_obj_ids.append(grasped_obj)
-
-                        d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),grasped_obj,u,importance))
+                    d_pairs.append((target_index, k, margin,  target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),grasped_obj,u,importance))
 
                 if k>0:
                     self.dist_bias.update(target_ref_pose[7].item())
@@ -1039,7 +1043,7 @@ class AbstractGraspAgentTraining:
             if ref_success and not gen_success:
                 margin =  0.
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                # not_unique = self.Ave_uniquness.lower_rejection_criteria(u, k=2.0, report=False)
+                # not_unique = self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
                 if not ref_grasped_obj in g_sampled_obj_ids:
 
                     g_sampled_obj_ids.append(ref_grasped_obj)
@@ -1109,7 +1113,7 @@ class AbstractGraspAgentTraining:
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
                     ave_importance = sum(importance)/len(importance)
 
-                    if  not self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.0,report=print_details):
+                    if  not self.Ave_uniquness.is_lower_anomaly(ave_uniqueness, k=2.0,report=print_details):
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
                         self.Ave_importance.update(ave_importance)
@@ -1140,11 +1144,12 @@ class AbstractGraspAgentTraining:
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                not_unique = self.Ave_uniquness.lower_rejection_criteria(ave_uniqueness, k=2.0,report=print_details)
-                # not_important = self.Ave_importance.lower_rejection_criteria(ave_importance, k=((1-self.Ave_uniquness.val**2))*10.0,report=print_details)
+                not_unique = self.Ave_uniquness.is_lower_anomaly(ave_uniqueness, k=2.0,report=print_details)
+                high_confidence= self.Ave_importance.is_upper_anomaly(ave_importance, k=2.0,report=print_details)
+
                 not_important=ave_importance<0.1
 
-                if not_unique or not_important:# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
+                if (not_unique and not high_confidence) or not_important:# ( (c_Importance and c_Uniquness) or (c_Importance_too_confident and c_Uniquness)) :
                     if print_details:print(Fore.LIGHTRED_EX,
                           f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, ave_importance:{ave_importance} ',
                           Fore.RESET)
@@ -1443,6 +1448,7 @@ class AbstractGraspAgentTraining:
             self.buffer_replay_rate.view()
             self.dist_bias.view()
             self.Ave_max_prop.view()
+            self.learn_from_heurastic_rate.view()
 
             self.balanced_set_grasp_quality_statistics.print()
             self.balanced_set_grasp_safety_statistics.print()
@@ -1477,6 +1483,7 @@ class AbstractGraspAgentTraining:
         self.confidence_indicator.save()
         self.discrimination_dist.save()
         self.Ave_max_prop.save()
+        self.learn_from_heurastic_rate.save()
 
         self.balanced_set_grasp_quality_statistics.save()
         self.balanced_set_grasp_safety_statistics.save()
