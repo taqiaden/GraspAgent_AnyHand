@@ -401,7 +401,7 @@ class AbstractGraspAgentTraining:
 
             else:
                 loss += (hinge_loss(positive=generated_scores[j], negative=ref_scores[j],
-                                    margin=margin) ) / self.batch_size
+                                    margin=margin) )/ self.batch_size
 
         loss.backward()
 
@@ -1013,21 +1013,23 @@ class AbstractGraspAgentTraining:
 
             if   (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                # not_unique=self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
+                not_unique=self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
-                if not grasped_obj in d_sampled_obj_ids:
+                if not grasped_obj in d_sampled_obj_ids and not not_unique:
                     self.learn_from_heurastic_rate.update(.0)
                     if k<0:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
+                        margin *= grasp_feasiblity[target_index].item()
                         if ref_initial_collision:
-                            margin *= grasp_feasiblity[target_index].item()
+                            margin *= 0.
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        margin *= 1 - grasp_feasiblity[target_index].item()
                         if gen_initial_collision:
-                            margin *= 1 - grasp_feasiblity[target_index].item()
+                            margin *= 0.
 
                     d_sampled_obj_ids.append(grasped_obj)
 
@@ -1113,11 +1115,10 @@ class AbstractGraspAgentTraining:
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
                     ave_importance = sum(importance)/len(importance)
 
-                    if  not self.Ave_uniquness.is_lower_anomaly(ave_uniqueness, k=2.0,report=print_details):
+                    if  ave_uniqueness>self.Ave_uniquness.val:
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
                         self.Ave_importance.update(ave_importance)
-
 
                         if len(self.DDM.low_quality_samples_tracker)>0:
                             if print_details:print(Fore.GREEN,

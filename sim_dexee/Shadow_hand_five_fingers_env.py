@@ -46,7 +46,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         mujoco.mj_step(self.m, self.d)
 
         '''check initial contact'''
-        contact_with_obj, contact_with_floor = self.check_hand_contact()
+        contact_with_obj, contact_with_floor = self.check_hand_contact(floor_margin=0.01,obj_margin=0.)
 
         if view:
             print(f'contact_with_obj , contact_with_floor: {contact_with_obj , contact_with_floor}')

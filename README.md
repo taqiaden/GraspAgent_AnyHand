@@ -35,32 +35,6 @@ cuda=12.6
 ## Test mode
 To test each hand and view the result in Mujoco set test_mode argument to True for each hand script in Folder named "training"
 
-## Hands
-
-### CasiaHand:
-<div align="center">
-  <img src="images/CH.png" alt="GraspAgent AnyHand Overview" width="800"/>
-</div>
-
-### ShadowHand five fingers
-<div align="center">
-  <img src="images/SH_5f.png" alt="GraspAgent AnyHand Overview" width="800"/>
-</div>
-
-### ShadowHand three fingers
-<div align="center">
-  <img src="images/SH.png" alt="GraspAgent AnyHand Overview" width="800"/>
-</div>
-
-### Allegro
-<div align="center">
-  <img src="images/allergo.png" alt="GraspAgent AnyHand Overview" width="800"/>
-</div>
-
-### Robotiq 3f85
-<div align="center">
-  <img src="images/2F85.png" alt="GraspAgent AnyHand Overview" width="800"/>
-</div>
 
 ## Hand designs
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
