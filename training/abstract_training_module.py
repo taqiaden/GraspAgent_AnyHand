@@ -1022,13 +1022,13 @@ class AbstractGraspAgentTraining:
                     if k<0:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
-                        if ref_initial_collision:
-                            margin *=0.# grasp_feasiblity[target_index].item()
+                        if ref_initial_collision :
+                            margin *= grasp_feasiblity[target_index].item()
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision:
-                            margin *=0.# 1 - grasp_feasiblity[target_index].item()
+                            margin *= 1 - grasp_feasiblity[target_index].item()
 
                     d_sampled_obj_ids.append(grasped_obj)
 
