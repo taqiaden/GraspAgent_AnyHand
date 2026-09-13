@@ -1025,7 +1025,7 @@ class AbstractGraspAgentTraining:
                             margin =0.01# grasp_feasiblity[target_index].item()
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
-                        margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        margin =(0.5 - grasp_quality[target_index]).abs().item() * 2#1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
                             margin =0.01# 1 - grasp_feasiblity[target_index].item()
 
