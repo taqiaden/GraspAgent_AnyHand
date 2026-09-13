@@ -343,7 +343,7 @@ class AbstractGraspAgentTraining:
         sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
                     annealing_factor * torch.rand_like(ref_pose) + 1e-4))
         # sampling_ratios[:, :3] = annealing_factor
-        sampling_ratios=sampling_ratios.clamp(min=0.1,max=0.9)
+        sampling_ratios=sampling_ratios.clamp(min=0.01,max=0.99)
         # if len(self.DDM)<self.max_scenes:
         # sampling_ratios = torch.where(annealing_factor > 0.5 , torch.tensor(1.0), sampling_ratios)
         # else:
@@ -1022,13 +1022,13 @@ class AbstractGraspAgentTraining:
                     if k<0:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
-                        if ref_initial_collision :
-                            margin =0.01# grasp_feasiblity[target_index].item()
+                        # if ref_initial_collision and grasp_quality[target_index]>0.5:
+                        #     margin *=0.01# grasp_feasiblity[target_index].item()
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
-                        margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
-                        if gen_initial_collision:
-                            margin =0.01# 1 - grasp_feasiblity[target_index].item()
+                        margin =(0.5 - grasp_quality[target_index]).abs().item() * 2#1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        # if gen_initial_collision and grasp_quality[target_index]>0.5:
+                        #     margin *=0.01# 1 - grasp_feasiblity[target_index].item()
 
                     d_sampled_obj_ids.append(grasped_obj)
 
