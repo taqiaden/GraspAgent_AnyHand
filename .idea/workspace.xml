@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Casia_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/Shadow_hand_five_fingers_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/allegro_hand_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_dexee/r_2f85_env.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -241,22 +245,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00137" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1784940003566</created>
-      <option name="number" value="00137" />
-      <option name="presentableId" value="LOCAL-00137" />
-      <option name="project" value="LOCAL" />
-      <updated>1784940003567</updated>
-    </task>
-    <task id="LOCAL-00138" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1784941490666</created>
-      <option name="number" value="00138" />
-      <option name="presentableId" value="LOCAL-00138" />
-      <option name="project" value="LOCAL" />
-      <updated>1784941490667</updated>
     </task>
     <task id="LOCAL-00139" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -634,7 +622,23 @@
       <option name="project" value="LOCAL" />
       <updated>1789175891730</updated>
     </task>
-    <option name="localTasksCounter" value="186" />
+    <task id="LOCAL-00186" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1789257570663</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
+      <option name="project" value="LOCAL" />
+      <updated>1789257570663</updated>
+    </task>
+    <task id="LOCAL-00187" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1789259445184</created>
+      <option name="number" value="00187" />
+      <option name="presentableId" value="LOCAL-00187" />
+      <option name="project" value="LOCAL" />
+      <updated>1789259445184</updated>
+    </task>
+    <option name="localTasksCounter" value="188" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

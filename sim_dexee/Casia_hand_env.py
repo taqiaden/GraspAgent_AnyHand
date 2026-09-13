@@ -107,7 +107,7 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
 
         mujoco.mj_step(self.m, self.d)
 
-        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(return_on_first_incidence=True)
+        ini_contact_with_obj, ini_contact_with_floor = self.check_hand_contact(floor_margin=0.01)
         if ini_contact_with_obj or ini_contact_with_floor:
             # self.static_view(1000)
             return  False, ini_contact_with_obj, ini_contact_with_floor,warning_flag,grasped_obj
