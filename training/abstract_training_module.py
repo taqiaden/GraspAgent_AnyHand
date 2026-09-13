@@ -659,7 +659,7 @@ class AbstractGraspAgentTraining:
         self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
 
         mask_ = (~floor_mask)
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,torch.where(feasible_props>0.5, probs, probs*feasible_props),grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
         # collision_loss_=torch.tensor([0.],device=device)
 
         # if grasp_quality_loss_ is not None:
@@ -719,7 +719,7 @@ class AbstractGraspAgentTraining:
 
 
 
-    def get_grasp_quality_loss(self,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_quality_loss(self,probs,sampling_probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
 
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
@@ -734,7 +734,7 @@ class AbstractGraspAgentTraining:
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(probs), mask=mask_)
                 else:
-                    dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=mask_)
+                    dist = MaskedCategorical(probs=sampling_probs.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
