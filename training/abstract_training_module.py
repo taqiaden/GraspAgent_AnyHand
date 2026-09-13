@@ -486,9 +486,9 @@ class AbstractGraspAgentTraining:
 
         return loss
 
-    def supplementary_statistics(self, probs, pc, grasp_pose_PW, floor_mask, coll_props):
+    def supplementary_statistics(self, probs, pc, grasp_pose_PW, floor_mask, feasible_props):
         try:
-            mask_ = (~floor_mask) & (coll_props > 0.5) & (probs > 0.5)
+            mask_ = (~floor_mask) & (feasible_props > 0.5) & (probs > 0.5)
 
             dist = MaskedCategorical(probs=probs.clamp(min=0.1), mask=mask_)
             grasp_target_index = dist.probs.argmax()
@@ -511,7 +511,7 @@ class AbstractGraspAgentTraining:
             print(Fore.RED, f'Error track statistics: {str(e)}',Fore.RESET)
 
         try:
-            # probs2=probs*(1-coll_props)
+            # probs2=probs*(1-feasible_props)
             for l in range(30):
                 mask_=(~floor_mask) & (probs>0.5)
                 dist = MaskedCategorical(probs=probs.clamp(min=0.1),mask=mask_)
@@ -654,9 +654,9 @@ class AbstractGraspAgentTraining:
         grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
         grasp_collision_logits = grasp_collision_logits[0, 0].reshape(-1)
         probs = logits_to_probs(grasp_quality_logits)
-        coll_props=logits_to_probs(grasp_collision_logits.detach().clone())
+        feasible_props=logits_to_probs(grasp_collision_logits.detach().clone())
 
-        self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, coll_props)
+        self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
 
         mask_ = (~floor_mask)
         grasp_quality_loss_=self.get_grasp_quality_loss(probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
@@ -665,7 +665,7 @@ class AbstractGraspAgentTraining:
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask) #& (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(coll_props, grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
+        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -695,7 +695,7 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) #&(coll_props>0.5)
+            mask_ = (~floor_mask) #&(feasible_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
@@ -778,7 +778,7 @@ class AbstractGraspAgentTraining:
 
         return grasp_quality_loss_
 
-    def get_grasp_collision_loss(self,coll_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
+    def get_grasp_collision_loss(self,coll_probs,sampling_probs,grasp_collision_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
         grasp_quality_loss_ = torch.tensor(0., device=device)
 
         start = time.time()
@@ -792,7 +792,7 @@ class AbstractGraspAgentTraining:
                 if random_sampling:
                     dist = MaskedCategorical(probs=torch.rand_like(coll_probs), mask=mask_)
                 else:
-                    dist = MaskedCategorical(probs=coll_probs.clamp(min=0.1), mask=mask_)
+                    dist = MaskedCategorical(probs=sampling_probs.clamp(min=0.1), mask=mask_)
                 grasp_target_index = dist.sample()
 
                 grasp_target_point = pc[grasp_target_index]
