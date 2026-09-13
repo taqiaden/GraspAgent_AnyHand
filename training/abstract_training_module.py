@@ -974,10 +974,10 @@ class AbstractGraspAgentTraining:
                 print(
                     f' gen ---- {target_generated_pose}, {gen_success, gen_initial_collision}')
 
+            v= grasp_quality[target_index].item() if grasp_feasiblity[target_index]>0.5 else  grasp_quality[target_index].item()*grasp_feasiblity[target_index].item()
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
-                v= grasp_quality[target_index].item()
                 importance = max(0.01,v) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
@@ -987,7 +987,6 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                v=grasp_quality[target_index].item()
                 importance = (0.5*importance if importance is not None else max(0.01,1-v))
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
