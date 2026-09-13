@@ -762,7 +762,7 @@ class AbstractGraspAgentTraining:
                 break
             if grasp_success:
                 positive_counter += 1
-                if probs[grasp_target_index].item()>0.5 : self.approach_beta_clusters.update(grasp_target_pose[0:5].detach().clone())
+                if probs[grasp_target_index].item()>0.5 and self.loaded_synthesised_data is None : self.approach_beta_clusters.update(grasp_target_pose[0:5].detach().clone())
             else:
                 negative_counter += 1
             label = torch.ones_like(grasp_prediction_logits) if grasp_success else torch.zeros_like(grasp_prediction_logits)
