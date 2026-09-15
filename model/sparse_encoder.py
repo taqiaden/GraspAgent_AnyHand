@@ -1,6 +1,8 @@
 import spconv.pytorch as spconv
 import torch
 from torch import nn
+# import MinkowskiEngine as ME
+
 class Encoder2D_IN(nn.Module):
     def __init__(self, in_ch=3, out_ch=512):
         super().__init__()
@@ -34,6 +36,45 @@ class Encoder2D_IN(nn.Module):
         x = torch.amax(x, dim=[2, 3])    # global spatial pooling -> [B, C]
         return self.head(x)
 
+class SparseEncoderIN_Minkowski(nn.Module):
+    def __init__(self, in_ch=3, out_ch=512):
+        super().__init__()
+
+        def block(cin, cout, stride):
+            return nn.Sequential(
+                ME.MinkowskiConvolution(
+                    in_channels=cin,
+                    out_channels=cout,
+                    kernel_size=3,
+                    stride=stride,
+                    dimension=3,
+                    bias=True,
+                ),
+                ME.MinkowskiReLU(inplace=True),
+            )
+
+        self.net = nn.Sequential(
+            block(in_ch, 64, 1),
+            block(64, 128, 2),
+            block(128, 256, 2),
+            block(256, out_ch, 2),
+        )
+
+        self.head = nn.Sequential(
+            nn.LeakyReLU(0.2),
+        )
+
+    def forward(self, x):
+        # x : MinkowskiEngine SparseTensor
+        x = self.net(x)
+
+        # Global max pooling over all voxels in each sample
+        x = ME.MinkowskiGlobalMaxPooling()(x)
+
+        # Dense feature tensor: [B, out_ch]
+        x = x.F
+
+        return self.head(x)
 
 class Encoder3D_IN(nn.Module):
     def __init__(self, in_ch=1, out_ch=512):
@@ -74,10 +115,7 @@ class SparseEncoderIN(nn.Module):
         def block(cin, cout, stride):
             return spconv.SparseSequential(
                 spconv.SparseConv3d(cin, cout, 3, stride=stride, padding=1, bias=True),
-                # spconv.SparseBatchNorm(cout),
-                # nn.LayerNorm(cout),
                 spconv.SparseReLU(),
-                # nn.SiLU()
             )
 
         self.net = spconv.SparseSequential(
@@ -96,7 +134,6 @@ class SparseEncoderIN(nn.Module):
         x = self.net(x)
         x = x.dense()
         x = torch.amax(x, dim=[2, 3, 4])  # smoother than amax
-        # x=F.normalize(x,p=2,dim=-1,eps=1e-7)
         return self.head(x)
 
 class SparseResidualBlock(nn.Module):
