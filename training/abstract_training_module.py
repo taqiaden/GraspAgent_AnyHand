@@ -689,21 +689,21 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
+            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
+            #
+            # scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            #     pairs) == self.batch_size else torch.tensor(
+            #     [0.], device=grasp_pose.device)
 
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
-                pairs) == self.batch_size else torch.tensor(
-                [0.], device=grasp_pose.device)
-
-            mask_ = (~floor_mask) #&(feasible_props>0.5)
-            contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
+            # mask_ = (~floor_mask) #&(feasible_props>0.5)
+            # contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   #+ scatter_loss+contrast_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
@@ -1025,7 +1025,7 @@ class AbstractGraspAgentTraining:
                             margin =0.01# grasp_feasiblity[target_index].item()
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
-                        margin =(0.5 - grasp_quality[target_index]).abs().item() * 2#1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
                             margin =0.01# 1 - grasp_feasiblity[target_index].item()
 
