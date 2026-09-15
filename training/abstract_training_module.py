@@ -674,7 +674,7 @@ class AbstractGraspAgentTraining:
             self.gan.generator.zero_grad(set_to_none=True)
             self.gan.generator_optimizer.zero_grad(set_to_none=True)
         else:
-            print("Tensor has no gradient",policy_loss)
+            print("Tensor has no gradient ",policy_loss)
 
         grasp_quality_loss_=grasp_quality_loss_.item()
 
