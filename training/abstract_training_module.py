@@ -659,7 +659,7 @@ class AbstractGraspAgentTraining:
         self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
 
         mask_ = (~floor_mask)
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,torch.where(feasible_props>0.5, probs, probs*feasible_props),grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
         # collision_loss_=torch.tensor([0.],device=device)
 
         # if grasp_quality_loss_ is not None:
@@ -689,21 +689,21 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
-            #
-            # scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
-            #     pairs) == self.batch_size else torch.tensor(
-            #     [0.], device=grasp_pose.device)
+            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
 
-            # mask_ = (~floor_mask) #&(feasible_props>0.5)
-            # contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+                pairs) == self.batch_size else torch.tensor(
+                [0.], device=grasp_pose.device)
+
+            mask_ = (~floor_mask) #&(feasible_props>0.5)
+            contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   #+ scatter_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
