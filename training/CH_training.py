@@ -56,7 +56,8 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         super().__init__(args=args, sampler_policy_model=CH_G,critic_model=CH_D,epochs=epochs ,model_key=CH_model_key,
                          test_mode=False,randomization_unit=generate_random_CH_poses,
-                         process_pose=process_pose,n_joints=3,check_kinematics=True,train_policy_only=False,explore_mode=False)
+                         process_pose=process_pose,n_joints=3,check_kinematics=True,train_policy_only=False,explore_mode=False,
+                         domain_randomization=True)
 
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()

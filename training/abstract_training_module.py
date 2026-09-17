@@ -339,9 +339,9 @@ class AbstractGraspAgentTraining:
             print(f'ref_pose is nan: {ref_pose}')
             exit()
 
-        # sampling_ratios=annealing_factor
-        sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
-                    annealing_factor * torch.rand_like(ref_pose) + 1e-4))
+        sampling_ratios=annealing_factor
+        # sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
+        #             annealing_factor * torch.rand_like(ref_pose) + 1e-4))
         # sampling_ratios[:, :3] = annealing_factor
         sampling_ratios=sampling_ratios.clamp(min=0.01,max=0.99)
         # if len(self.DDM)<self.max_scenes:
@@ -635,7 +635,7 @@ class AbstractGraspAgentTraining:
         #
         # loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
         #
-        print(f'Pi2 N loss: {loss.item()}')
+        print(f'Pi2 N loss : {loss.item()}')
 
         return loss
 
@@ -722,7 +722,6 @@ class AbstractGraspAgentTraining:
     def get_grasp_quality_loss(self,probs,sampling_probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
 
         grasp_quality_loss_ = torch.tensor(0., device=device)
-
         start = time.time()
         positive_counter = 0
         negative_counter = 0
@@ -745,7 +744,6 @@ class AbstractGraspAgentTraining:
                     grasp_target_point, grasp_target_pose, view=False,
                     shake=self.shake, check_kinematics=False,
                     update_obj_prob=None)
-
 
                 if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
                     return torch.tensor(0., device=device)
@@ -974,7 +972,7 @@ class AbstractGraspAgentTraining:
                 print(
                     f' gen ---- {target_generated_pose}, {gen_success, gen_initial_collision}')
 
-            v= grasp_quality[target_index].item() if grasp_feasiblity[target_index]>0.5 else  grasp_quality[target_index].item()*grasp_feasiblity[target_index].item()
+            v= grasp_quality[target_index].item() #if grasp_feasiblity[target_index]>0.5 else  grasp_quality[target_index].item()*grasp_feasiblity[target_index].item()
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
@@ -1324,7 +1322,7 @@ class AbstractGraspAgentTraining:
                         recover_rate=.9#annealing_factor[index]
 
                         if pose.shape==grasp_pose_ref[index].shape:
-                            grasp_pose_ref[index] = pose*recover_rate+grasp_pose_ref[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
+                            grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
