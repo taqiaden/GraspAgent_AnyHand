@@ -570,7 +570,7 @@ class AbstractGraspAgentTraining:
         # print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
         print(f'Pi1 loss_p: {loss_p.item()},  loss_n: { loss_n.item()}')
 
-        return loss_p+loss_n
+        return loss_p#+loss_n
 
 
     def get_repulsive_loss_pi_two(self,depth,grasp_pose,features,mask):
@@ -1280,15 +1280,12 @@ class AbstractGraspAgentTraining:
         depth = torch.from_numpy(depth).to(device)  # [600.600]
 
         if self.domain_randomization:
-            depth=add_reflective_blob_noise(clean_depth,n_blobs=np.random.randint(5,10), blob_radius=np.random.uniform(1, 3), outlier_scale=0.02)
-            depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600))
+            depth=add_reflective_blob_noise(clean_depth,n_blobs=np.random.randint(1,10), blob_radius=np.random.random(), outlier_scale=0.02)
+            depth=add_depth_noise(depth,keep_mask=floor_mask.reshape(600,600),sigma=0.002)
             pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
-
         pc = torch.from_numpy(pc).to(device)
 
-
         for k in range(self.iter_per_scene):
-
             with torch.no_grad():
                 self.gan.generator.eval()
                 grasp_pose, grasp_quality_logits,features2,features3,grasp_collision_logits = self.gan.generator( depth[None, None, ...],detach_sampler=True,detach_quality=True,detach_collision=True)
@@ -1296,7 +1293,6 @@ class AbstractGraspAgentTraining:
 
                 grasp_quality = logits_to_probs(grasp_quality_logits)
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
-
 
                 annealing_factor = 1 - grasp_quality.detach()
                 if print_details:print(Fore.LIGHTYELLOW_EX,
@@ -1352,12 +1348,10 @@ class AbstractGraspAgentTraining:
                                                                                                            self.n_param)
 
             if not self.train_policy_only and len(d_pairs) == self.batch_size:
-
                 d_cropped_local_point_clouds = self.prepare_voxels(d_pairs, depth, pc, full_pointcloud)
                 # d_cropped_local_point_clouds=None
                 self.step_discriminator(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
                 if print_details:self.print_pairs_info(d_pairs, grasp_pose, grasp_pose_ref)
-
                 if not self.train_policy_only:
                     self.skipped_last = False
             else:
