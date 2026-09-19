@@ -59,11 +59,14 @@ def logits_to_probs(logits):
 def weighted_scatter_loss(x, weights,eps=1e-6):
 
     N, M = x.shape
-
+    assert weights.shape[-1]==N, f'{weights.shape[-1], N}'
     if N > 1000:
         idx = torch.randperm(N, device=x.device)[:1000]
         x = x[idx]
         weights=weights[idx]
+        assert torch.all(weights >= 0.)
+
+    elif N<100: return torch.tensor([0.],device=device)
 
     weights = weights / (weights.sum() + 1e-6)
 
@@ -678,7 +681,6 @@ class AbstractGraspAgentTraining:
 
         grasp_quality_loss_=grasp_quality_loss_.item()
 
-        scatter_loss=torch.tensor([0.],device=device)
         grasp_sampling_loss=torch.tensor([0.],device=device)
         # spatial_consistency_loss=torch.tensor([0.],device=device)
         # contrast_loss=torch.tensor([0.],device=device)
@@ -689,13 +691,13 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            weight=(1-logits_to_probs(grasp_quality_logits[~floor_mask]).detach()).clamp(max=1.0)
-
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[~floor_mask],weights=weight) if len(
+            mask_ = (~floor_mask)  & (probs<0.5)
+            weight=(0.5-probs[mask_].detach())*2
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) #&(feasible_props>0.5)
+            mask_ = (~floor_mask)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
@@ -1020,12 +1022,12 @@ class AbstractGraspAgentTraining:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
                         if ref_initial_collision :
-                            margin =0.01# grasp_feasiblity[target_index].item()
+                            margin *=0.1# grasp_feasiblity[target_index].item()
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
-                            margin =0.01# 1 - grasp_feasiblity[target_index].item()
+                            margin *=0.1# 1 - grasp_feasiblity[target_index].item()
 
                     d_sampled_obj_ids.append(grasped_obj)
 
