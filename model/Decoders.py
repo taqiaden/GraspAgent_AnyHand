@@ -93,17 +93,17 @@ class CriticDecoder(nn.Module):
 
         self.context_proj = nn.Sequential(
             nn.Linear(in_c1, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.Linear(64, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.Linear(64, 64, bias=True),
         )
 
         self.cond_proj = nn.Sequential(
             nn.Linear(in_c2, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.Linear(64, 64, bias=True),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
             nn.Linear(64, 64, bias=True),
         )
 

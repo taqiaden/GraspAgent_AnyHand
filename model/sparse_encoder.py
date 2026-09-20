@@ -127,7 +127,7 @@ class SparseEncoderIN(nn.Module):
 
         self.head = nn.Sequential(
             # nn.LayerNorm(out_ch),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.01),
         )
 
     def forward(self, x):

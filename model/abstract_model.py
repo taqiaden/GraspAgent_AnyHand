@@ -18,14 +18,14 @@ class G(nn.Module):
         self.static_joints=[] if static_joints is None else static_joints
 
         self.back_bone = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                  relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False,
+                                  relu_negative_slope=0., activation=nn.LeakyReLU(0.01), IN_affine=False,
                                   activate_skip=False).to(device)
 
         self.back_bone2_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
+                                    relu_negative_slope=0., activation=nn.LeakyReLU(0.01), IN_affine=False, activate_skip=False).to(device)
 
         self.back_bone3_ = res_unet(in_c=1, Batch_norm=False, Instance_norm=True,
-                                    relu_negative_slope=0., activation=nn.ReLU(), IN_affine=False, activate_skip=False).to(device)
+                                    relu_negative_slope=0., activation=nn.LeakyReLU(0.01), IN_affine=False, activate_skip=False).to(device)
 
         self.PoseSampler = sampler_decoder
 

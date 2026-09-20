@@ -697,7 +697,7 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) & (feasible_props>0.5)
+            mask_ = (~floor_mask)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
@@ -705,7 +705,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   +0.1*contrast_loss+0.1*scatter_loss
+            sampler_loss = grasp_sampling_loss   +0.3*contrast_loss+0.1*scatter_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
