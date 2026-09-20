@@ -691,13 +691,13 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            mask_ = (~floor_mask)  & (probs<0.5)
+            mask_ = (~floor_mask)  & (probs<0.5) & (feasible_props<0.5)
             weight=(0.5-probs[mask_].detach())*2
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask)
+            mask_ = (~floor_mask) & (feasible_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
@@ -705,7 +705,7 @@ class AbstractGraspAgentTraining:
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   + scatter_loss+contrast_loss
+            sampler_loss = grasp_sampling_loss   +0.1*contrast_loss+0.1*scatter_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
