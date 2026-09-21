@@ -692,12 +692,12 @@ class AbstractGraspAgentTraining:
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
             mask_ = (~floor_mask)  & (probs<0.5) & (feasible_props<0.5)
-            weight=(0.5-probs[mask_].detach())*2
+            weight=(1.0-(probs*feasible_props)[mask_].detach())
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask)
+            mask_ = (~floor_mask) & (feasible_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
@@ -1013,10 +1013,10 @@ class AbstractGraspAgentTraining:
 
             if   (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                not_unique=self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
+                is_unique=u > self.Ave_uniquness.val
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
-                if not grasped_obj in d_sampled_obj_ids and not not_unique:
+                if not grasped_obj in d_sampled_obj_ids and  (is_unique or gen_initial_collision):
                     self.learn_from_heurastic_rate.update(.0)
                     if k<0:
                         '''gen_success'''
