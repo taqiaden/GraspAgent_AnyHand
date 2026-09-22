@@ -342,9 +342,9 @@ class AbstractGraspAgentTraining:
             print(f'ref_pose is nan: {ref_pose}')
             exit()
 
-        sampling_ratios=annealing_factor
-        # sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
-        #             annealing_factor * torch.rand_like(ref_pose) + 1e-4))
+        # sampling_ratios=annealing_factor
+        sampling_ratios = 1 / (1 + ((1 - annealing_factor) * torch.rand_like(ref_pose)) / (
+                    annealing_factor * torch.rand_like(ref_pose) + 1e-4))
         # sampling_ratios[:, :3] = annealing_factor
         sampling_ratios=sampling_ratios.clamp(min=0.01,max=0.99)
         # if len(self.DDM)<self.max_scenes:
@@ -691,8 +691,8 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            mask_ = (~floor_mask)  & (probs<0.5) & (feasible_props<0.5)
-            weight=(1.0-(probs*feasible_props)[mask_].detach())
+            mask_ = (~floor_mask)   & (feasible_props<0.5)
+            weight=(1-(0.5-probs[mask_].detach()).abs())*2
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
@@ -1043,8 +1043,8 @@ class AbstractGraspAgentTraining:
             if ref_success and not gen_success:
                 margin =  0.
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                # not_unique = self.Ave_uniquness.is_lower_anomaly(u, k=2.0, report=False)
-                if not ref_grasped_obj in g_sampled_obj_ids:
+                is_unique=u > self.Ave_uniquness.val
+                if not ref_grasped_obj in g_sampled_obj_ids and  (is_unique or gen_initial_collision):
 
                     g_sampled_obj_ids.append(ref_grasped_obj)
                     g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),ref_grasped_obj,u,importance))
