@@ -75,7 +75,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     diff = x[:, None, :] - x[None, :, :]
     dist = diff.abs()
-    weighted_dif = w[:, :, None] *  (1- dist).clamp(min=0)
+    weighted_dif = w[:, :, None] *  ((1- dist).clamp(min=0)**2)
     loss = weighted_dif.sum()/(w.sum()*M)
 
     print(f'Scatter loss ={loss.item()}')
@@ -566,9 +566,9 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
         # print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
         print(f'Pi1 loss_p: {loss_p.item()},  loss_n: { loss_n.item()}')
@@ -1022,12 +1022,18 @@ class AbstractGraspAgentTraining:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
                         if ref_initial_collision :
-                            margin =0.1# grasp_feasiblity[target_index].item()
+                            if grasp_feasiblity[target_index]>0.5 :
+                                margin = grasp_quality[target_index].item()
+                            else:
+                                margin=.1
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
-                            margin =0.1# 1 - grasp_feasiblity[target_index].item()
+                            if grasp_feasiblity[target_index]>0.5 :
+                                margin = grasp_quality[target_index].item()
+                            else:
+                                margin=.1
 
                     d_sampled_obj_ids.append(grasped_obj)
 
