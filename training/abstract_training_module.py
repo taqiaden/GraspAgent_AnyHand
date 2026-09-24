@@ -661,14 +661,16 @@ class AbstractGraspAgentTraining:
 
         self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
 
+        activate_random_sampling= self.Ave_uniquness.val<0.7
+
         mask_ = (~floor_mask)
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=activate_random_sampling)
         # collision_loss_=torch.tensor([0.],device=device)
 
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask) #& (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
+        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=activate_random_sampling)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
