@@ -75,7 +75,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
     diff = x[:, None, :] - x[None, :, :]
     dist = diff.abs()
-    weighted_dif = w[:, :, None] *  ((1- dist).clamp(min=0)**2)
+    weighted_dif = w[:, :, None] *  (1- dist).clamp(min=0)
     loss = weighted_dif.sum()/(w.sum()*M)
 
     print(f'Scatter loss ={loss.item()}')
@@ -402,11 +402,11 @@ class AbstractGraspAgentTraining:
 
             if k > 0:
                 loss += (hinge_loss(positive=ref_scores[j], negative=generated_scores[j],
-                                    margin=margin)) / self.batch_size
+                                    margin=margin)**2) / self.batch_size
 
             else:
                 loss += (hinge_loss(positive=generated_scores[j], negative=ref_scores[j],
-                                    margin=margin) )/ self.batch_size
+                                    margin=margin)**2)/ self.batch_size
 
         loss.backward()
 
@@ -485,7 +485,7 @@ class AbstractGraspAgentTraining:
 
         for j in range(len(pairs)):
             margin=pairs[j][2]
-            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=margin) ) / self.batch_size
+            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=margin)**2 ) / self.batch_size
 
         return loss
 
@@ -566,9 +566,9 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
         # print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
         print(f'Pi1 loss_p: {loss_p.item()},  loss_n: { loss_n.item()}')
@@ -661,16 +661,15 @@ class AbstractGraspAgentTraining:
 
         self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
 
-        activate_random_sampling= self.Ave_uniquness.val<0.7
 
         mask_ = (~floor_mask)
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=activate_random_sampling)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,torch.where(feasible_props>0.5, probs, probs*feasible_props),grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False)
         # collision_loss_=torch.tensor([0.],device=device)
 
         # if grasp_quality_loss_ is not None:
             # if self.train_policy_only:
         mask_ = (~floor_mask) #& (probs>0.5)
-        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=activate_random_sampling)
+        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling=False)
 
         policy_loss =    grasp_quality_loss_ + collision_loss_
         if policy_loss.requires_grad is not None:
@@ -693,21 +692,21 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            mask_ = (~floor_mask)   & (feasible_props<0.5)
-            weight=(1.-probs[mask_].detach()).abs()
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
-                pairs) == self.batch_size else torch.tensor(
-                [0.], device=grasp_pose.device)
+            # mask_ = (~floor_mask)   & (feasible_props<0.5)
+            # weight=(1.-probs[mask_].detach()).abs()
+            # scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
+            #     pairs) == self.batch_size else torch.tensor(
+            #     [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) & (feasible_props>0.5)
-            contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
+            # mask_ = (~floor_mask) & (feasible_props>0.5)
+            # contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss   +contrast_loss+scatter_loss
+            sampler_loss = grasp_sampling_loss  # +contrast_loss+scatter_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
@@ -1018,7 +1017,12 @@ class AbstractGraspAgentTraining:
                 is_unique=u > self.Ave_uniquness.val
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
-                if not grasped_obj in d_sampled_obj_ids and  (is_unique or (grasp_quality[target_index]>0.5 and grasp_feasiblity[target_index]>0.5 )):
+
+
+                c1= k>0 and not grasped_obj in d_sampled_obj_ids and  (is_unique or (grasp_quality[target_index]>0.5 and grasp_feasiblity[target_index]>0.5 ))
+                c2= k<0  and  is_unique
+
+                if c1 or c2:
                     self.learn_from_heurastic_rate.update(.0)
                     if k<0:
                         '''gen_success'''
@@ -1028,6 +1032,7 @@ class AbstractGraspAgentTraining:
                                 margin = grasp_quality[target_index].item()
                             else:
                                 margin=.1
+
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
@@ -1325,7 +1330,7 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
 
-                        recover_rate=.9#annealing_factor[index]
+                        recover_rate=.9 if self.Ave_uniquness.val>0.7 else 1.0
 
                         if pose.shape==grasp_pose_ref[index].shape:
                             grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)

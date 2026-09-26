@@ -33,7 +33,7 @@ class G(nn.Module):
         activation=nn.LeakyReLU(0.01),  normalize=True).to(device)
 
         self.collision=FilmModulatedDecoder( 64, 8+len(self.static_joints)+1, 1,
-        activation=nn.SiLU(),  normalize=True).to(device)
+        activation=nn.LeakyReLU(0.01),  normalize=True).to(device)
 
 
         self.back_bone.apply(init_weights_he_normal)
