@@ -1309,7 +1309,7 @@ class AbstractGraspAgentTraining:
                 grasp_quality = logits_to_probs(grasp_quality_logits)
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
-                annealing_factor = 1 - grasp_quality.detach()
+                annealing_factor = (1 - grasp_quality.detach())
                 if print_details:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
