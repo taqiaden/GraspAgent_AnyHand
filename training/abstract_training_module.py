@@ -322,8 +322,8 @@ class AbstractGraspAgentTraining:
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
         # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
         # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
-        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr,momentum=0.,weight_decay_=.0)
-        self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr,
+        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=.0)
+        self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0.)
         # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
 
@@ -1028,19 +1028,19 @@ class AbstractGraspAgentTraining:
                         '''gen_success'''
                         margin =  (0.5 - grasp_quality[target_index]).abs().item() * 2
                         if ref_initial_collision :
-                            if grasp_feasiblity[target_index]>0.5 :
-                                margin = grasp_quality[target_index].item()
+                            if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
+                                pass
                             else:
-                                margin=.1
+                                margin=.0
 
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
-                            if grasp_feasiblity[target_index]>0.5 :
-                                margin = grasp_quality[target_index].item()
+                            if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
+                                pass
                             else:
-                                margin=.1
+                                margin=.0
 
                     d_sampled_obj_ids.append(grasped_obj)
 
@@ -1322,7 +1322,7 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-                    # annealing_factor=annealing_factor.reshape(-1)
+                    annealing_factor=annealing_factor.reshape(-1)
 
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
@@ -1331,6 +1331,7 @@ class AbstractGraspAgentTraining:
                         pose = torch.tensor(pose).to(device)
 
                         recover_rate=.9 if self.Ave_uniquness.val>0.7 else 1.0
+                        if 1-annealing_factor[index]<self.loaded_synthesised_data.importance[t]: recover_rate=1.0
 
                         if pose.shape==grasp_pose_ref[index].shape:
                             grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
