@@ -1038,7 +1038,7 @@ class AbstractGraspAgentTraining:
                                 # margin = grasp_quality[target_index].item()
                                 pass
                             else:
-                                margin=.1
+                                margin=.01
 
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
@@ -1054,7 +1054,7 @@ class AbstractGraspAgentTraining:
                                 # margin = grasp_quality[target_index].item()
                                 pass
                             else:
-                                margin=.1
+                                margin=.01
 
                     d_sampled_obj_ids.append(grasped_obj)
 
