@@ -30,10 +30,10 @@ class G(nn.Module):
         self.PoseSampler = sampler_decoder
 
         self.grasp_quality_=FilmModulatedDecoder( 64, n_params, 1,
-        activation=nn.LeakyReLU(0.01),  normalize=True).to(device)
+        activation=nn.SiLU(),  normalize=True).to(device)
 
         self.collision=FilmModulatedDecoder( 64, 8+len(self.static_joints)+1, 1,
-        activation=nn.LeakyReLU(0.01),  normalize=True).to(device)
+        activation=nn.SiLU(),  normalize=True).to(device)
 
 
         self.back_bone.apply(init_weights_he_normal)
