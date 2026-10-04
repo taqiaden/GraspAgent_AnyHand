@@ -980,7 +980,7 @@ class AbstractGraspAgentTraining:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
                 k=0.5 if importance is not None and v<0.5 else 1.
-                importance = max(0.01,v*k) #if importance is None else max(0.01,v*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
+                importance = max(0.01,v) if importance is None else max(0.01,k*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
@@ -990,7 +990,7 @@ class AbstractGraspAgentTraining:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
                 k=0.5 if importance is not None and v<0.5 else 1.
-                importance = max(0.01,v*k)
+                importance = max(0.01,v) if importance is None else max(0.01,k*importance)
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
                 # if self.Ave_uniquness.is_lower_anomaly(u, k=2.,report=False): continue
@@ -1016,7 +1016,7 @@ class AbstractGraspAgentTraining:
 
             if   (ref_success ^ gen_success ):
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5] if k>0 else target_generated_pose[0:5]).item()
-                is_unique=u > self.Ave_uniquness.val
+                is_unique=self.Ave_uniquness.is_upper_anomaly(u,k=2)
 
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
 
