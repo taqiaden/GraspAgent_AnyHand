@@ -990,7 +990,7 @@ class AbstractGraspAgentTraining:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
                 k=0.5 if importance is not None and v<0.5 else 1.
-                importance = max(0.01,v) if importance is None else max(0.01,k*importance)
+                importance = max(0.01,1-v) if importance is None else max(0.01,k*importance)
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
                 # if self.Ave_uniquness.is_lower_anomaly(u, k=2.,report=False): continue
@@ -1021,7 +1021,7 @@ class AbstractGraspAgentTraining:
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
 
 
-                c1= k>0 and not grasped_obj in d_sampled_obj_ids and importance>0.1 and  (is_unique or (grasp_quality[target_index]>0.5 and grasp_feasiblity[target_index]>0.5 ))
+                c1= k>0 and not grasped_obj in d_sampled_obj_ids and importance>0.1 and  (is_unique or (grasp_quality[target_index]>0.5 and gen_initial_collision))
                 c2= k<0  and  is_unique and importance>0.1
 
                 if c1 or c2:
@@ -1037,11 +1037,11 @@ class AbstractGraspAgentTraining:
 
 
                         if ref_initial_collision :
-                            if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
-                                # margin = grasp_quality[target_index].item()
-                                pass
-                            else:
-                                margin=.1
+                            # if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
+                            #     # margin = grasp_quality[target_index].item()
+                            #     pass
+                            # else:
+                            margin=.1
 
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
@@ -1053,11 +1053,11 @@ class AbstractGraspAgentTraining:
                         margin = ((0.5 - v).abs().item() * 2)
 
                         if gen_initial_collision :
-                            if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
-                                # margin = grasp_quality[target_index].item()
-                                pass
-                            else:
-                                margin=.1
+                            # if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
+                            #     # margin = grasp_quality[target_index].item()
+                            #     pass
+                            # else:
+                            margin=.1
 
                     d_sampled_obj_ids.append(grasped_obj)
 
@@ -1073,8 +1073,8 @@ class AbstractGraspAgentTraining:
             if ref_success and not gen_success:
                 margin =  0.
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                is_unique=u > self.Ave_uniquness.val
-                if not ref_grasped_obj in g_sampled_obj_ids and  (is_unique or (grasp_quality[target_index]>0.5 and grasp_feasiblity[target_index]>0.5 )):
+                is_unique=self.Ave_uniquness.is_upper_anomaly(u,k=2)
+                if not ref_grasped_obj in g_sampled_obj_ids and  (is_unique or (grasp_quality[target_index]>0.5 and gen_initial_collision )):
 
                     g_sampled_obj_ids.append(ref_grasped_obj)
                     g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),ref_grasped_obj,u,importance))
