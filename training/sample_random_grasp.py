@@ -234,7 +234,6 @@ def generate_random_Allergo_poses(size):
     delta = torch.randn((size, 3), device=device)
     delta[:,0:2]/=3
 
-
     sampled_pose = torch.cat([alpha_,beta_,delta,fingers_], dim=1)
 
     return sampled_pose

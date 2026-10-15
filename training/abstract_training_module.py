@@ -402,11 +402,11 @@ class AbstractGraspAgentTraining:
 
             if k > 0:
                 loss += (hinge_loss(positive=ref_scores[j], negative=generated_scores[j],
-                                    margin=margin)**2) / self.batch_size
+                                    margin=margin)**1) / self.batch_size
 
             else:
                 loss += (hinge_loss(positive=generated_scores[j], negative=ref_scores[j],
-                                    margin=margin)**2)/ self.batch_size
+                                    margin=margin)**1)/ self.batch_size
 
         loss.backward()
 
@@ -485,7 +485,7 @@ class AbstractGraspAgentTraining:
 
         for j in range(len(pairs)):
             margin=pairs[j][2]
-            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=margin)**2 ) / self.batch_size
+            loss += (hinge_loss(positive=gen_scores[j], negative=ref_scores[j], margin=margin)**1 ) / self.batch_size
 
         return loss
 
@@ -692,21 +692,21 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            # mask_ = (~floor_mask)   & (feasible_props<0.5)
-            # weight=(1.-probs[mask_].detach()).abs()
-            # scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
-            #     pairs) == self.batch_size else torch.tensor(
-            #     [0.], device=grasp_pose.device)
-
-            # mask_ = (~floor_mask) & (feasible_props>0.5)
-            # contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
+            mask_ = (~floor_mask)
+            weight=(1.-probs[mask_].detach()).abs()
+            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
+                pairs) == self.batch_size else torch.tensor(
+                [0.], device=grasp_pose.device)
+            #
+            mask_ = (~floor_mask)
+            contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
             # mask_ = (~floor_mask) & (probs>0.5)
             # contrast_loss+=self.get_repulsive_loss_pi_two( depth, grasp_pose, features3.detach(), mask_)
 
             with torch.no_grad():
                 self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
 
-            sampler_loss = grasp_sampling_loss  #+contrast_loss#+scatter_loss
+            sampler_loss = grasp_sampling_loss +contrast_loss+scatter_loss
             sampler_loss.backward()
             self.gan.sampler_optimizer.step()
 
@@ -979,8 +979,8 @@ class AbstractGraspAgentTraining:
             if gen_success:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_generated_pose[0:5]).item()
                 # u=min(u,0.99)
-                k=0.5 if importance is not None and v<0.5 else 1.
-                importance = max(0.01,v) if importance is None else max(0.01,k*importance) # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
+                # k=0.5 if importance is not None and v<0.5 else 1.
+                importance = max(0.01,v) #if importance is None or v>0.5 else importance # as the generated pose and the ref pose are both success, the trend is to reduce the importance of this point as it is an easy sample
                 all_pairs.append(
                     (target_index, target_point, target_generated_pose, importance, gen_grasped_obj))
 
@@ -989,8 +989,8 @@ class AbstractGraspAgentTraining:
             elif ref_success:
                 # if (importance is not None and importance>0.1) or len(self.DDM)<self.max_scenes:
                 # u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
-                k=0.5 if importance is not None and v<0.5 else 1.
-                importance = max(0.01,1-v) if importance is None else max(0.01,k*importance)
+                # k=0.5 if importance is not None and v<0.5 else 1.
+                importance = max(0.01,1-v) if importance is None else max(0.01,0.5*importance)
                 # if importance>0.1:
                 all_pairs.append((target_index, target_point, target_ref_pose, importance, ref_grasped_obj))
                 # if self.Ave_uniquness.is_lower_anomaly(u, k=2.,report=False): continue
@@ -1021,19 +1021,19 @@ class AbstractGraspAgentTraining:
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
 
 
-                c1= k>0 and not grasped_obj in d_sampled_obj_ids and importance>0.1 and  (is_unique or (grasp_quality[target_index]>0.5 and gen_initial_collision))
+                c1= k>0 and not grasped_obj in d_sampled_obj_ids  and importance>0.1 and (is_unique or (grasp_quality[target_index]>0.5 or gen_initial_collision))
                 c2= k<0  and  is_unique and importance>0.1
 
                 if c1 or c2:
                     if k<0:
                         self.learn_from_heurastic_rate.update(.0)
                         '''gen_success'''
-                        # margin = ((0.5 - grasp_quality[target_index]).abs().item() * 2)**2
-                        if grasp_quality[target_index]>0.5:
-                            v=(grasp_quality[target_index].item()-.5)*2
-                        else:
-                            v=1-grasp_quality[target_index].item()*2
-                        margin = v
+                        margin = ((0.5 - grasp_quality[target_index]).abs().item() * 2)
+                        # if grasp_quality[target_index]>0.5:
+                        #     v=(grasp_quality[target_index]-.5)*2
+                        # else:
+                        #     v=grasp_quality[target_index]*2
+                        # margin = 1-(0.5- v).abs().item()*2
 
 
                         if ref_initial_collision :
@@ -1041,23 +1041,25 @@ class AbstractGraspAgentTraining:
                             #     # margin = grasp_quality[target_index].item()
                             #     pass
                             # else:
-                            margin=.1
+                            margin=.01
+
 
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
-                        # margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
-                        if grasp_quality[target_index]>0.5:
-                            v=(grasp_quality[target_index]-.5)*2
-                        else:
-                            v=grasp_quality[target_index]*2
-                        margin = ((0.5 - v).abs().item() * 2)
+                        margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
+                        # if grasp_quality[target_index]>0.5:
+                        #     v=(grasp_quality[target_index]-.5)*2
+                        # else:
+                        #     v=grasp_quality[target_index]*2
+                        # margin = ((0.5 - v).abs().item() * 2)
 
                         if gen_initial_collision :
                             # if grasp_feasiblity[target_index]>0.5 and grasp_quality[target_index]>0.5 :
                             #     # margin = grasp_quality[target_index].item()
                             #     pass
                             # else:
-                            margin=.1
+                            margin=.01
+
 
                     d_sampled_obj_ids.append(grasped_obj)
 
@@ -1141,7 +1143,7 @@ class AbstractGraspAgentTraining:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                    ave_importance = sum(importance)/len(importance)
+                    ave_importance = max(importance)
 
                     if  ave_uniqueness>self.Ave_uniquness.val:
                         self.DDM.save_data_point(synthesised_data_obj)
@@ -1166,7 +1168,7 @@ class AbstractGraspAgentTraining:
             else:
                 importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                 ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                ave_importance = sum(importance) / len(importance)
+                ave_importance = max(importance)
 
                 self.Ave_uniquness.update(ave_uniqueness)
                 self.Ave_importance.update(ave_importance)
@@ -1347,13 +1349,13 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
 
-                        recover_rate=.9 if self.Ave_uniquness.val>0.7 else 1.0
-                        if 1-annealing_factor[index]<self.loaded_synthesised_data.importance[t]: recover_rate=1.0
+                        recover_rate=.9 #if self.Ave_uniquness.val>0.7 else 0.99
+                        # if 1-annealing_factor[index]<self.loaded_synthesised_data.importance[t]: recover_rate=0.99
 
                         if pose.shape==grasp_pose_ref[index].shape:
                             grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
-                            u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref[index][0:5]).item()
-                            self.loaded_synthesised_data.importance[t]*=u
+                            # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref[index][0:5]).item()
+                            # self.loaded_synthesised_data.importance[t]*=u
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
