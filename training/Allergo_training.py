@@ -10,6 +10,7 @@ from  training.sample_random_grasp import generate_random_Allergo_poses
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
+from utils.args import get_args
 
 def cip_fingers(target_pose_):
     if target_pose_.ndim==2:
@@ -115,7 +116,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
-                         test_mode=False,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
+                         test_mode=args.test_mode,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
                          process_pose=process_pose,n_joints=16,train_policy_only=False,explore_mode=False)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
@@ -137,51 +138,6 @@ def read_config(path):
     config.read(path)
     return config
 
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ("yes", "true", "t", "1"):
-        return True
-    if v.lower() in ("no", "false", "f", "0"):
-        return False
-    raise argparse.ArgumentTypeError("Boolean value expected.")
-
-def get_args():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config.ini",
-        help="Path to the config file"
-    )
-
-    parser.add_argument(
-        "--load_last_optimizer",
-        type=str2bool,
-        nargs="?",
-        const=True,
-        default=True,
-        help="Load last optimizer state (default: True). Use true/false."
-    )
-
-    parser.add_argument(
-        "--lr",
-        type=float,
-        default=1e-4,
-        help="Learning rate"
-    )
-
-
-    parser.add_argument(
-        "--catch_exceptions",
-        type=str2bool,
-        nargs="?",
-        const=True,
-        default=True,
-        help="Wrap the execution with try and except (default: True). Use true/false."
-    )
-    return parser.parse_args()
 
 
 if __name__ == "__main__":

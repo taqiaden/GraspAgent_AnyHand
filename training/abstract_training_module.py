@@ -566,9 +566,9 @@ class AbstractGraspAgentTraining:
 
         # loss = (torch.clamp(1.0 - torch.abs(grasp_quality_obj_x - 0.5) * 2, min=0.)).mean()
 
-        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**2).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_p = ((torch.clamp(1.0- high_quality, min=0.)*2)**1).mean() if high_quality.numel()>1 else torch.tensor(0.,device=device)
 
-        loss_n = ((torch.clamp(low_quality, min=0.)*2)**2).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
+        loss_n = ((torch.clamp(low_quality, min=0.)*2)**1).mean()if low_quality.numel()>1 and high_quality.numel()>1 else torch.tensor(0.,device=device)
 
         # print(f'Pi1 loss_p: {loss_p.item()},  loss_n: {loss_n.item()}')
         print(f'Pi1 loss_p: {loss_p.item()},  loss_n: { loss_n.item()}')
@@ -1041,7 +1041,7 @@ class AbstractGraspAgentTraining:
                             #     # margin = grasp_quality[target_index].item()
                             #     pass
                             # else:
-                            margin=.01
+                            margin=.001
 
 
                     else:
@@ -1058,7 +1058,7 @@ class AbstractGraspAgentTraining:
                             #     # margin = grasp_quality[target_index].item()
                             #     pass
                             # else:
-                            margin=.01
+                            margin=.001
 
 
                     d_sampled_obj_ids.append(grasped_obj)

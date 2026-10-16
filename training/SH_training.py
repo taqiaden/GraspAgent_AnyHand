@@ -12,6 +12,7 @@ from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. IO_utils import custom_print
 from utils. cuda_utils import cuda_memory_report
 import torch
+from utils.args import get_args
 
 bce_loss = nn.BCELoss()
 bce_with_logits=nn.BCEWithLogitsLoss()
@@ -64,7 +65,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=SH_G,critic_model=SH_D, epochs=epochs, model_key=SH_model_key,
-                         test_mode=False, randomization_unit=generate_random_SH_poses,
+                         test_mode=args.test_mode, randomization_unit=generate_random_SH_poses,
                          process_pose=process_pose, n_joints=3,train_policy_only=False,explore_mode=False
                          ,static_joints=[0,1,2])
 
@@ -90,52 +91,6 @@ def read_config(path):
     config = configparser.ConfigParser()
     config.read(path)
     return config
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ("yes", "true", "t", "1"):
-        return True
-    if v.lower() in ("no", "false", "f", "0"):
-        return False
-    raise argparse.ArgumentTypeError("Boolean value expected.")
-
-def get_args():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config.ini",
-        help="Path to the config file"
-    )
-
-    parser.add_argument(
-        "--load_last_optimizer",
-        type=str2bool,
-        nargs="?",
-        const=True,
-        default=True,
-        help="Load last optimizer state (default: True). Use true/false."
-    )
-
-    parser.add_argument(
-        "--lr",
-        type=float,
-        default=1e-4,
-        help="Learning rate"
-    )
-
-
-    parser.add_argument(
-        "--catch_exceptions",
-        type=str2bool,
-        nargs="?",
-        const=True,
-        default=True,
-        help="Wrap the execution with try and except (default: True). Use true/false."
-    )
-    return parser.parse_args()
 
 
 if __name__ == "__main__":
