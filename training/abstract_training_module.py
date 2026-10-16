@@ -692,7 +692,7 @@ class AbstractGraspAgentTraining:
 
             assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
 
-            mask_ = (~floor_mask)
+            mask_ = (~floor_mask)  & (feasible_props<0.5)
             weight=(1.-probs[mask_].detach()).abs()
             scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
                 pairs) == self.batch_size else torch.tensor(

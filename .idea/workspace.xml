@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="edae8692-c9f8-4ab8-955b-422bc5d6e7a2" name="Changes" comment="by taqiaden, portable">
-      <change beforePath="$PROJECT_DIR$/model/Decoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Decoders.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/abstract_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/abstract_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/CH_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/CH_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/SH_5F_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/SH_5F_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/training/abstract_training_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/abstract_training_module.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/r_2f85_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/r_2f85_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training/sample_random_grasp.py" beforeDir="false" afterPath="$PROJECT_DIR$/training/sample_random_grasp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -246,30 +241,6 @@
       <workItem from="1777539964672" duration="676000" />
       <workItem from="1777540654629" duration="2692000" />
       <workItem from="1779844409734" duration="6124000" />
-    </task>
-    <task id="LOCAL-00177" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1788414418133</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
-      <option name="project" value="LOCAL" />
-      <updated>1788414418133</updated>
-    </task>
-    <task id="LOCAL-00178" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1788580406605</created>
-      <option name="number" value="00178" />
-      <option name="presentableId" value="LOCAL-00178" />
-      <option name="project" value="LOCAL" />
-      <updated>1788580406605</updated>
-    </task>
-    <task id="LOCAL-00179" summary="by taqiaden, portable">
-      <option name="closed" value="true" />
-      <created>1788694219507</created>
-      <option name="number" value="00179" />
-      <option name="presentableId" value="LOCAL-00179" />
-      <option name="project" value="LOCAL" />
-      <updated>1788694219507</updated>
     </task>
     <task id="LOCAL-00180" summary="by taqiaden, portable">
       <option name="closed" value="true" />
@@ -639,7 +610,31 @@
       <option name="project" value="LOCAL" />
       <updated>1791277266643</updated>
     </task>
-    <option name="localTasksCounter" value="226" />
+    <task id="LOCAL-00226" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1792042635211</created>
+      <option name="number" value="00226" />
+      <option name="presentableId" value="LOCAL-00226" />
+      <option name="project" value="LOCAL" />
+      <updated>1792042635211</updated>
+    </task>
+    <task id="LOCAL-00227" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1792042757473</created>
+      <option name="number" value="00227" />
+      <option name="presentableId" value="LOCAL-00227" />
+      <option name="project" value="LOCAL" />
+      <updated>1792042757473</updated>
+    </task>
+    <task id="LOCAL-00228" summary="by taqiaden, portable">
+      <option name="closed" value="true" />
+      <created>1792126700062</created>
+      <option name="number" value="00228" />
+      <option name="presentableId" value="LOCAL-00228" />
+      <option name="project" value="LOCAL" />
+      <updated>1792126700063</updated>
+    </task>
+    <option name="localTasksCounter" value="229" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
