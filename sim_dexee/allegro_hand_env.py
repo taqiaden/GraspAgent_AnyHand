@@ -75,7 +75,7 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
                 self.d.ctrl = hand_fingers
 
             if i==200:
-                collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.1, obj_margin=0.1)
                 if collide_with_floor or collide_with_obj:
                     return False, False, False,warning_flag, grasped_obj
 
@@ -85,7 +85,7 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
             # shake phase
             if 500 > i > 400:
                 if i==401:
-                    collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.01, obj_margin=0.01)
+                    collide_with_obj, collide_with_floor = self.check_hand_contact(floor_margin=0.1, obj_margin=0.1)
                     if collide_with_floor or collide_with_obj:
                         return False, False, False, warning_flag, grasped_obj
                     if not shake: break
