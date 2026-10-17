@@ -7,7 +7,7 @@ This work is a result of intensive experiments conducted by Taqiaden during his 
     <a href='https://paper'>
       <img src='https://img.shields.io/badge/Paper-arXiv-green?style=plastic&logo=arXiv&logoColor=green' alt='Paper'>
     </a>
-    <a href='https://dataset'>
+    <a href='https://huggingface.co/datasets/taqiaden/GraspAgent'>
       <img src='https://img.shields.io/badge/Dataset-Download-blue?style=plastic&logo=databricks&logoColor=white' alt='Dataset'>
     </a>
 </p>
