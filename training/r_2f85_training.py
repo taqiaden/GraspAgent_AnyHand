@@ -71,6 +71,17 @@ def read_config(path):
     config.read(path)
     return config
 
+def  run_test(steps=10):
+    from rich.live import Live
+    from utils.test_board import generate_test_table
+    with Live(generate_test_table({}), refresh_per_second=4, screen=True) as live:
+        while True:
+            Train_grasp_GAN = TrainGraspGAN(args)
+            Train_grasp_GAN.initialize()
+            Train_grasp_GAN.begin(iterations=1)
+            live.update(generate_test_table(Train_grasp_GAN.metric_dict))
+            if Train_grasp_GAN.metric_dict['test_success']+Train_grasp_GAN.metric_dict['test_failure']==steps:
+                break
 
 
 if __name__ == "__main__":
@@ -85,4 +96,7 @@ if __name__ == "__main__":
     print("Config path:", os.path.abspath(config_path))
     print("load_last_optimizer:", args.load_last_optimizer)
 
-    train_N_grasp_GAN(args,n=10000)
+    if args.test_mode:
+        run_test()
+    else:
+        train_N_grasp_GAN(args,n=10000)

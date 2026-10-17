@@ -52,6 +52,15 @@ def get_args():
         nargs="?",
         const=False,
         default=False,
-        help="Wrap the execution with try and except (default: True). Use true/false."
+        help="Activate test mode. Use true/false."
+    )
+
+    parser.add_argument(
+        "--view",
+        type=str2bool,
+        nargs="?",
+        const=True,
+        default=True,
+        help="Show the Mujoco environment. Use true/false."
     )
     return parser.parse_args()

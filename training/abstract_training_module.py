@@ -131,6 +131,13 @@ class AbstractGraspAgentTraining:
         self.explore_mode=explore_mode
         self.static_joints=[] if static_joints is None else static_joints
 
+        self.view_env=args.view
+
+        self.metric_dict={}
+        self.metric_dict['test_success'] = 0
+        self.metric_dict['test_failure'] = 0
+
+
         self.cip_fingers=cip_fingers
 
         self.force_balance=force_balance
@@ -832,10 +839,14 @@ class AbstractGraspAgentTraining:
                                                                             view=False)
                 if contact_with_obj or contact_with_floor: continue
 
-                view_r = self.evaluate_grasp(
-                    target_point, target_generated_pose, view=True, shake=self.shake)
+                result_tuble = self.evaluate_grasp(
+                    target_point, target_generated_pose, view=self.view_env, shake=self.shake)
+                if result_tuble[0]:
+                    self.metric_dict['test_success'] += 1
+                else:
+                    self.metric_dict['test_failure'] += 1
                 if dev_mode:print(Fore.LIGHTCYAN_EX,
-                      f'return f1: {view_r}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
+                      f'return f1: {result_tuble}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
 
                 g_pairs.append((target_index, 1, 1))
                 d_pairs.append((target_index, 1, 1))
@@ -1266,8 +1277,6 @@ class AbstractGraspAgentTraining:
                 if k == 0:
                     self.sim_env.remove_objects(n=2)
                     break
-
-
 
     def view_result(self, grasp_poses=None, mask=None,mask2=None):
         with torch.no_grad():
