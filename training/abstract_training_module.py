@@ -606,7 +606,7 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask)
+            mask_ = (~floor_mask) & (feasible_props>0.5)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
 
             with torch.no_grad():
@@ -899,7 +899,7 @@ class AbstractGraspAgentTraining:
                 grasped_obj=ref_grasped_obj if k>0 else gen_grasped_obj
 
 
-                c1= k>0 and not grasped_obj in d_sampled_obj_ids  and importance>0.1 and (is_unique or (grasp_quality[target_index]>0.5 or gen_initial_collision))
+                c1= k>0 and not grasped_obj in d_sampled_obj_ids  and importance>0.1 and (is_unique or (grasp_quality[target_index]>0.5 or (gen_initial_collision and grasp_feasiblity[target_index]>0.5)))
                 c2= k<0  and  is_unique and importance>0.1
 
                 if c1 or c2:
