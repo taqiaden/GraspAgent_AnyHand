@@ -613,7 +613,7 @@ class AbstractGraspAgentTraining:
                 pairs) == self.batch_size else torch.tensor(
                 [0.], device=grasp_pose.device)
 
-            mask_ = (~floor_mask) & (feasible_props>0.5)
+            mask_ = (~floor_mask)
             contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
 
             with torch.no_grad():
@@ -1005,8 +1005,9 @@ class AbstractGraspAgentTraining:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
                     ave_uniqueness = sum(uniqueness)/len(uniqueness)
                     ave_importance = max(importance)
+                    is_unique = self.Ave_uniquness.is_upper_anomaly(ave_uniqueness, k=2)
 
-                    if  ave_uniqueness>self.Ave_uniquness.val:
+                    if  is_unique:
                         self.DDM.save_data_point(synthesised_data_obj)
                         self.Ave_uniquness.update(ave_uniqueness)
                         self.Ave_importance.update(ave_importance)
@@ -1036,7 +1037,7 @@ class AbstractGraspAgentTraining:
 
                 self.DDM.update_old_record(synthesised_data_obj)
 
-                not_unique = self.Ave_uniquness.is_lower_anomaly(ave_uniqueness, k=2.0,report=dev_mode) and ave_uniqueness<.9
+                not_unique = (not self.Ave_uniquness.is_upper_anomaly(ave_uniqueness, k=2)) and ave_uniqueness<.9
 
                 not_important=ave_importance<0.1
 
