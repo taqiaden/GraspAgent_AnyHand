@@ -197,8 +197,6 @@ class AbstractGraspAgentTraining:
         self.moving_std=torch.load( self.model_key + '_moving_std') if os.path.exists(self.model_key + '_moving_std') else None
         self.moving_range=torch.load(self.model_key + '_moving_range') if os.path.exists(self.model_key + '_moving_range') else None
 
-        # if  torch.isnan(self.moving_std).any():self.moving_std=None
-        # if  torch.isnan(self.moving_range).any():self.moving_range=None
 
         self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.01,use_euclidean_dist=False,static_centers=alpha_beta)
 
@@ -301,13 +299,6 @@ class AbstractGraspAgentTraining:
     def load_optimizers(self):
         print(f'Load optimizers')
         '''load  models'''
-
-        # gan.generator.back_bone2_.apply(init_weights_he_normal)
-        # gan.generator.grasp_quality_.apply(init_weights_he_normal)
-
-        # gan.critic.back_bone.apply(gan_init_with_norms)
-        # gan.critic.decoder.apply(gan_init_with_norms)
-
         sampler_params = []
         sampler_params += list(self.gan.generator.back_bone.parameters())
         sampler_params += list(self.gan.generator.PoseSampler.parameters())
@@ -319,14 +310,10 @@ class AbstractGraspAgentTraining:
         policy_params += list(self.gan.generator.collision.parameters())
 
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
-        # self.gan.critic_sgd_optimizer(learning_rate=self.args.lr*10,momentum=0.,weight_decay_=0.)
-        # self.gan.generator_adam_optimizer(param_group=policy_params,learning_rate=self.args.lr, beta1=0.9, beta2=0.999)
         self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr,momentum=0.,weight_decay_=.0)
         self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr,
                                                momentum=0,weight_decay=0.)
-        # self.gan.sampler_adam_optimizer(param_group=sampler_params,learning_rate=self.args.lr,beta1=0.9, beta2=0.999,weight_decay_=0.)
 
-        # gan.sampler_optimizer =torch.optim.Adam(sampler_params, lr=self.args.lr   )
 
     def pose_interpolation(self, gripper_pose, annealing_factor):
         ref_pose = gripper_pose.detach().clone()
@@ -921,12 +908,12 @@ class AbstractGraspAgentTraining:
                         '''gen_success'''
                         margin = ((0.5 - grasp_quality[target_index]).abs().item() * 2)
                         if ref_initial_collision :
-                            margin=.001
+                            margin=.01
                     else:
                         self.learn_from_heurastic_rate.update(1.0)
                         margin =1-(0.5- grasp_quality[target_index]).abs().item()*2
                         if gen_initial_collision :
-                            margin=.001
+                            margin=.01
 
                     d_sampled_obj_ids.append(grasped_obj)
 
