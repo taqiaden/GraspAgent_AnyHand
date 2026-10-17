@@ -911,7 +911,7 @@ class AbstractGraspAgentTraining:
 
 
                 c1= k>0 and not grasped_obj in d_sampled_obj_ids  and importance>0.1 and (is_unique or (grasp_quality[target_index]>0.5 or (gen_initial_collision and grasp_feasiblity[target_index]>0.5)))
-                c2= k<0  and  is_unique and importance>0.1
+                c2= k<0  and  is_unique and importance>0.1 and not ref_initial_collision
 
                 if c1 or c2:
                     if k<0:
@@ -940,21 +940,21 @@ class AbstractGraspAgentTraining:
                 margin =  0.
                 u = self.approach_beta_clusters.get_uniqueness_score(target_ref_pose[0:5]).item()
                 is_unique=self.Ave_uniquness.is_upper_anomaly(u,k=2)
-                if not ref_grasped_obj in g_sampled_obj_ids and  (is_unique or (grasp_quality[target_index]>0.5 and gen_initial_collision )):
+                if not ref_grasped_obj in g_sampled_obj_ids and  (is_unique or grasp_quality[target_index]>0.5):
 
                     g_sampled_obj_ids.append(ref_grasped_obj)
                     g_pairs.append((target_index, k, margin, target_point,ref_initial_collision or gen_initial_collision,grasp_quality[target_index].item(),grasp_feasiblity[target_index].item(),ref_grasped_obj,u,importance))
 
             if len(d_pairs) == self.batch_size and len(g_pairs) == self.batch_size: break
 
-        self.update_synthesised_data(all_pairs,pc)
+        self.update_synthesised_data(all_pairs,pc,remove_sample=(len(d_pairs)+len(g_pairs)==0))
 
         d_pairs = sorted(d_pairs, key=lambda x: x[9], reverse=True)[:self.batch_size]
         g_pairs = sorted(g_pairs, key=lambda x: x[9], reverse=True)[:self.batch_size]
 
         return d_pairs, g_pairs, sampler_samples
 
-    def update_synthesised_data(self,all_pairs,pc):
+    def update_synthesised_data(self,all_pairs,pc,remove_sample=False):
         if len(all_pairs) > 0:
             '''Update dynamic data'''
             self.sim_env.restore_simulation_state()
@@ -1041,7 +1041,7 @@ class AbstractGraspAgentTraining:
 
                 not_important=ave_importance<0.1
 
-                if not_unique or not_important:
+                if not_unique or not_important or remove_sample:
                     if dev_mode:print(Fore.LIGHTRED_EX,
                           f'poor sample detected, criteria: not_unique: { not_unique},  ave_uniqueness: { ave_uniqueness}, ave_importance:{ave_importance} ',
                           Fore.RESET)
@@ -1136,7 +1136,7 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last or self.skip_rate.val>0.8 or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode )) and not self.test_mode :
+        if (self.skipped_last  or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode )) and not self.test_mode :
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
