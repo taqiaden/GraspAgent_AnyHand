@@ -1388,7 +1388,7 @@ class AbstractGraspAgentTraining:
         context = torch.no_grad() if self.test_mode or self.explore_mode else torch.enable_grad()
 
         with context:
-            pi = progress_indicator('Begin new training round: ', max_limit=iterations)
+            if dev_mode and not self.test_mode:pi = progress_indicator('Begin new training round: ', max_limit=iterations)
 
             print(f'# Synthesised scenes = {len(self.DDM)}')
 
@@ -1405,14 +1405,7 @@ class AbstractGraspAgentTraining:
                 if self.args.catch_exceptions:
                     try:
                         self.step(report=i == iterations - 1)
-                        pi.step(i)
-                    except torch.cuda.OutOfMemoryError as e:
-                        print(Fore.RED, f"CUDA OOM: {e}. Pause for 1 min.", Fore.RESET)
-                        torch.cuda.empty_cache()
-                        time.sleep(60)  # Sleep only for OOM
-                        self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-                        if self.loaded_synthesised_data is not None:
-                            self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
+                        if dev_mode and not self.test_mode:pi.step(i)
                     except Exception as e:
                         print(Fore.RED, str(e), Fore.RESET)
                         traceback.print_exc()
@@ -1422,9 +1415,9 @@ class AbstractGraspAgentTraining:
 
                 else:
                     self.step( report=i == iterations - 1)
-                    pi.step(i)
+                    if dev_mode and not self.test_mode:pi.step(i)
 
-            pi.end()
+            if dev_mode and not self.test_mode:pi.end()
             
             if not self.test_mode and not self.explore_mode:
                 self.export_check_points()
