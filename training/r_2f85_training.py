@@ -76,10 +76,11 @@ def  run_test(steps=10):
     from utils.test_board import generate_test_table
     Train_grasp_GAN = TrainGraspGAN(args)
     Train_grasp_GAN.initialize()
-    with Live(generate_test_table({}), refresh_per_second=4, screen=True) as live:
+    hand_name = 'Robotiq 2F85'
+    with Live(generate_test_table({},hand_name=hand_name), refresh_per_second=4, screen=True) as live:
         while True:
             Train_grasp_GAN.begin(iterations=1)
-            live.update(generate_test_table(Train_grasp_GAN.metric_dict))
+            live.update(generate_test_table(Train_grasp_GAN.metric_dict,hand_name=hand_name))
             if Train_grasp_GAN.metric_dict['test_success']+Train_grasp_GAN.metric_dict['test_failure']==steps:
                 break
 
