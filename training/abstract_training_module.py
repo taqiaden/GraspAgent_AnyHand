@@ -317,8 +317,8 @@ class AbstractGraspAgentTraining:
         policy_params += list(self.gan.generator.collision.parameters())
 
         self.gan.critic_adam_optimizer(learning_rate=self.args.lr, beta1=0.9, beta2=0.999,weight_decay_=0.)
-        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr,momentum=0.,weight_decay_=.0)
-        self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr,
+        self.gan.generator_sgd_optimizer(param_group=policy_params,learning_rate=self.args.lr*10,momentum=0.,weight_decay_=.0)
+        self.gan.sampler_optimizer = torch.optim.SGD(sampler_params, lr=self.args.lr*10,
                                                momentum=0,weight_decay=0.)
 
 
