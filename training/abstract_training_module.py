@@ -1003,8 +1003,8 @@ class AbstractGraspAgentTraining:
             if self.loaded_synthesised_data is None:
                 if len(self.DDM)>=self.max_scenes:
                     importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                    ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                    ave_importance = max(importance)
+                    ave_uniqueness=(np.array(uniqueness)*np.array(importance)).sum()/sum(importance)
+                    ave_importance = sum(importance)/len(importance)
                     is_unique = self.Ave_uniquness.is_upper_anomaly(ave_uniqueness, k=2)
 
                     if  is_unique:
@@ -1029,8 +1029,8 @@ class AbstractGraspAgentTraining:
                     self.DDM.save_data_point(synthesised_data_obj)
             else:
                 importance, uniqueness = synthesised_data_obj.unique_obj_max_scores()
-                ave_uniqueness = sum(uniqueness)/len(uniqueness)
-                ave_importance = max(importance)
+                ave_uniqueness = (np.array(uniqueness) * np.array(importance)).sum() / sum(importance)
+                ave_importance = sum(importance) / len(importance)
 
                 self.Ave_uniquness.update(ave_uniqueness)
                 self.Ave_importance.update(ave_importance)
