@@ -1,6 +1,6 @@
 
 # GraspAgent_AnyHand
-Learning grasp policy for any hand framework. This repo includes trained models for five hands. Setting up the training for any hand takes about 15 mins.
+Grasp policies for any hand. This framework learns grasp policies across heterogeneous robotic hands. Trained models for five hands are included, and getting a new hand ready to train takes roughly 15 minutes.
 
 <p align="center">
     <a href='https://paper'>
@@ -16,7 +16,7 @@ Learning grasp policy for any hand framework. This repo includes trained models 
 </div>
 
 ## Checkpoints and Datasets
-Get the checkpoints and datasets from this [link](https://huggingface.co/datasets/taqiaden/GraspAgen). Paste and replace any existing file in this repo.
+Get the checkpoints and datasets from this [link](https://huggingface.co/datasets/taqiaden/GraspAgent). Paste and replace any existing file in this repo.
 
 ## Prerequisites
 The following pakages version are used during the development of this repository:
