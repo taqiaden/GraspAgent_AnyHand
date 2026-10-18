@@ -181,14 +181,15 @@ class R2F85Env(MojocoMultiFingersEnv):
                 # shake phase
                 if 500  > i > 400 :
                     # self.d.ctrl = max_fingers #if i<400 else decoded_fingers
-                    t = i * self.m.opt.timestep
-                    phase = 2 * np.pi * shake_f * t
-                    shake = shake_amp * np.array([
-                        np.sin(phase),
-                        np.sin(phase + 2.1),
-                        np.sin(phase + 4.2)
-                    ])
-                    self.d.mocap_pos[0] += shake
+                    break
+                    # t = i * self.m.opt.timestep
+                    # phase = 2 * np.pi * shake_f * t
+                    # shake = shake_amp * np.array([
+                    #     np.sin(phase),
+                    #     np.sin(phase + 2.1),
+                    #     np.sin(phase + 4.2)
+                    # ])
+                    # self.d.mocap_pos[0] += shake
 
                 mujoco.mj_step(self.m, self.d)
                 viewer.sync()
