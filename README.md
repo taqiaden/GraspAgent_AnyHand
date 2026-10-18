@@ -46,8 +46,8 @@ Objects used in Mujoco simulator are pre-processed using the Collision-Aware App
 
 ## Credits
 
-This work was conceptualized and implemented by Taqiaden Alshameri during his research at the Peng Wang Laboratory of Robot Learning and Intelligent Systems, Institute of Automation, Chinese Academy of Sciences.
+This work was conceptualized and implemented by **Taqiaden Alshameri** during his research at the Peng Wang Laboratory of Robot Learning and Intelligent Systems, Institute of Automation, Chinese Academy of Sciences.
 
-Daheng Li contributed to the early establishment of the simulation environment and to solving design issues related to the CasiaHand.
+**Daheng Li** contributed to the early establishment of the simulation environment and to solving design issues related to the CasiaHand.
 
-Sizhe Wang collected the 500+ objects used in this work.
+**Sizhe Wang** collected the 500+ objects used in this work.
