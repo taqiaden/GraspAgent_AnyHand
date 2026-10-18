@@ -124,7 +124,7 @@ class AbstractGraspAgentTraining:
         self.args = args
         self.model_key=model_key
         self.test_mode=test_mode
-        self.max_n=5 if test_mode else 30
+        self.max_n=100
         self.train_policy_only=train_policy_only
         self.view=False
         self.domain_randomization=domain_randomization
@@ -300,7 +300,6 @@ class AbstractGraspAgentTraining:
 
         self.critic_loss_statistics = TrainingTracker(name=self.model_key + '_critic_loss',
                                                  track_label_balance=False,track_history=self.track_statistics_history)
-
 
         self.metric_dict['uniqueness'] = self.Ave_uniquness.val
         self.metric_dict['flexibility']=1-self.collision_tendency.val
@@ -804,12 +803,13 @@ class AbstractGraspAgentTraining:
         grasp_feasiblity=grasp_feasiblity[0,0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
-        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) & (grasp_feasiblity>0.5) if self.test_mode else (~floor_mask.clone())
+        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) if self.test_mode else (~floor_mask.clone())
 
         selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality*grasp_feasiblity
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
+
         if avaliable_iterations < 3: return [], [], None
 
         n = int(min(self.max_n, avaliable_iterations))
@@ -1162,11 +1162,10 @@ class AbstractGraspAgentTraining:
             min_=1 if self.train_policy_only or self.test_mode else 5
             max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
 
-            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ))
+            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ),random_sampling=self.train_policy_only or self.test_mode)
 
             if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
                 self.buffer_replay_rate.update(0.)
-
 
         if len(self.sim_env.objects)==0:return
 
@@ -1189,6 +1188,7 @@ class AbstractGraspAgentTraining:
 
         for k in range(self.iter_per_scene):
             with torch.no_grad():
+
                 self.gan.generator.eval()
                 grasp_pose, grasp_quality_logits,features2,features3,grasp_collision_logits = self.gan.generator( depth[None, None, ...],detach_sampler=True,detach_quality=True,detach_collision=True)
                 self.gan.generator.train()
@@ -1209,7 +1209,6 @@ class AbstractGraspAgentTraining:
                     grasp_pose_ref = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
                     grasp_pose_gen = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
 
-                    annealing_factor=annealing_factor.reshape(-1)
 
                     for t in range(len(self.loaded_synthesised_data.target_indexes)):
                         index = self.loaded_synthesised_data.target_indexes[t]
@@ -1217,13 +1216,10 @@ class AbstractGraspAgentTraining:
 
                         pose = torch.tensor(pose).to(device)
 
-                        recover_rate=.9 #if self.Ave_uniquness.val>0.7 else 0.99
-                        # if 1-annealing_factor[index]<self.loaded_synthesised_data.importance[t]: recover_rate=0.99
+                        recover_rate=.9
 
                         if pose.shape==grasp_pose_ref[index].shape:
                             grasp_pose_ref[index] = pose*recover_rate+grasp_pose_gen[index]*(1-recover_rate)#if self.cip_fingers is None else self.cip_fingers(pose*0.9+grasp_pose_gen[index]*0.1)
-                            # u = self.approach_beta_clusters.get_uniqueness_score(grasp_pose_ref[index][0:5]).item()
-                            # self.loaded_synthesised_data.importance[t]*=u
                         elif pose.shape[0]>=5:
                             grasp_pose_ref[index][0:8] = pose[0:8]
                         elif pose.shape[0]>grasp_pose_ref.shape[1]:
@@ -1231,11 +1227,12 @@ class AbstractGraspAgentTraining:
 
                     grasp_pose_ref = grasp_pose_ref.reshape(600, 600, self.n_param).permute(2, 0, 1).unsqueeze(0)
 
-                if report and k == 0:
+                if report and k == 0 and not self.test_mode:
                     self.view_result(grasp_pose, (~floor_mask) & (grasp_quality.reshape(-1)>0.5) &(grasp_feasiblity.reshape(-1)>0.5),(~floor_mask) & (grasp_quality.reshape(-1)>0.5))
 
                 d_pairs, g_pairs = [], []
-                if not self.train_policy_only or  self.explore_mode:
+
+                if (not self.train_policy_only) or  self.explore_mode or self.test_mode:
 
                     d_pairs, g_pairs, sampler_samples = self.sample_contrastive_pairs(pc, floor_mask, grasp_pose,
                                                                                       grasp_pose_ref,
@@ -1398,7 +1395,7 @@ class AbstractGraspAgentTraining:
         with context:
             if dev_mode and not self.test_mode:pi = progress_indicator('Begin new training round: ', max_limit=iterations)
 
-            print(f'# Synthesised scenes = {len(self.DDM)}')
+            if dev_mode:print(f'# Synthesised scenes = {len(self.DDM)}')
 
             for i in range(iterations):
                 if self.skip_rate.val > 0.8:

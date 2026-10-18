@@ -144,8 +144,6 @@ if __name__ == "__main__":
     # Read config
     config = read_config(config_path)
 
-    print("Config path:", os.path.abspath(config_path))
-    print("load_last_optimizer:", args.load_last_optimizer)
 
     if args.test_mode:
         run_test()

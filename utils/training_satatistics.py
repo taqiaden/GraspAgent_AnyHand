@@ -3,10 +3,8 @@ import torch
 from colorama import Fore
 from Configurations.dynamic_config import save_key, get_float
 from utils.report_utils import save_new_data_point
-import os
 
-current_dir = os.path.dirname(__file__)
-data_directory = os.path.join(current_dir, "data_record")
+data_directory = "data_record//"
 
 # data_directory=r'./data_record/'
 def truncate(x,k=10000):
