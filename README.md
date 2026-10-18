@@ -1,6 +1,6 @@
 
 # GraspAgent_AnyHand
-A learning framework for training grasp policies on heterogeneous robotic hands. 
+Learning grasp policy for any hand framework. This repo includes trained models for five hands. Setting up the training for any hand takes about 15 mins.
 
 <p align="center">
     <a href='https://paper'>
@@ -43,6 +43,7 @@ Example:
 
 ```bash
 python training/<hand_script>.py --test_mode true --view true --steps 10
+```
 
 ## Hand designs
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
