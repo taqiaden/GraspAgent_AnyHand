@@ -172,16 +172,16 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
                 self.step_obj_prop(grasped_obj, scale=update_obj_prob)
         return grasp_success, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
 
-    def view_grasp(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
+    def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
         self.restore_simulation_state()
         if obj_pose is None: obj_pose=self.objects_poses
 
 
 
         self.d.time = 0.0
-        self.d.mocap_pos[0] = pre_point
+        self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat
-        self.d.qpos = pre_point + hand_quat + self.default_finger_joints + obj_pose
+        self.d.qpos = hand_pos + hand_quat + self.default_finger_joints + obj_pose
         self.d.ctrl *= 0
         mujoco.mj_step(self.m, self.d)
         # self.static_view(1000)
