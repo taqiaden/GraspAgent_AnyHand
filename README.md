@@ -6,6 +6,7 @@ Grasp policies for any hand. This framework learns grasp policies across heterog
 <div align="center">
   <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview" width="800"/>
 </div>
+(A) The framework takes a robot hand as input. (B) The proposed learned components include neural networks used at inference (Sampler, safety and quality networks), and a critic network used only for training. (C) The engineering part for a given hand includes setting up the simulator and defining heuristic rules. (D) We propose an adversarial learning mechanism. (E) The framework outputs a grasp policy and a robust grasp pose dataset for the hand.
 
 ## Checkpoints and Datasets
 Get the checkpoints and datasets from this [link](https://huggingface.co/datasets/taqiaden/GraspAgent/tree/main). Paste and replace any existing file in this repo.
