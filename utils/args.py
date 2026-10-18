@@ -68,7 +68,7 @@ def get_args():
     parser.add_argument(
         "--steps",
         type=int,
-        default=10,
+        default=100,
         help="Set the number of test steps"
     )
 
