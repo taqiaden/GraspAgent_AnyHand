@@ -40,7 +40,7 @@ def custom_print(*args, **kwargs):
 
 builtins.print = custom_print
 
-dev_mode=True
+dev_mode=False
 
 bce_with_logits=nn.BCEWithLogitsLoss()
 

@@ -83,9 +83,9 @@ def  run_test():
         while True:
             i = (Train_grasp_GAN.metric_dict['test_success']
                  + Train_grasp_GAN.metric_dict['test_failure'])
+            live.update(generate_combined_table(Train_grasp_GAN.metric_dict, i, steps, hand_name=hand_name))
             if i < steps:
                 Train_grasp_GAN.begin(iterations=1)
-                live.update(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name))
             else:
                 time.sleep(0.25)
 

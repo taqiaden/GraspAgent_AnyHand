@@ -19,7 +19,6 @@ torch=2.5.1
 open3d=0.18.0
 cuda=12.6
 Mujoco=3.8.0
-
 ```
 
 ## Test mode
