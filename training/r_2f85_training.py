@@ -1,4 +1,3 @@
-import argparse
 import configparser
 import os
 import torch.nn.functional as F
@@ -71,18 +70,24 @@ def read_config(path):
     config.read(path)
     return config
 
-def  run_test(steps=10):
+def  run_test():
     from rich.live import Live
-    from utils.test_board import generate_test_table
+    from utils.test_board import generate_combined_table
+    import time
     Train_grasp_GAN = TrainGraspGAN(args)
     Train_grasp_GAN.initialize()
     hand_name = 'Robotiq 2F85'
-    with Live(generate_test_table({},hand_name=hand_name), refresh_per_second=4, screen=True) as live:
+    i=0
+    steps=args.steps
+    with Live(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
         while True:
-            Train_grasp_GAN.begin(iterations=1)
-            live.update(generate_test_table(Train_grasp_GAN.metric_dict,hand_name=hand_name))
-            if Train_grasp_GAN.metric_dict['test_success']+Train_grasp_GAN.metric_dict['test_failure']==steps:
-                break
+            i = (Train_grasp_GAN.metric_dict['test_success']
+                 + Train_grasp_GAN.metric_dict['test_failure'])
+            if i < steps:
+                Train_grasp_GAN.begin(iterations=1)
+                live.update(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name))
+            else:
+                time.sleep(0.25)
 
 if __name__ == "__main__":
     args = get_args()

@@ -59,8 +59,17 @@ def get_args():
         "--view",
         type=str2bool,
         nargs="?",
-        const=True,
-        default=True,
+        const=False,
+        default=False,
         help="Show the Mujoco environment. Use true/false."
     )
+
+
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=10,
+        help="Set the number of test steps"
+    )
+
     return parser.parse_args()

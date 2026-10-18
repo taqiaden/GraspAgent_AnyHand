@@ -1,7 +1,6 @@
 
 # GraspAgent_AnyHand
-This repository is under construction. 
-This work is a result of intensive experiments conducted by Taqiaden during his work at Chinese Academy of Science Institute of Automation. If you have any question please do not hesitate to contact me: taqiaden@gmail.com, Whastapp: 00967 774 631 499, Wechat: taqiaden
+A learning framework for training grasp policies on heterogeneous robotic hands. 
 
 <p align="center">
     <a href='https://paper'>
@@ -16,30 +15,46 @@ This work is a result of intensive experiments conducted by Taqiaden during his 
   <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview" width="800"/>
 </div>
 
-## Grasp preformance
-| Hand                 | ShadowHand 5F | ShadowHand 3F | CasiaHand | Allegro hand | Robotiq 2F85 |
-|----------------------|---------------|---------------|-----------|--------------|--------------|
-| Average success rate |               |               | 91%       |              | 96%          |
-| 
-## Installation
-### Prerequisites
+## Checkpoints and Datasets
+Get the checkpoints and datasets from this [link](https://huggingface.co/datasets/taqiaden/GraspAgen). Paste and replace any existing file in this repo.
+
+## Prerequisites
 The following pakages version are used during the development of this repository:
 ```
 python=3.10.16
 torch=2.5.1
 open3d=0.18.0
 cuda=12.6
+Mujoco=3.8.0
 
 ```
 
 ## Test mode
-To test each hand and view the result in Mujoco set test_mode argument to True for each hand script in Folder named "training"
 
+To evaluate a trained policy for a given hand, set `--test_mode true` in the corresponding script under the `training/` folder. The following arguments are supported:
+
+| Argument | Type | Default | Description |
+|---|---|---|---|
+| `--test_mode` | bool | `false` | Activate test mode. |
+| `--view` | bool | `false` | Open the MuJoCo viewer to visualize the environment during testing. |
+| `--steps` | int | `10` | Number of test steps to run. |
+
+Example:
+
+```bash
+python training/<hand_script>.py --test_mode true --view true --steps 10
 
 ## Hand designs
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
 
 
-
 ## Final notes
 Objects used in Mujoco simulator are pre-processed using the Collision-Aware Approximate Convex Decomposition (CoACD) method. The processing method is available [here](./sim_dexee/utils/generate_mesh_xml.py)
+
+## Credits
+
+This work was conceptualized and implemented by Taqiaden Alshameri during his research at the Institute of Automation, Chinese Academy of Sciences (CASIA).
+
+Daheng Li contributed to the early establishment of the simulation environment and to solving design issues related to the CasiaHand.
+
+Sizhe Wang collected the 500+ objects used in this work.

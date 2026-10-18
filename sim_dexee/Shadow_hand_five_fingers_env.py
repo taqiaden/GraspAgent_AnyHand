@@ -144,23 +144,17 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                 self.step_obj_prop(grasped_obj, scale=update_obj_prob)
         return grasp_success, ini_contact_with_obj, ini_contact_with_floor, warning_flag, grasped_obj
 
-    def view_grasp(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
-        self.restore_simulation_state()
-
-        if obj_pose is None: obj_pose = self.objects_poses
-
-        hand_fingers[0]=min(max(hand_fingers[0],-0.523599),0.174533)
-        hand_fingers[1]=min(max(hand_fingers[1],-0.698132),0.488692)
+    def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
 
         grasped_obj = None
 
         warning_flag = False
 
         self.d.time = 0.0
-        self.d.mocap_pos[0] = pre_point
+        self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat
         # try:
-        self.d.qpos = pre_point + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
+        self.d.qpos = hand_pos + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
         # except:
         #     print(len(self.default_finger_joints),' ',len(hand_pos),' ',len(hand_quat),' ',len(obj_pose),' ',len(self.objects))
         #     assert False

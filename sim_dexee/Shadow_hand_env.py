@@ -134,11 +134,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
                 self.step_obj_prop(grasped_obj, scale=update_obj_prob)
         return grasp_success, ini_contact_with_obj, ini_contact_with_floor,  warning_flag, grasped_obj
 
-    def view_grasp(self,hand_pos,pre_point,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
-        pre_point = np.array(pre_point)  # Starting position
-        hand_pos = np.array(hand_pos)  # Target position
-        distance = np.linalg.norm(pre_point - hand_pos)
-        approach_steps = int(distance / 0.003)
+    def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
 
         self.restore_simulation_state()
 
@@ -149,10 +145,10 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         warning_flag = False
 
         self.d.time = 0.0
-        self.d.mocap_pos[0] = pre_point.tolist()
+        self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat
         # try:
-        self.d.qpos = pre_point.tolist() + hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
+        self.d.qpos = hand_pos+ hand_quat + self.decode_fingers_initial_state(hand_fingers) + obj_pose
         # except:
         #     print(len(self.default_finger_joints),' ',len(hand_pos),' ',len(hand_quat),' ',len(obj_pose),' ',len(self.objects))
         #     assert False
@@ -186,24 +182,19 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1
 
-            for i in range(600 + approach_steps):
+            for i in range(600 ):
                 step_start = time.time()
 
-                if i < approach_steps:
-                    t = (i + 1) / approach_steps
-                    self.d.mocap_pos[0] = (pre_point * (1 - t) + hand_pos * t).tolist()
-                if i == approach_steps:
-                    self.d.mocap_pos[0] = hand_pos.tolist()
 
-                if 200 + approach_steps > i > approach_steps:
+                if 200  > i :
                     self.d.ctrl = decoded_fingers
 
 
-                if 200 + approach_steps < i < 400 + approach_steps:
+                if 200  < i < 400 :
                     self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
 
                 # shake phase
-                if 500 + approach_steps > i > 400 + approach_steps:
+                if 500  > i > 400 :
                     break
                     # self.d.ctrl = max_fingers #if i<400 else decoded_fingers
 

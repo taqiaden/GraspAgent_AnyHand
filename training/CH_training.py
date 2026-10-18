@@ -80,6 +80,23 @@ def read_config(path):
     config.read(path)
     return config
 
+def  run_test():
+    from rich.live import Live
+    from utils.test_board import generate_combined_table
+    import time
+    Train_grasp_GAN = TrainGraspGAN(args)
+    Train_grasp_GAN.initialize()
+    hand_name = 'CasiaHand'
+    i=0
+    steps=args.steps
+    with Live(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
+        while True:
+            i = (Train_grasp_GAN.metric_dict['test_success']
+                 + Train_grasp_GAN.metric_dict['test_failure'])
+            if i < steps:
+                Train_grasp_GAN.begin(iterations=1)
+            else:
+                time.sleep(0.25)
 
 if __name__ == "__main__":
     args = get_args()
@@ -95,4 +112,8 @@ if __name__ == "__main__":
     print("Config path:", os.path.abspath(config_path))
     print("load_last_optimizer:", args.load_last_optimizer)
 
-    train_N_grasp_GAN(args,n=10000)
+
+    if args.test_mode:
+        run_test()
+    else:
+        train_N_grasp_GAN(args,n=10000)

@@ -133,10 +133,6 @@ class AbstractGraspAgentTraining:
 
         self.view_env=args.view
 
-        self.metric_dict={}
-        self.metric_dict['test_success'] = 0
-        self.metric_dict['test_failure'] = 0
-
 
         self.cip_fingers=cip_fingers
 
@@ -223,6 +219,11 @@ class AbstractGraspAgentTraining:
         print(Fore.GREEN,f"Environment: {env}",Fore.RESET)
 
 
+        self.metric_dict={}
+        self.metric_dict['test_success'] = 0
+        self.metric_dict['test_failure'] = 0
+
+
     def initialize(self):
 
         '''Moving rates'''
@@ -300,6 +301,13 @@ class AbstractGraspAgentTraining:
         self.critic_loss_statistics = TrainingTracker(name=self.model_key + '_critic_loss',
                                                  track_label_balance=False,track_history=self.track_statistics_history)
 
+
+        self.metric_dict['uniqueness'] = self.Ave_uniquness.val
+        self.metric_dict['flexibility']=1-self.collision_tendency.val
+        self.metric_dict['discrimination_dist']=self.discrimination_dist.val
+        self.metric_dict['confidence']=self.confidence_indicator.val
+        self.metric_dict['heuristic_efficiency']=self.random_sampler_acceptance_rate.val
+        self.metric_dict['replay_rate'] = self.learn_from_heurastic_rate.val
 
 
 
@@ -1151,8 +1159,8 @@ class AbstractGraspAgentTraining:
 
             self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
 
-            min_=1 if self.train_policy_only else 5
-            max_=15 if self.train_policy_only else self.sim_env.max_obj_per_scene
+            min_=1 if self.train_policy_only or self.test_mode else 5
+            max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
 
             self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ))
 
