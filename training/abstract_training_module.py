@@ -40,7 +40,7 @@ def custom_print(*args, **kwargs):
 
 builtins.print = custom_print
 
-dev_mode=False
+dev_mode=True
 
 bce_with_logits=nn.BCEWithLogitsLoss()
 
@@ -201,7 +201,7 @@ class AbstractGraspAgentTraining:
         self.moving_range=torch.load(self.model_key + '_moving_range') if os.path.exists(self.model_key + '_moving_range') else None
 
 
-        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.01,use_euclidean_dist=False,static_centers=alpha_beta)
+        self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.05,use_euclidean_dist=False,static_centers=alpha_beta)
 
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
         self.gan.ini_models(train=True)
