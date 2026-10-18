@@ -302,7 +302,7 @@ class AbstractGraspAgentTraining:
                                                  track_label_balance=False,track_history=self.track_statistics_history)
 
         self.metric_dict['uniqueness'] = self.Ave_uniquness.val
-        self.metric_dict['flexibility']=1-self.collision_tendency.val
+        self.metric_dict['collision']=self.collision_tendency.val
         self.metric_dict['discrimination_dist']=self.discrimination_dist.val
         self.metric_dict['confidence']=self.confidence_indicator.val
         self.metric_dict['heuristic_efficiency']=self.random_sampler_acceptance_rate.val
@@ -803,7 +803,7 @@ class AbstractGraspAgentTraining:
         grasp_feasiblity=grasp_feasiblity[0,0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
-        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) if self.test_mode else (~floor_mask.clone())
+        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) & (grasp_feasiblity>0.5) if self.test_mode else (~floor_mask.clone())
 
         selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality*grasp_feasiblity
         if self.test_mode: selection_p = 0.001  + grasp_quality ** 2

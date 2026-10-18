@@ -17,7 +17,7 @@ def generate_progress_bar(step, iterations):
     current = min(step, total)
 
     header = Text(
-        f"Test progress: {current}/{total}  ", justify="left"
+        f"Test progress: {100*(current/total)}%  ", justify="left"
     )
     bar = ProgressBar(total=total, completed=current,
                       width=51)
@@ -43,7 +43,7 @@ def generate_training_table(metric_dict,hand_name=''):
     table.add_column("Metric",width=30)
     table.add_column("Value",width=15, justify="center")
     table.add_row("Coverage Indicator:", f"{metric_dict['uniqueness']}")
-    table.add_row("Flexibility Indicator:", f"{metric_dict['flexibility']}")
+    table.add_row("Collision risk indicator:", f"{metric_dict['collision']}")
     table.add_row("Discrimination Indicator:", f"{metric_dict['discrimination_dist']}")
     table.add_row("Confidence Indictor:", f"{metric_dict['confidence']}")
     table.add_row("Heuristic Efficiency:", f"{metric_dict['heuristic_efficiency']}")

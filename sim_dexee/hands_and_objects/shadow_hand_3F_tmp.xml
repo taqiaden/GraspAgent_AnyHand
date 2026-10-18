@@ -1,6 +1,6 @@
 <mujoco model="shadow dex-ee hand scene">
   <include file="shadow_hand/right_hand.xml" />
-  <include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_616.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_93.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_612.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_409.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_610.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_135.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_615.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_89.xml" /><compiler meshdir="assets" />
+  <include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_301.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_417.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_292.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_30.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_39.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_308.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_300.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_193.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_609.xml" /><include file="/mnt/hgfs/0_my_phd_work/codes/GraspAgent_AnyHand/sim_dexee/hands_and_objects//mesh/mesh_278.xml" /><compiler meshdir="assets" />
   <statistic extent=".5" center="0 0 0.1" />
   <default>
     <default class="object/visual">
@@ -28,6 +28,6 @@
   <worldbody>
     <light pos="0 0 1.5" dir="0 0 -1" />
     <camera fovy="45" pos="0 0 1.2" quat="1 0 0 0" name="camera_1" />
-        <geom name="floor" pos="0 0 -0.1" size="10 10 0.05" type="plane" material="groundplane" friction="3 0.01 0.001" solimp="0.9 0.95 0.001" solref="0.02 5" />
+        <geom name="floor" pos="0 0 -0.1" size="10 10 0.05" type="plane" material="groundplane" friction="1 0.01 0.001" solimp="0.9 0.95 0.001" solref="0.02 5" />
   </worldbody>
 </mujoco>

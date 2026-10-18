@@ -120,7 +120,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
                          process_pose=process_pose,n_joints=16,train_policy_only=True,explore_mode=False)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
-        self.sim_env.plt_obj_dict_statistics()
+        # self.sim_env.plt_obj_dict_statistics()
 
 
 def train_N_grasp_GAN(args,n=1):

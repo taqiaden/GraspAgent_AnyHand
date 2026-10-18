@@ -177,7 +177,6 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
         if obj_pose is None: obj_pose=self.objects_poses
 
 
-
         self.d.time = 0.0
         self.d.mocap_pos[0] = hand_pos
         self.d.mocap_quat[0] = hand_quat

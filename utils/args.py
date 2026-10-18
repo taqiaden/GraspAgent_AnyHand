@@ -50,8 +50,8 @@ def get_args():
         "--test_mode",
         type=str2bool,
         nargs="?",
-        const=False,
-        default=False,
+        const=True,
+        default=True,
         help="Activate test mode. Use true/false."
     )
 
@@ -59,8 +59,8 @@ def get_args():
         "--view",
         type=str2bool,
         nargs="?",
-        const=False,
-        default=False,
+        const=True,
+        default=True,
         help="Show the Mujoco environment. Use true/false."
     )
 

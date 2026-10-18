@@ -146,9 +146,8 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
 
     def view_grasp(self,hand_pos,hand_quat,hand_fingers,obj_pose=None,view=False,iterations=300,hard_level=0.   ):
 
-        grasped_obj = None
-
-        warning_flag = False
+        self.restore_simulation_state()
+        if obj_pose is None: obj_pose=self.objects_poses
 
         self.d.time = 0.0
         self.d.mocap_pos[0] = hand_pos
