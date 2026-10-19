@@ -34,7 +34,7 @@ def quat_from_z_to_vec_single(v):
     z = torch.tensor([0.0, 0.0, 1.0], device=v.device)
 
     # Cross and dot products
-    axis = torch.cross(z, v)
+    axis = torch.linalg.cross(z, v)
     dot = torch.dot(z, v)
 
     if dot > 0.999999:  # almost same direction
@@ -178,9 +178,9 @@ def quat_between(v_from, v_to):
     if dot < -0.999999:  # Using a small epsilon for numerical stability
         # Find a perpendicular axis (any vector perpendicular to v_from)
         # For opposite vectors, we need a 180° rotation around any axis perpendicular to v_from
-        axis = torch.cross(v_from, torch.tensor([1., 0., 0.], device=v_from.device))
+        axis = torch.linalg.cross(v_from, torch.tensor([1., 0., 0.], device=v_from.device))
         if torch.norm(axis) < 0.000001:  # If v_from is parallel to [1,0,0], try another axis
-            axis = torch.cross(v_from, torch.tensor([0., 1., 0.], device=v_from.device))
+            axis = torch.linalg.cross(v_from, torch.tensor([0., 1., 0.], device=v_from.device))
         axis = axis / torch.norm(axis)
 
         # 180° rotation quaternion: [cos(90°), sin(90°)*axis] = [0, axis]
@@ -188,7 +188,7 @@ def quat_between(v_from, v_to):
         return quat / torch.norm(quat)
 
     # Original formula works for all other cases
-    cross = torch.cross(v_from, v_to)
+    cross = torch.linalg.cross(v_from, v_to)
     w = torch.sqrt((torch.norm(v_from) ** 2) * (torch.norm(v_to) ** 2)) + dot
     quat = torch.cat([w.unsqueeze(0), cross])
     return quat / torch.norm(quat)

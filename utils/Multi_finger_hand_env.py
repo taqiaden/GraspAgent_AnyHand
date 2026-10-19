@@ -14,7 +14,7 @@ from scipy.spatial.transform import Rotation as R
 import os
 from  utils.quat_operations import random_quaternion
 import time
-
+import gc
 
 
 def pose_quat_to_matrix(position, quaternion):
@@ -266,7 +266,7 @@ class MojocoMultiFingersEnv():
         while True:
             for el in range(n):
                 if selected_index is None:
-                    for j in range(1000):
+                    for _ in range(1000):
                         if random_sampling:
                             new_obj_id = sample(range(self.object_nums_all), 1)[0]
                         else:
@@ -323,7 +323,7 @@ class MojocoMultiFingersEnv():
                 self.objects_poses=obj_pose+obj_quat+self.objects_poses # new object at the begining
 
             while len(self.objects)>self.max_obj_per_scene:
-                print('Remove object ID: ', self.objects[0])
+                # print('Remove object ID: ', self.objects[0])
                 self.objects.popleft()
                 self.objects_poses=self.objects_poses[:-7]
 
@@ -355,7 +355,7 @@ class MojocoMultiFingersEnv():
 
     def remove_obj(self):
         if len(self.objects) >=1 :
-            print('Remove object ID: ', self.objects[0])
+            # print('Remove object ID: ', self.objects[0])
             self.objects.popleft()
             self.objects_poses = self.objects_poses[:-7]
 
@@ -543,11 +543,17 @@ class MojocoMultiFingersEnv():
         tree.write(self.objects_path+self.tmp_xml)
 
     def initiate_mojoco(self):
+        # Release old resources if the model was already loaded
+        if self.m is not None:
+            self.m = None
+            self.d = None
+            gc.collect()
 
         self.m = mujoco.MjModel.from_xml_path(self.objects_path+self.tmp_xml)
 
         self.d = mujoco.MjData(self.m)
         mujoco.mj_forward(self.m, self.d)
+
 
     def ini_renderer(self):
         # Define camera parameters and init renderer.

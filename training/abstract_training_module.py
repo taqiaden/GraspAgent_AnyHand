@@ -757,7 +757,7 @@ class AbstractGraspAgentTraining:
 
     def check_collision(self, target_point, target_pose, view=False):
         with torch.no_grad():
-            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=view)
+            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=False)
         return self.sim_env.check_collision(hand_pos=shifted_point.tolist(), hand_quat=quat, hand_fingers=fingers, view=view)
 
     def evaluate_grasp(self, target_point, target_pose, view=False, hard_level=0, shake=False, check_kinematics=False,
@@ -765,7 +765,7 @@ class AbstractGraspAgentTraining:
         grasped_obj = None
         warning_flag=False
         with torch.no_grad():
-            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=self.test_mode)
+            quat, fingers, shifted_point = self.process_pose(target_point, target_pose, view=False)
 
             if view:
                 grasp_success, contact_with_obj, contact_with_floor, n_grasp_contact, self_collide, stable_grasp = self.sim_env.view_grasp(
@@ -780,7 +780,6 @@ class AbstractGraspAgentTraining:
             initial_collision = contact_with_obj or contact_with_floor
 
             if warning_flag and dev_mode: print(Fore.RED, f' ----------------------------- warning_flag', Fore.RESET)
-
 
             if grasp_success is not None:
                 if grasp_success and not contact_with_obj and not contact_with_floor and not warning_flag:
@@ -1160,10 +1159,10 @@ class AbstractGraspAgentTraining:
             min_=1 if self.train_policy_only or self.test_mode else 5
             max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
 
-            self.sim_env.remove_objects(n=max_)
+            self.sim_env.remove_objects(n=len(self.sim_env.objects))
+            n_objs=random.randint(min_, max_ )
 
-
-            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ),random_sampling=(len(self.DDM)>=self.max_scenes)or self.test_mode)
+            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=n_objs,random_sampling=(len(self.DDM)>=self.max_scenes)or self.test_mode)
 
             if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
                 self.buffer_replay_rate.update(0.)
@@ -1198,7 +1197,7 @@ class AbstractGraspAgentTraining:
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
                 annealing_factor = (1 - grasp_quality.detach())
-                if dev_mode:print(Fore.LIGHTYELLOW_EX,
+                if dev_mode and not self.test_mode:print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
 
@@ -1394,9 +1393,9 @@ class AbstractGraspAgentTraining:
         context = torch.no_grad() if self.test_mode or self.explore_mode else torch.enable_grad()
 
         with context:
-            if dev_mode and not self.test_mode:pi = progress_indicator('Begin new training round: ', max_limit=iterations)
-
-            if dev_mode:print(f'# Synthesised scenes = {len(self.DDM)}')
+            if dev_mode and not self.test_mode:
+                pi = progress_indicator('Begin new training round: ', max_limit=iterations)
+                print(f'# Synthesised scenes = {len(self.DDM)}')
 
             for i in range(iterations):
                 if self.skip_rate.val > 0.8:
