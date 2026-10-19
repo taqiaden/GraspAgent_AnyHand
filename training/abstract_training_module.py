@@ -847,9 +847,10 @@ class AbstractGraspAgentTraining:
                                                                             view=False)
                 if contact_with_obj or contact_with_floor: continue
 
-                result_tuble = self.evaluate_grasp(
+                grasp_success, initial_collision, plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
                     target_point, target_generated_pose, view=self.view_env, shake=self.shake)
-                if result_tuble[0]:
+                if warning_flag: return None,None,0
+                if grasp_success:
                     self.metric_dict['test_success'] += 1
                 else:
                     self.metric_dict['test_failure'] += 1
