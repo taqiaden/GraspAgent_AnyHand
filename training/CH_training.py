@@ -89,8 +89,8 @@ def  run_test():
     hand_name = 'CasiaHand'
     i=0
     steps=args.steps
-    while True:
-        Train_grasp_GAN.begin(iterations=1)
+    # while True:
+    #     Train_grasp_GAN.begin(iterations=1)
 
     with Live(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
         while True:
