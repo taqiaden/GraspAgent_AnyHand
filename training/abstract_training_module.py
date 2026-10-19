@@ -1162,7 +1162,7 @@ class AbstractGraspAgentTraining:
             min_=1 if self.train_policy_only or self.test_mode else 5
             max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
 
-            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ),random_sampling=len(self.DDM)>=self.max_scenes)
+            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ),random_sampling=(len(self.DDM)>=self.max_scenes)or self.test_mode)
 
             if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
                 self.buffer_replay_rate.update(0.)
