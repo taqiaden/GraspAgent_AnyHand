@@ -55,7 +55,7 @@ python training/<hand_script>.py --test_mode true --view true --steps 10
 
 This command enables visualization and runs 10 evaluation steps.
 
-<img src="images/test_screen.png" alt="Live test metrics in terminal" width="800"/>
+<img src="images/test_screen.png" alt="Live test metrics in terminal" />
 Note: Run from a terminal to see the live metrics table shown above.
 
 ## Hand designs
