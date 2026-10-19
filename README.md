@@ -47,18 +47,17 @@ To evaluate a pretrained policy, run the corresponding script in the `training/`
 
 ### Example
 
-Replace `<hand_script>` with the appropriate script for your target hand.
-
+Replace `<hand_script>` with the appropriate script for your target hand. This command enables visualization and runs 10 evaluation steps.
 ```bash
 python training/<hand_script>.py --test_mode true --view true --steps 10
 ```
+Note: Run from a terminal to see the live metrics table.
 
-This command enables visualization and runs 10 evaluation steps.
-
+### Results
+We ran tests on all five hands for 100 steps each. At every step, a new scene is synthesized by randomly dropping objects from a pool of 500+ objects, with each scene containing between 1 and 15 objects.
 <div align="center">
   <img src="images/test_screen.png" alt="Live test metrics in terminal"/>
 </div>
-Note: Run from a terminal to see the live metrics table shown above.
 
 ## Hand designs
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
