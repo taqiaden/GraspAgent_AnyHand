@@ -854,8 +854,6 @@ class AbstractGraspAgentTraining:
                     self.metric_dict['test_success'] += 1
                 else:
                     self.metric_dict['test_failure'] += 1
-                if dev_mode:print(Fore.LIGHTCYAN_EX,
-                      f'return f1: {result_tuble}, quality_score: {grasp_quality[target_index].item()}, max score={grasp_quality.max().item()}')
 
                 g_pairs.append((target_index, 1, 1))
                 d_pairs.append((target_index, 1, 1))
