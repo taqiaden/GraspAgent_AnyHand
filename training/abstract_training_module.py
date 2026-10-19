@@ -124,7 +124,7 @@ class AbstractGraspAgentTraining:
         self.args = args
         self.model_key=model_key
         self.test_mode=test_mode
-        self.max_n=50
+        self.max_n=30
         self.train_policy_only=train_policy_only
         self.view=False
         self.domain_randomization=domain_randomization
@@ -843,13 +843,13 @@ class AbstractGraspAgentTraining:
             target_ref_pose = grasp_pose_ref_PW[target_index]
 
             if self.test_mode:
-                contact_with_obj, contact_with_floor = self.check_collision(target_point, target_generated_pose,
-                                                                            view=False)
-                if contact_with_obj or contact_with_floor: continue
+                # contact_with_obj, contact_with_floor = self.check_collision(target_point, target_generated_pose,
+                #                                                             view=False)
+                # if contact_with_obj or contact_with_floor: continue
 
                 grasp_success, initial_collision, plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
                     target_point, target_generated_pose, view=self.view_env, shake=self.shake)
-                if warning_flag: return None,None,0
+                if warning_flag or initial_collision: continue
                 if grasp_success:
                     self.metric_dict['test_success'] += 1
                 else:
@@ -1156,10 +1156,12 @@ class AbstractGraspAgentTraining:
         else:
             self.loaded_synthesised_data = None
 
-            self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
 
             min_=1 if self.train_policy_only or self.test_mode else 5
             max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
+
+            self.sim_env.remove_objects(n=max_)
+
 
             self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=random.randint(min_, max_ ),random_sampling=(len(self.DDM)>=self.max_scenes)or self.test_mode)
 
@@ -1415,7 +1417,7 @@ class AbstractGraspAgentTraining:
                         traceback.print_exc()
                         torch.cuda.empty_cache()
                         self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-                        if self.loaded_synthesised_data is not None: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
+                        if self.loaded_synthesised_data is not None and not self.test_mode: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
                 else:
                     self.step( report=i == iterations - 1)
