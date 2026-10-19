@@ -124,7 +124,7 @@ class AbstractGraspAgentTraining:
         self.args = args
         self.model_key=model_key
         self.test_mode=test_mode
-        self.max_n=100
+        self.max_n=50
         self.train_policy_only=train_policy_only
         self.view=False
         self.domain_randomization=domain_randomization
