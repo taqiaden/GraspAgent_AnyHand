@@ -3,7 +3,7 @@
 **GraspAgent_AnyHand** implements an adversarial learning framework for training grasp policies across heterogeneous robotic hands. It includes pretrained models for five hands and supports configuring a new hand for training in approximately 15 minutes.
 
 <div align="center">
-  <img src="images/abstract_summary.jpg" alt="GraspAgent AnyHand Overview"/>
+  <img src="images/abstract_summary.png" alt="GraspAgent AnyHand Overview"/>
 </div>
 (A) The framework takes a robot hand as input. (B) The proposed learned components include neural networks used at inference (Sampler, safety and quality networks), and a critic network used only for training. (C) The engineering part for a given hand includes setting up the simulator and defining heuristic rules. (D) We propose an adversarial learning mechanism. (E) The framework outputs a grasp policy and a robust grasp pose dataset for the hand.
 
