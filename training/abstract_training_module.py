@@ -26,6 +26,8 @@ import numpy as np
 from utils.visualiztion import view_npy_open3d
 from utils.where_I_am import detect_environment
 import builtins
+if not torch.cuda.is_available():
+    import MinkowskiEngine as ME
 
 original_print = builtins.print
 
@@ -124,7 +126,7 @@ class AbstractGraspAgentTraining:
         self.args = args
         self.model_key=model_key
         self.test_mode=test_mode
-        self.max_n=30
+        self.max_n=10 if self.test_mode else 30
         self.train_policy_only=train_policy_only
         self.view=False
         self.domain_randomization=domain_randomization
@@ -365,7 +367,7 @@ class AbstractGraspAgentTraining:
 
         return sampled_pose
 
-    def step_discriminator(self, cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, pairs):
+    def step_critic(self, cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, pairs):
 
         '''zero grad'''
         self.gan.generator.zero_grad(set_to_none=True)
@@ -569,7 +571,58 @@ class AbstractGraspAgentTraining:
 
         return loss_p
 
-    def step_policy(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
+    def step_sampler(self,cropped_local_point_clouds, depth, clean_depth, floor_mask,grasp_pose_ref, pairs):
+        '''zero grad'''
+        self.gan.critic.zero_grad(set_to_none=True)
+        self.gan.generator.zero_grad(set_to_none=True)
+        self.gan.generator_optimizer.zero_grad(set_to_none=True)
+        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
+
+        '''generated grasps'''
+        grasp_pose, grasp_quality_logits, features2, features3, grasp_collision_logits = self.gan.generator(
+            depth[None, None, ...], detach_sampler=False, detach_quality=True, detach_collision=True)
+
+        grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
+        grasp_collision_logits = grasp_collision_logits[0, 0].reshape(-1)
+        probs = logits_to_probs(grasp_quality_logits)
+        feasible_props = logits_to_probs(grasp_collision_logits.detach().clone())
+
+        grasp_sampling_loss = torch.tensor([0.], device=device)
+        if len(pairs) == self.batch_size:
+            grasp_sampling_loss = self.get_generator_loss(cropped_local_point_clouds,
+                                                          depth, clean_depth, grasp_pose, grasp_pose_ref,
+                                                          pairs, floor_mask)
+
+            assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
+
+            mask_ = (~floor_mask) & (feasible_props < 0.5)
+            weight = (1. - probs[mask_].detach()).abs()
+            scatter_loss = weighted_scatter_loss(grasp_pose[:, 0:5].reshape(5, -1).permute(1, 0)[mask_],
+                                                 weights=weight) if len(
+                pairs) == self.batch_size else torch.tensor(
+                [0.], device=grasp_pose.device)
+
+            mask_ = (~floor_mask)
+            contrast_loss = self.get_repulsive_loss_pi_one(depth, grasp_pose, features2.detach(), mask_)
+
+            with torch.no_grad():
+                self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
+
+            sampler_loss = grasp_sampling_loss + contrast_loss + scatter_loss
+            sampler_loss.backward()
+            self.gan.sampler_optimizer.step()
+
+        if dev_mode: print(Fore.LIGHTYELLOW_EX,
+                           f'grasp_sampling_loss={grasp_sampling_loss.item()}  ',
+                           Fore.RESET)
+
+        self.gan.generator.zero_grad(set_to_none=True)
+        self.gan.critic.zero_grad(set_to_none=True)
+        self.gan.generator_optimizer.zero_grad(set_to_none=True)
+        self.gan.critic_optimizer.zero_grad(set_to_none=True)
+        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
+
+    def step_policy(self,  depth,  floor_mask, pc   ):
         '''zero grad'''
         self.gan.critic.zero_grad(set_to_none=True)
         self.gan.generator.zero_grad(set_to_none=True)
@@ -578,7 +631,54 @@ class AbstractGraspAgentTraining:
 
         '''generated grasps'''
         grasp_pose, grasp_quality_logits ,features2,features3,grasp_collision_logits= self.gan.generator(
-            depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=False)
+            depth[None, None, ...],detach_sampler=True,detach_quality=False,detach_collision=False)
+
+        grasp_pose_PW = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
+        grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
+        grasp_collision_logits = grasp_collision_logits[0, 0].reshape(-1)
+        probs = logits_to_probs(grasp_quality_logits)
+        feasible_props=logits_to_probs(grasp_collision_logits.detach().clone())
+
+        self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
+
+        mask_ = (~floor_mask)
+        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling= False)
+
+        mask_ = (~floor_mask)
+        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling= False)
+
+        policy_loss =    grasp_quality_loss_ + collision_loss_
+        if policy_loss.requires_grad is not None:
+            policy_loss.backward()
+            self.gan.generator_optimizer.step()
+            self.gan.generator.zero_grad(set_to_none=True)
+            self.gan.generator_optimizer.zero_grad(set_to_none=True)
+        else:
+            print("Tensor has no gradient ",policy_loss)
+
+        grasp_quality_loss_=grasp_quality_loss_.item()
+
+
+        if dev_mode: print(Fore.LIGHTYELLOW_EX,
+              f'  grasp_quality_loss_={grasp_quality_loss_}, collision_loss_={collision_loss_.item()}',
+              Fore.RESET)
+
+        self.gan.generator.zero_grad(set_to_none=True)
+        self.gan.critic.zero_grad(set_to_none=True)
+        self.gan.generator_optimizer.zero_grad(set_to_none=True)
+        self.gan.critic_optimizer.zero_grad(set_to_none=True)
+        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
+
+    def step_policy_and_sampler(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
+        '''zero grad'''
+        self.gan.critic.zero_grad(set_to_none=True)
+        self.gan.generator.zero_grad(set_to_none=True)
+        self.gan.generator_optimizer.zero_grad(set_to_none=True)
+        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
+
+        '''generated grasps'''
+        grasp_pose, grasp_quality_logits ,features2,features3,grasp_collision_logits= self.gan.generator(
+            depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=True)
 
         grasp_pose_PW = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
         grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
@@ -1074,7 +1174,7 @@ class AbstractGraspAgentTraining:
         batch_features_list = []
         batch_indices_list = []
         space_range = 2.0
-        voxel_size = 0.02
+        voxel_size = 0.02 if torch.cuda.is_available() else 0.04
         grid_size = int(space_range / voxel_size)
         b = 0
         for pair in pairs:
@@ -1124,12 +1224,20 @@ class AbstractGraspAgentTraining:
         batch_features = torch.cat(batch_features_list, dim=0)
         batch_indices = torch.cat(batch_indices_list, dim=0)
 
-        cropped_local_point_clouds = spconv.SparseConvTensor(
-            features=batch_features.float(),  # (M, C=3)
-            indices=batch_indices,  # (M, 4)
-            spatial_shape=[grid_size] * 3,
-            batch_size=self.batch_size
-        )
+        if torch.cuda.is_available():
+            cropped_local_point_clouds = spconv.SparseConvTensor(
+                features=batch_features.float(),  # (M, C=3)
+                indices=batch_indices,  # (M, 4)
+                spatial_shape=[grid_size] * 3,
+                batch_size=self.batch_size
+            )
+        else:
+            # MinkowskiEngine: coords must be FLOAT and ordered [b, x, y, z]
+            mink_coords = batch_indices[:, [0, 3, 2, 1]].int()
+            cropped_local_point_clouds = ME.SparseTensor(
+                features=batch_features.float(),
+                coordinates=mink_coords,
+            )
 
         if view:
             x = cropped_local_point_clouds.dense()
@@ -1252,7 +1360,7 @@ class AbstractGraspAgentTraining:
             if not self.train_policy_only and len(d_pairs) == self.batch_size:
                 d_cropped_local_point_clouds = self.prepare_voxels(d_pairs, depth, pc, full_pointcloud)
                 # d_cropped_local_point_clouds=None
-                self.step_discriminator(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
+                self.step_critic(d_cropped_local_point_clouds, depth,  grasp_pose, grasp_pose_ref, d_pairs)
                 if dev_mode:self.print_pairs_info(d_pairs, grasp_pose, grasp_pose_ref)
                 if not self.train_policy_only:
                     self.skipped_last = False
@@ -1264,15 +1372,16 @@ class AbstractGraspAgentTraining:
 
                 g_cropped_local_point_clouds = self.prepare_voxels(g_pairs, depth, pc, full_pointcloud)
 
-                self.step_policy(g_cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel,
-                                    g_pairs)
+                self.step_sampler( g_cropped_local_point_clouds, depth, clean_depth, floor_mask, grasp_pose_ref_pixel, g_pairs)
+                self.step_policy( depth, floor_mask, pc)
+
                 if dev_mode:self.print_pairs_info(g_pairs, grasp_pose, grasp_pose_ref)
 
                 if not self.train_policy_only:
                     self.skipped_last = False
             else:
                 if self.skip_rate.val < 0.5 or self.train_policy_only:
-                    self.step_policy(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
+                    self.step_policy_and_sampler(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
 
             if not self.train_policy_only:
                 if self.skipped_last: self.skip_rate.update(1.)
@@ -1398,7 +1507,7 @@ class AbstractGraspAgentTraining:
                 print(f'# Synthesised scenes = {len(self.DDM)}')
 
             for i in range(iterations):
-                if self.skip_rate.val > 0.8:
+                if self.skip_rate.val > 0.8 or  not torch.cuda.is_available():
                     self.batch_size = 1
                     self.iter_per_scene = 1  # 5
                     self.sim_env.max_obj_per_scene = 1
