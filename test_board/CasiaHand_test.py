@@ -24,10 +24,6 @@ def  run_test():
     test_module = TrainGraspGAN(args)
     test_module.initialize()
     hand_name = 'CasiaHand'
-    # while True:
-    #     test_module.begin(iterations=1)
-    test_module.metric_dict['test_success'] = 11
-    test_module.metric_dict['test_failure'] = 0
     i=0
     steps=args.steps
     with Live(generate_combined_table(test_module.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
