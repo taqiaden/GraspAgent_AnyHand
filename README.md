@@ -73,7 +73,7 @@ Note: Run from a terminal to see the live metrics table.
 ### Results
 We run an example test for each of the five hands over 100 steps. At every step, a new scene is synthesized by randomly dropping objects from a pool of 500+ objects. Each scene contains between 5 and 15 objects.
 <div align="center">
-  <img src="images/test_screen.jpg" alt="Live test metrics in terminal"/>
+  <img src="images/test_screen_.jpg" alt="Live test metrics in terminal"/>
 </div>
 
 ## Hand designs
