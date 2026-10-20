@@ -15,7 +15,6 @@ from utils.rl.masked_categorical import MaskedCategorical
 from utils.dynamic_dataset import DynamicDataManagement
 from utils.training_satatistics import MovingRate, TrainingTracker
 import numpy as np
-from utils.where_I_am import detect_environment
 import builtins
 
 original_print = builtins.print
@@ -315,10 +314,8 @@ class AbstractGraspAgentTesting:
 
     def step(self):
         self.sim_env.max_obj_per_scene = 10
-        min_ = 1
-        max_ = 15
         self.sim_env.remove_objects(n=len(self.sim_env.objects))
-        n_objs = random.randint(min_, max_)
+        n_objs = random.randint(self.args.min_obj, self.args.max_obj)
 
         self.sim_env.drop_new_obj(selected_index=None, stablize=True, n=n_objs,
                                   random_sampling=True)
@@ -376,7 +373,6 @@ class AbstractGraspAgentTesting:
                     self.sim_env.reload()
 
                 else:
-
                     self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
 
                     self.sim_env.drop_new_obj(selected_index=None, stablize=True,

@@ -70,4 +70,17 @@ def get_args():
         help="Set the number of test steps"
     )
 
+    parser.add_argument(
+        "--min_obj",
+        type=int,
+        default=5,
+        help="Set the minimum number of objects per scene"
+    )
+
+    parser.add_argument(
+        "--max_obj",
+        type=int,
+        default=15,
+        help="Set the maximum number of objects per scene"
+    )
     return parser.parse_args()

@@ -52,7 +52,8 @@ To evaluate a pretrained policy, run the corresponding script in the `test_board
 |---|---|---|---|
 | `--view` | bool | `false` | Open the MuJoCo viewer during evaluation. |
 | `--steps` | int | `10` | Number of evaluation steps. |
-
+| `--min_obj` | int | `5` | Minimum number of objects per scene. |
+| `--max_obj` | int | `15` | Maximum number of objects per scene. |
 ### Example
 
 Replace `<hand_script>` with the appropriate script for your target hand. This command enables visualization and runs 10 evaluation steps.
