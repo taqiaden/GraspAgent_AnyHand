@@ -54,9 +54,9 @@ python training/<hand_script>.py --test_mode true --view true --steps 10
 Note: Run from a terminal to see the live metrics table.
 
 ### Results
-We ran tests on all five hands for 100 steps each. At every step, a new scene is synthesized by randomly dropping objects from a pool of 500+ objects, with each scene containing between 1 and 15 objects.
+Below are example screen of test results over 100 steps. At every step, a new scene is synthesized by randomly dropping objects from a pool of 500+ objects, with each scene containing between 1 and 15 objects.
 <div align="center">
-  <img src="images/test_screen.png" alt="Live test metrics in terminal"/>
+  <img src="images/test_screen.jpg" alt="Live test metrics in terminal"/>
 </div>
 
 ## Hand designs
