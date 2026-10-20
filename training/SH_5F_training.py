@@ -113,5 +113,4 @@ if __name__ == "__main__":
     # Read config
     config = read_config(config_path)
 
-
     train_N_grasp_GAN(args,n=10000)

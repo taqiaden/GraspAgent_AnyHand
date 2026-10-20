@@ -74,7 +74,7 @@ class AbstractGraspAgentTesting:
 
         self.args = args
         self.model_key = model_key
-        self.max_n = 10
+        self.max_n = 100
         self.domain_randomization = domain_randomization
         self.static_joints = [] if static_joints is None else static_joints
 
@@ -99,7 +99,6 @@ class AbstractGraspAgentTesting:
         ''''''
         self.track_statistics_history = track_statistics_history
 
-        self.iter_per_scene = 1
 
         '''Moving rates'''
         self.skip_rate = None
@@ -119,10 +118,6 @@ class AbstractGraspAgentTesting:
 
         self.skipped_last = True
 
-        approach_centers = torch.tensor([[0., 1., 0], [0., -1., 0], [1., 0, 0], [-1., 0, 0], [0., 0, -1]],
-                                        device=device)
-        beta_centers = torch.tensor([[0., 1], [0., -1], [1., 0], [-1., 0]], device=device)
-        beta_centers = F.normalize(beta_centers, p=2, dim=-1)
 
         self.moving_std = torch.load(self.model_key + '_moving_std') if os.path.exists(
             self.model_key + '_moving_std') else None
@@ -132,15 +127,12 @@ class AbstractGraspAgentTesting:
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
         self.gan.ini_generator(train=False)
 
-
         torch.set_printoptions(
             precision=4,  # Number of decimal places
             sci_mode=False  # Disable scientific notation
         )
         np.set_printoptions(suppress=True, precision=4)
 
-        env = detect_environment()
-        print(Fore.GREEN, f"Environment: {env}", Fore.RESET)
 
         self.metric_dict = {}
         self.metric_dict['test_success'] = 0
@@ -295,6 +287,7 @@ class AbstractGraspAgentTesting:
         n = int(min(self.max_n, avaliable_iterations))
 
         t = 0
+        print('test')
         while t < n:
             t += 1
             dist = MaskedCategorical(probs=selection_p, mask=selection_mask)
@@ -309,7 +302,9 @@ class AbstractGraspAgentTesting:
 
             grasp_success, initial_collision, plan_found, grasped_obj, warning_flag = self.evaluate_grasp(
                 target_point, target_generated_pose, view=self.view_env, shake=self.shake)
-            if warning_flag or initial_collision: continue
+            print(f'{t}')
+            if warning_flag : return None
+            if  initial_collision: continue
             if grasp_success:
                 self.metric_dict['test_success'] += 1
             else:
@@ -344,15 +339,12 @@ class AbstractGraspAgentTesting:
             pc, _ = self.sim_env.depth_to_pointcloud(depth.cpu().numpy(), self.sim_env.intr, self.sim_env.extr)
         pc = torch.from_numpy(pc).to(device)
 
-        for k in range(self.iter_per_scene):
-            self.gan.generator.eval()
-            grasp_pose, grasp_quality_logits, features2, features3, grasp_collision_logits = self.gan.generator(
-                depth[None, None, ...], detach_sampler=True, detach_quality=True, detach_collision=True)
-            self.gan.generator.train()
+        grasp_pose, grasp_quality_logits, features2, features3, grasp_collision_logits = self.gan.generator(
+            depth[None, None, ...], detach_sampler=True, detach_quality=True, detach_collision=True)
 
-            grasp_quality = logits_to_probs(grasp_quality_logits)
+        grasp_quality = logits_to_probs(grasp_quality_logits)
 
-            self.iterate(pc, floor_mask, grasp_pose,grasp_quality.detach() )
+        self.iterate(pc, floor_mask, grasp_pose,grasp_quality.detach() )
 
 
     def begin(self, iterations=10):
