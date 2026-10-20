@@ -28,7 +28,7 @@ def  run_test():
     hand_name = 'CasiaHand'
     # while True:
     #     test_module.begin(iterations=1)
-    test_module.metric_dict['test_success'] = 3
+    test_module.metric_dict['test_success'] = 10
     test_module.metric_dict['test_failure'] = 0
     i=0
     steps=args.steps
