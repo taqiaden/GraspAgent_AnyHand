@@ -5,7 +5,6 @@ import traceback
 from collections import deque
 import torch
 from colorama import Fore
-from matplotlib import pyplot as plt
 from torch import nn
 import torch.nn.functional as F
 from Configurations.config import device
@@ -14,7 +13,6 @@ from  utils.Voxel_operations import crop_cube, view_3d_occupancy_grid
 from utils.check_point_conventions import GANWrapper
 from utils.cuda_utils import cuda_memory_report
 from utils.domain_randomization import add_reflective_blob_noise, add_depth_noise
-from utils.plot_utils import plot_distribution, plot_distribution_overlayed
 from utils.report_utils import progress_indicator
 from utils.rl.masked_categorical import MaskedCategorical
 from  utils.Online_clustering import OnlingClustering
@@ -67,7 +65,7 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
         weights=weights[idx]
         assert torch.all(weights >= 0.)
 
-    elif N<100: return torch.tensor([0.],device=device)
+    elif N<100: return torch.tensor(0.,device=device)
 
     weights = weights / (weights.sum() + 1e-6)
 
@@ -82,8 +80,6 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
     if dev_mode: print(f'Scatter loss ={loss.item()}')
 
     return loss
-
-
 
 
 class AbstractGraspAgentTraining:
@@ -641,79 +637,6 @@ class AbstractGraspAgentTraining:
         self.gan.generator_optimizer.zero_grad(set_to_none=True)
         self.gan.critic_optimizer.zero_grad(set_to_none=True)
         self.gan.sampler_optimizer.zero_grad(set_to_none=True)
-
-    def step_policy_and_sampler(self, cropped_local_point_clouds, depth, clean_depth, floor_mask, pc, grasp_pose_ref, pairs     ):
-        '''zero grad'''
-        self.gan.critic.zero_grad(set_to_none=True)
-        self.gan.generator.zero_grad(set_to_none=True)
-        self.gan.generator_optimizer.zero_grad(set_to_none=True)
-        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
-
-        '''generated grasps'''
-        grasp_pose, grasp_quality_logits ,features2,features3,grasp_collision_logits= self.gan.generator(
-            depth[None, None, ...],detach_sampler=self.train_policy_only,detach_quality=False,detach_collision=True)
-
-        grasp_pose_PW = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
-        grasp_quality_logits = grasp_quality_logits[0, 0].reshape(-1)
-        grasp_collision_logits = grasp_collision_logits[0, 0].reshape(-1)
-        probs = logits_to_probs(grasp_quality_logits)
-        feasible_props=logits_to_probs(grasp_collision_logits.detach().clone())
-
-        self.supplementary_statistics(probs.detach().clone(), pc, grasp_pose_PW, floor_mask, feasible_props)
-
-
-        mask_ = (~floor_mask)
-        grasp_quality_loss_=self.get_grasp_quality_loss(probs,probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling= False)
-
-        mask_ = (~floor_mask)
-        collision_loss_=self.get_grasp_collision_loss(feasible_props,torch.where(feasible_props>0.5, probs, probs*feasible_props), grasp_collision_logits, mask_, pc, grasp_pose_PW,random_sampling= False)
-
-        policy_loss =    grasp_quality_loss_ + collision_loss_
-        if policy_loss.requires_grad is not None:
-            policy_loss.backward()
-            self.gan.generator_optimizer.step()
-            self.gan.generator.zero_grad(set_to_none=True)
-            self.gan.generator_optimizer.zero_grad(set_to_none=True)
-        else:
-            print("Tensor has no gradient ",policy_loss)
-
-        grasp_quality_loss_=grasp_quality_loss_.item()
-
-        grasp_sampling_loss=torch.tensor([0.],device=device)
-        if len(pairs) == self.batch_size:
-            grasp_sampling_loss = self.get_generator_loss(cropped_local_point_clouds,
-                                                            depth, clean_depth, grasp_pose, grasp_pose_ref,
-                                                            pairs, floor_mask)
-
-            assert not torch.isnan(grasp_sampling_loss).any(), f'{grasp_sampling_loss}'
-
-            mask_ = (~floor_mask) & (feasible_props<0.5)
-            weight=(1.-probs[mask_].detach()).abs()
-            scatter_loss = weighted_scatter_loss(grasp_pose[:,0:5].reshape(5, -1).permute(1, 0)[mask_],weights=weight) if len(
-                pairs) == self.batch_size else torch.tensor(
-                [0.], device=grasp_pose.device)
-
-            mask_ = (~floor_mask)
-            contrast_loss=self.get_repulsive_loss_pi_one( depth, grasp_pose, features2.detach(), mask_)
-
-            with torch.no_grad():
-                self.sampler_loss_statistics.loss = grasp_sampling_loss.item()
-
-            sampler_loss = grasp_sampling_loss +contrast_loss+scatter_loss
-            sampler_loss.backward()
-            self.gan.sampler_optimizer.step()
-
-        if dev_mode: print(Fore.LIGHTYELLOW_EX,
-              f'grasp_sampling_loss={grasp_sampling_loss.item()},  grasp_quality_loss_={grasp_quality_loss_}, collision_loss_={collision_loss_.item()}',
-              Fore.RESET)
-
-        self.gan.generator.zero_grad(set_to_none=True)
-        self.gan.critic.zero_grad(set_to_none=True)
-        self.gan.generator_optimizer.zero_grad(set_to_none=True)
-        self.gan.critic_optimizer.zero_grad(set_to_none=True)
-        self.gan.sampler_optimizer.zero_grad(set_to_none=True)
-
-
 
     def get_grasp_quality_loss(self,probs,sampling_probs,grasp_quality_logits,mask_,pc,grasp_pose_PW,random_sampling=False):
 
