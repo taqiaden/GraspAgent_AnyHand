@@ -1,4 +1,3 @@
-import argparse
 import configparser
 import os
 from torch import nn

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from Configurations.config import device
-from  model.sparse_encoder import SparseEncoderIN
+from  model.sparse_encoder import SparseEncoderIN, SparseEncoderIN_Minkowski
 from  model.Decoders import CriticDecoder, FilmModulatedDecoder
 from  utils.model_init import init_weights_he_normal
 from model.resunet import res_unet
@@ -109,7 +109,7 @@ class C(nn.Module):
     def __init__(self,n_params):
         super().__init__()
 
-        self.back_bone = SparseEncoderIN().to(device)
+        self.back_bone = SparseEncoderIN().to(device) if torch.cuda.is_available() else SparseEncoderIN_Minkowski()
 
         self.decoder = CriticDecoder(in_c1=512 , in_c2=n_params  ).to(device)
 

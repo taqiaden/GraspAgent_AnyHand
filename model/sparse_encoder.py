@@ -1,7 +1,8 @@
 import spconv.pytorch as spconv
 import torch
 from torch import nn
-# import MinkowskiEngine as ME
+if not torch.cuda.is_available():
+    import MinkowskiEngine as ME
 
 class Encoder2D_IN(nn.Module):
     def __init__(self, in_ch=3, out_ch=512):
@@ -61,7 +62,7 @@ class SparseEncoderIN_Minkowski(nn.Module):
         )
 
         self.head = nn.Sequential(
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.1),
         )
 
     def forward(self, x):

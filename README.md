@@ -30,8 +30,17 @@ The following software versions were used during development:
 | Open3D | 0.18.0 |
 | CUDA | 12.6 |
 | MuJoCo | 3.8.0 |
+| spconv for GPU| 2.3.8 |
+| MinkowskiEngine for CPU| 0.5.4 |
 
 A compatible NVIDIA GPU and CUDA environment are required for GPU-accelerated training. Ensure that your installed PyTorch build and NVIDIA driver are compatible with your CUDA setup.
+
+The sparse encoder backbone used by the critic network during training is selected automatically at runtime:
+
+- **CUDA available** → the `spconv` backbone is used.
+- **No CUDA** → the `MinkowskiEngine` backbone is activated instead of `spconv`.
+
+Install `MinkowskiEngine` if you intend to train without CUDA.
 
 ## Evaluating a Trained Policy
 
