@@ -85,37 +85,15 @@ def weighted_scatter_loss(x, weights,eps=1e-6):
 
 
 
-def visualize_depth_with_flat_index(depth, i):
-    """
-    depth: (H, W) depth map, e.g. (600, 600)
-    i: index into depth.reshape(-1)
-    """
-    H, W = depth.shape
-
-    # Convert flat index back to 2D index
-    row, col = np.unravel_index(i, (H, W))
-
-    plt.figure(figsize=(6, 6))
-    plt.imshow(depth, cmap='viridis')
-    plt.colorbar(label='Depth')
-
-    # Highlight the selected point
-    plt.scatter(col, row, c='red', s=80, marker='x')
-
-    plt.title(f"Flat index {i} → (row={row}, col={col})")
-    plt.axis('off')
-    plt.show()
 
 class AbstractGraspAgentTraining:
     def __init__(self, args,sampler_policy_model,critic_model,  epochs=1 ,model_key='test',
-                 test_mode=False,
                  randomization_unit=None,
                  process_pose=None,
                  n_joints=0,
                  track_statistics_history=False,
                  check_kinematics=False,
-                 shake=False,
-                 force_balance=True
+                 shake=False
                  ,train_policy_only=False
                  ,domain_randomization=False
                  ,cip_fingers=None
@@ -124,8 +102,7 @@ class AbstractGraspAgentTraining:
 
         self.args = args
         self.model_key=model_key
-        self.test_mode=test_mode
-        self.max_n=10 if self.test_mode else 30
+        self.max_n=30
         self.train_policy_only=train_policy_only
         self.view=False
         self.domain_randomization=domain_randomization
@@ -137,7 +114,6 @@ class AbstractGraspAgentTraining:
 
         self.cip_fingers=cip_fingers
 
-        self.force_balance=force_balance
 
         self.shake=shake
 
@@ -203,10 +179,10 @@ class AbstractGraspAgentTraining:
         self.approach_beta_clusters=OnlingClustering(key_name=self.model_key+'_approach_beta_clusters',number_of_centers=8,vector_size=5,decay_rate=0.05,use_euclidean_dist=False,static_centers=alpha_beta)
 
         self.gan = GANWrapper(self.model_key, self.sampler_policy_model, self.critic_model)
+
         self.gan.ini_models(train=True)
 
-        if not self.test_mode:
-            self.load_optimizers()
+        self.load_optimizers()
 
         torch.set_printoptions(
             precision=4,  # Number of decimal places
@@ -773,9 +749,8 @@ class AbstractGraspAgentTraining:
                 self.grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                        logits_to_probs(grasp_prediction_logits.detach()))
 
-                if self.force_balance:
-                    if grasp_success and positive_counter >= s: continue
-                    if (not grasp_success) and negative_counter >= s: continue
+                if grasp_success and positive_counter >= s: continue
+                if (not grasp_success) and negative_counter >= s: continue
 
                 break
             if grasp_success:
@@ -829,7 +804,7 @@ class AbstractGraspAgentTraining:
                                                                            grasp_prediction_logits.detach()))
 
 
-                if self.force_balance and  time.time() - start < 5 * s:
+                if  time.time() - start < 5 * s:
                     if coll_free and positive_counter >= s: continue
                     if (not coll_free) and negative_counter >= s: continue
 
@@ -899,10 +874,9 @@ class AbstractGraspAgentTraining:
         grasp_feasiblity=grasp_feasiblity[0,0].reshape(-1)
         grasp_pose_PW = grasp_pose.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
         grasp_pose_ref_PW = grasp_pose_ref.permute(0, 2, 3, 1)[0, :, :, :].reshape(360000, self.n_param)
-        selection_mask = (~floor_mask.clone()) & (grasp_quality>0.5) if self.test_mode else (~floor_mask.clone())
+        selection_mask = (~floor_mask.clone())
 
         selection_p =torch.rand_like(grasp_quality) #if self.loaded_synthesised_data is None else grasp_quality*grasp_feasiblity
-        if self.test_mode: selection_p = 0.001  + grasp_quality ** 2
 
         avaliable_iterations = selection_mask.sum()
 
@@ -920,7 +894,7 @@ class AbstractGraspAgentTraining:
         t = 0
         while t < n:
             time_out = time.time() - start
-            if time_out > 5 and not self.test_mode: break
+            if time_out > 5 : break
             t += 1
 
             importance = None
@@ -938,22 +912,6 @@ class AbstractGraspAgentTraining:
             target_generated_pose = grasp_pose_PW[target_index]
             target_ref_pose = grasp_pose_ref_PW[target_index]
 
-            if self.test_mode:
-                # contact_with_obj, contact_with_floor = self.check_collision(target_point, target_generated_pose,
-                #                                                             view=False)
-                # if contact_with_obj or contact_with_floor: continue
-
-                grasp_success, initial_collision, plan_found, grasped_obj,warning_flag = self.evaluate_grasp(
-                    target_point, target_generated_pose, view=self.view_env, shake=self.shake)
-                if warning_flag or initial_collision: continue
-                if grasp_success:
-                    self.metric_dict['test_success'] += 1
-                else:
-                    self.metric_dict['test_failure'] += 1
-
-                g_pairs.append((target_index, 1, 1))
-                d_pairs.append((target_index, 1, 1))
-                return d_pairs, g_pairs, 1
 
             ref_success, ref_initial_collision,  ref_plan_found, ref_grasped_obj,warning_flag = self.evaluate_grasp(
                 target_point, target_ref_pose, view=False, shake=self.shake, update_obj_prob=None, check_kinematics=self.check_kinematics)
@@ -1184,7 +1142,6 @@ class AbstractGraspAgentTraining:
             sub_pc /= radius
 
             if view:
-                visualize_depth_with_flat_index(depth.cpu().numpy(), index)
                 view_npy_open3d(sub_pc.cpu().numpy(), view_coordinate=True)
 
             coords = ((sub_pc + 1.0) / space_range * grid_size).floor().int()
@@ -1247,29 +1204,29 @@ class AbstractGraspAgentTraining:
 
         self.sim_env.max_obj_per_scene = 10
 
-        if (self.skipped_last  or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode )) and not self.test_mode :
+        if (self.skipped_last  or len(self.DDM) < 100) and (not (self.train_policy_only  and not self.explore_mode )) :
 
             self.loaded_synthesised_data = self.DDM.load_random_sample()
             self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
             self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
             self.sim_env.reload()
 
-            if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
+            if not (self.train_policy_only  or  self.explore_mode  ):
                 self.buffer_replay_rate.update(1.)
 
         else:
             self.loaded_synthesised_data = None
 
 
-            min_=1 if self.train_policy_only or self.test_mode else 5
-            max_=15 if self.train_policy_only or self.test_mode else self.sim_env.max_obj_per_scene
+            min_=1 if self.train_policy_only else 5
+            max_=15 if self.train_policy_only  else self.sim_env.max_obj_per_scene
 
             self.sim_env.remove_objects(n=len(self.sim_env.objects))
             n_objs=random.randint(min_, max_ )
 
-            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=n_objs,random_sampling=(len(self.DDM)>=self.max_scenes)or self.test_mode)
+            self.sim_env.drop_new_obj(selected_index=None, stablize=True,n=n_objs,random_sampling=(len(self.DDM)>=self.max_scenes))
 
-            if not (self.train_policy_only  or  self.explore_mode or self.test_mode ):
+            if not (self.train_policy_only  or  self.explore_mode  ):
                 self.buffer_replay_rate.update(0.)
 
         if len(self.sim_env.objects)==0:return
@@ -1302,7 +1259,7 @@ class AbstractGraspAgentTraining:
                 grasp_feasiblity = logits_to_probs(grasp_collision_logits)
 
                 annealing_factor = (1 - grasp_quality.detach())
-                if dev_mode and not self.test_mode:print(Fore.LIGHTYELLOW_EX,
+                if dev_mode :print(Fore.LIGHTYELLOW_EX,
                       f'mean_annealing_factor= {annealing_factor.mean()},max_annealing_factor= {annealing_factor.max()},min_annealing_factor= {annealing_factor.min()}, skip rate={self.skip_rate.val}',
                       Fore.RESET)
 
@@ -1332,22 +1289,18 @@ class AbstractGraspAgentTraining:
 
                     grasp_pose_ref = grasp_pose_ref.reshape(600, 600, self.n_param).permute(2, 0, 1).unsqueeze(0)
 
-                if report and k == 0 and not self.test_mode:
+                if report and k == 0 :
                     self.view_result(grasp_pose, (~floor_mask) & (grasp_quality.reshape(-1)>0.5) &(grasp_feasiblity.reshape(-1)>0.5),(~floor_mask) & (grasp_quality.reshape(-1)>0.5))
 
                 d_pairs, g_pairs = [], []
 
-                if (not self.train_policy_only) or  self.explore_mode or self.test_mode:
+                if (not self.train_policy_only) or  self.explore_mode :
 
                     d_pairs, g_pairs, sampler_samples = self.sample_contrastive_pairs(pc, floor_mask, grasp_pose,
                                                                                       grasp_pose_ref,
                                                                                      grasp_quality.detach(),grasp_feasiblity.detach() )
                     if self.explore_mode: break
 
-            if self.test_mode:
-                if len(d_pairs) > 0 and self.view:
-                    self.prepare_voxels(d_pairs, depth, pc, full_pointcloud, view=self.view)
-                return
 
             grasp_pose = grasp_pose[0].permute(1, 2, 0).reshape(360000, self.n_param)
             grasp_pose_ref_pixel = None if self.train_policy_only else grasp_pose_ref
@@ -1385,7 +1338,7 @@ class AbstractGraspAgentTraining:
                 else: self.skip_rate.update(0.)
 
             if not self.train_policy_only and not (
-                    (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) and not self.test_mode:
+                    (len(d_pairs) == self.batch_size) or (len(g_pairs) == self.batch_size)) :
                 if k == 0:
                     self.sim_env.remove_objects(n=2)
                     break
@@ -1496,10 +1449,10 @@ class AbstractGraspAgentTraining:
 
 
     def begin(self, iterations=10):
-        context = torch.no_grad() if self.test_mode or self.explore_mode else torch.enable_grad()
+        context = torch.no_grad() if  self.explore_mode else torch.enable_grad()
 
         with context:
-            if dev_mode and not self.test_mode:
+            if dev_mode :
                 pi = progress_indicator('Begin new training round: ', max_limit=iterations)
                 print(f'# Synthesised scenes = {len(self.DDM)}')
 
@@ -1516,80 +1469,25 @@ class AbstractGraspAgentTraining:
                 if self.args.catch_exceptions:
                     try:
                         self.step(report=i == iterations - 1)
-                        if dev_mode and not self.test_mode:pi.step(i)
+                        if dev_mode :pi.step(i)
                     except Exception as e:
                         print(Fore.RED, str(e), Fore.RESET)
                         traceback.print_exc()
                         torch.cuda.empty_cache()
                         self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-                        if self.loaded_synthesised_data is not None and not self.test_mode: self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
+                        if self.loaded_synthesised_data is not None : self.DDM.low_quality_samples_tracker.append(self.loaded_synthesised_data.id)
 
                 else:
                     self.step( report=i == iterations - 1)
-                    if dev_mode and not self.test_mode:pi.step(i)
+                    if dev_mode :pi.step(i)
 
-            if dev_mode and not self.test_mode:pi.end()
+            if dev_mode :pi.end()
             
-            if not self.test_mode and not self.explore_mode:
+            if  not self.explore_mode:
                 self.export_check_points()
                 self.save_statistics()
 
 
-    def show_overlaid_graphs(self, iterations=5,load_from_dataset=True):
-
-        with torch.no_grad() :
-            
-            grasp_quality_data=[]
-
-            for i in range(iterations):
-
-                self.sim_env.max_obj_per_scene = 10
-
-                if load_from_dataset:
-
-                    self.loaded_synthesised_data = self.DDM.load_random_sample()
-                    self.sim_env.objects = deque(self.loaded_synthesised_data.obj_ids)
-                    self.sim_env.objects_poses = self.loaded_synthesised_data.obj_poses
-
-                    self.sim_env.reload()
-
-                else:
-                    self.loaded_synthesised_data = None
-
-                    self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-
-                    self.sim_env.drop_new_obj(selected_index=None, stablize=True,
-                                              n=random.randint(5, self.sim_env.max_obj_per_scene))
-
-
-                '''get scene perception'''
-                depth, pc, floor_mask = self.sim_env.get_scene_preception(view=False)
-
-                floor_mask = torch.from_numpy(floor_mask).to(device)
-
-                depth = torch.from_numpy(depth).to(device)  # [600.600]
-
-                with torch.no_grad():
-                    self.gan.generator.eval()
-                    grasp_pose, grasp_quality_logits, features2,features3, grasp_collision_logits = self.gan.generator(
-                        depth[None, None, ...], detach_sampler=True,detach_quality=True,detach_collision=True)
-
-                    grasp_quality = logits_to_probs(grasp_quality_logits)
-
-                    # annealing_factor = (1 -     grasp_quality.detach()) #torch.ones_like(grasp_pose[:,0:1])
-                    # grasp_pose_ref = self.pose_interpolation(grasp_pose,
-                    #                                          annealing_factor=annealing_factor)
-                    # standarized_depth_ = depth_normalization(depth[None, None, ...])
-                    # gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
-                    # grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
-                    # grasp_quality = logits_to_probs(grasp_quality_logits)
-
-                    grasp_quality_c = grasp_quality[0, 0].reshape(-1).clone().detach()
-                    grasp_quality_c = grasp_quality_c[~floor_mask]
-                    grasp_quality_data.append(grasp_quality_c.numpy())
-                        
-            if len(grasp_quality_data)==1:plot_distribution(grasp_quality_data[0])
-            else: plot_distribution_overlayed(grasp_quality_data, name='Scene')
 
 
 

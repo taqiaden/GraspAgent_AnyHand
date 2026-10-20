@@ -1,4 +1,3 @@
-import configparser
 import os
 import torch.nn.functional as F
 from Configurations.config import device
@@ -9,7 +8,8 @@ from  training.sample_random_grasp import generate_random_Allergo_poses
 from  utils.quat_operations import  grasp_frame_to_quat, quat_between
 from utils. cuda_utils import cuda_memory_report
 import torch
-from utils.args import get_args
+from utils.args import get_args, read_config
+
 
 def cip_fingers(target_pose_):
     if target_pose_.ndim==2:
@@ -115,11 +115,10 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
     def __init__(self, args, epochs=1):
 
         super().__init__(args=args,sampler_policy_model=Allergo_G,critic_model=Allergo_D, epochs=epochs ,model_key=Allergo_model_key,
-                         test_mode=args.test_mode,randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
+                         randomization_unit=generate_random_Allergo_poses,cip_fingers=cip_fingers,
                          process_pose=process_pose,n_joints=16,train_policy_only=True,explore_mode=False)
 
         self.sim_env = AllegroHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
-        # self.sim_env.plt_obj_dict_statistics()
 
 
 def train_N_grasp_GAN(args,n=1):
@@ -129,32 +128,9 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
-        # Train_grasp_GAN.show_overlaid_graphs(load_from_dataset=False)
         Train_grasp_GAN.begin(iterations=10)
 
-def read_config(path):
-    config = configparser.ConfigParser()
-    config.read(path)
-    return config
 
-def  run_test():
-    from rich.live import Live
-    from utils.test_board import generate_combined_table
-    import time
-    Train_grasp_GAN = TrainGraspGAN(args)
-    Train_grasp_GAN.initialize()
-    hand_name = 'Allegro Hand V4'
-    i=0
-    steps=args.steps
-    with Live(generate_combined_table(Train_grasp_GAN.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
-        while True:
-            i = (Train_grasp_GAN.metric_dict['test_success']
-                 + Train_grasp_GAN.metric_dict['test_failure'])
-            live.update(generate_combined_table(Train_grasp_GAN.metric_dict, i, steps, hand_name=hand_name))
-            if i < steps:
-                Train_grasp_GAN.begin(iterations=1)
-            else:
-                time.sleep(0.25)
 
 if __name__ == "__main__":
     args = get_args()
@@ -165,7 +141,5 @@ if __name__ == "__main__":
     # Read config
     config = read_config(config_path)
 
-    if args.test_mode:
-        run_test()
-    else:
-        train_N_grasp_GAN(args,n=10000)
+    train_N_grasp_GAN(args,n=10000)
+

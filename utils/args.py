@@ -1,4 +1,11 @@
 import argparse
+import configparser
+
+
+def read_config(path):
+    config = configparser.ConfigParser()
+    config.read(path)
+    return config
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -44,15 +51,6 @@ def get_args():
         const=True,
         default=True,
         help="Wrap the execution with try and except (default: True). Use true/false."
-    )
-
-    parser.add_argument(
-        "--test_mode",
-        type=str2bool,
-        nargs="?",
-        const=False,
-        default=False,
-        help="Activate test mode. Use true/false."
     )
 
     parser.add_argument(
