@@ -23,16 +23,19 @@ Get the checkpoints and datasets from this [link](https://anonymous-hf.com/a/nlm
 ## Prerequisites
 The following software versions were used during development:
 
-| Package | Version |
-|---|---|
-| Python | 3.10.16 |
-| PyTorch | 2.5.1 |
-| Open3D | 0.18.0 |
-| CUDA | 12.6 |
-| MuJoCo | 3.8.0 |
-| spconv (GPU)| 2.3.8 |
-| MinkowskiEngine (CPU)| 0.5.4 |
+<div align="center">
 
+| Package | Version  |
+|---|:--------:|
+| Python | 3.10.16  |
+| PyTorch |  2.5.1   |
+| Open3D |  0.18.0  |
+| CUDA |   12.6   |
+| MuJoCo |  3.8.0   |
+| spconv (GPU)|  2.3.8   |
+| MinkowskiEngine (CPU)|  0.5.4   |
+
+</div>
 A compatible NVIDIA GPU and CUDA environment are required for GPU-accelerated training. Ensure that your installed PyTorch build and NVIDIA driver are compatible with your CUDA setup.
 
 The sparse encoder backbone used by the critic network during training is selected automatically at runtime:
@@ -50,12 +53,12 @@ To evaluate a pretrained policy, run the corresponding script in the `test_board
 
 <div align="center">
 
-| Argument | Type | Default | Description |
-|---|---|---|---|
-| `--view` | bool | `false` | Open the MuJoCo viewer during evaluation. |
-| `--steps` | int | `10` | Number of evaluation steps. |
-| `--min_obj` | int | `5` | Minimum number of objects per scene. |
-| `--max_obj` | int | `15` | Maximum number of objects per scene. |
+|  Argument   | Type  | Default  | Description |
+|:-----------:|:-----:|:--------:|---|
+|  `--view`   | bool  | `false`  | Open the MuJoCo viewer during evaluation. |
+|  `--steps`  |  int  |   `10`   | Number of evaluation steps. |
+| `--min_obj` |  int  |   `5`    | Minimum number of objects per scene. |
+| `--max_obj` |  int  |   `15`   | Maximum number of objects per scene. |
 
 </div>
 
