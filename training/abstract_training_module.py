@@ -114,7 +114,6 @@ class AbstractGraspAgentTraining:
                  n_joints=0,
                  track_statistics_history=False,
                  check_kinematics=False,
-                 exclude_collision_from_grasp_quality=True,
                  shake=False,
                  force_balance=True
                  ,train_policy_only=False
@@ -141,8 +140,6 @@ class AbstractGraspAgentTraining:
         self.force_balance=force_balance
 
         self.shake=shake
-
-        self.exclude_collision_from_grasp_quality=exclude_collision_from_grasp_quality
 
 
         self.check_kinematics=check_kinematics
@@ -771,7 +768,7 @@ class AbstractGraspAgentTraining:
                 if time.time() - start > 5 * s or (self.skip_rate.val > 0.9 and not self.train_policy_only):
                     return torch.tensor(0., device=device)
                 if warning_flag:continue
-                if initial_collision and self.exclude_collision_from_grasp_quality:continue
+                if initial_collision and not self.train_policy_only:continue
                 label = torch.ones_like(grasp_prediction_logits) if grasp_success else torch.zeros_like(grasp_prediction_logits)
                 self.grasp_quality_statistics.update_confession_matrix(label.detach(),
                                                                        logits_to_probs(grasp_prediction_logits.detach()))
@@ -1381,7 +1378,7 @@ class AbstractGraspAgentTraining:
                     self.skipped_last = False
             else:
                 if self.skip_rate.val < 0.5 or self.train_policy_only:
-                    self.step_policy_and_sampler(None, depth, clean_depth, floor_mask, pc, grasp_pose_ref_pixel, g_pairs  )
+                    self.step_policy(depth, floor_mask, pc)
 
             if not self.train_policy_only:
                 if self.skipped_last: self.skip_rate.update(1.)
