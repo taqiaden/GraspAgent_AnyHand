@@ -17,8 +17,6 @@ class TrainGraspGAN(AbstractGraspAgentTesting):
         self.sim_env = CasiaHandEnv(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
         # self.sim_env.plt_obj_dict_statistics()
 
-
-
 def  run_test():
     from rich.live import Live
     from utils.test_board import generate_combined_table
@@ -28,7 +26,7 @@ def  run_test():
     hand_name = 'CasiaHand'
     # while True:
     #     test_module.begin(iterations=1)
-    test_module.metric_dict['test_success'] = 10
+    test_module.metric_dict['test_success'] = 11
     test_module.metric_dict['test_failure'] = 0
     i=0
     steps=args.steps
