@@ -44,13 +44,12 @@ Install `MinkowskiEngine` if you intend to train without CUDA.
 
 ## Evaluating a Trained Policy
 
-To evaluate a pretrained policy, run the corresponding script in the `training/` directory with test mode enabled.
+To evaluate a pretrained policy, run the corresponding script in the `test_board/` directory.
 
 ### Command-line Arguments
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `--test_mode` | bool | `false` | Enable evaluation mode. |
 | `--view` | bool | `false` | Open the MuJoCo viewer during evaluation. |
 | `--steps` | int | `10` | Number of evaluation steps. |
 
@@ -58,7 +57,7 @@ To evaluate a pretrained policy, run the corresponding script in the `training/`
 
 Replace `<hand_script>` with the appropriate script for your target hand. This command enables visualization and runs 10 evaluation steps.
 ```bash
-python training/<hand_script>.py --test_mode true --view true --steps 10
+python test_board/<hand_script>.py --view true --steps 10
 ```
 Note: Run from a terminal to see the live metrics table.
 
