@@ -2,7 +2,7 @@ import os
 from  model.allergo_model import Allergo_model_key, Allergo_G, Allergo_D
 from  sim_dexee.allegro_hand_env import AllegroHandEnv
 from test_board.abstract_test import AbstractGraspAgentTesting
-from training.Allergo_training import cip_fingers, process_pose
+from training.AllergoHand_training import cip_fingers, process_pose
 from  training.sample_random_grasp import generate_random_Allergo_poses
 from utils.args import get_args, read_config
 

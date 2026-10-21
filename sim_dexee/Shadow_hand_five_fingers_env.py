@@ -275,7 +275,7 @@ if __name__ == "__main__":
     target_point = torch.tensor([.0, 0., 0.1]).to(device)
     target_pose = torch.tensor([0.,0.,-1,0,1,-0.5,0,0.5,1.]).to(device)
 
-    from  training.SH_training import process_pose
+    from  training.DEXEE_training import process_pose
 
     quat, fingers, shifted_point = process_pose(target_point, target_pose, view=True)
 

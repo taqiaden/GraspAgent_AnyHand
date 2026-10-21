@@ -4,7 +4,7 @@ from sim_dexee.Casia_hand_env import CasiaHandEnv
 from test_board.abstract_test import AbstractGraspAgentTesting
 from  training.sample_random_grasp import generate_random_CH_poses
 from utils.args import get_args, read_config
-from  training.CH_training import process_pose
+from  training.CasiaHand_training import process_pose
 
 class TrainGraspGAN(AbstractGraspAgentTesting):
     def __init__(self, args, epochs=1):

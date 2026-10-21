@@ -2,7 +2,7 @@ import os
 from model.r_2f85_model import R_2F85_D, R_2F85_G, R_2F85_model_key
 from sim_dexee.r_2f85_env import R2F85Env
 from test_board.abstract_test import AbstractGraspAgentTesting
-from training.r_2f85_training import process_pose
+from training.Robotiq2f85_training import process_pose
 from  training.sample_random_grasp import generate_random_r_2f85_poses
 from utils.args import get_args, read_config
 

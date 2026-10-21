@@ -3,7 +3,7 @@ from torch import nn
 from  model.SH_5F_model import SH_model_key, SH_G, SH_D
 from  sim_dexee.Shadow_hand_five_fingers_env import ShadowHandEnv
 from test_board.abstract_test import AbstractGraspAgentTesting
-from training.SH_5F_training import process_pose
+from training.ShadoDextrousHand_training import process_pose
 from  training.sample_random_grasp import  generate_random_SH_5F_poses
 from utils. IO_utils import custom_print
 from utils.args import get_args, read_config

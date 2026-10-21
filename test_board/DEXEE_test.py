@@ -4,7 +4,7 @@ from torch import nn
 from  model.SH_model import SH_model_key, SH_G, SH_D
 from  sim_dexee.Shadow_hand_env import ShadowHandEnv
 from test_board.abstract_test import AbstractGraspAgentTesting
-from training.SH_training import process_pose
+from training.DEXEE_training import process_pose
 from  training.sample_random_grasp import generate_random_SH_poses
 from utils. IO_utils import custom_print
 from utils. cuda_utils import cuda_memory_report

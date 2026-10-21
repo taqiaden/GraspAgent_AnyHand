@@ -251,7 +251,6 @@ class CasiaHandEnv(MojocoMultiFingersEnv):
                 # time_until_next_step = self.m.opt.timestep - (time.time() - step_start)
                 # if time_until_next_step > 0:
                 #     time.sleep(time_until_next_step)
-
         # After stepping
         # grasp_success = self.check_grasped_obj()
         grasp_success,n_grasp_contact,self_collide,max_force2,max_penetration2 = self.check_valid_grasp(minimum_contact_points=0,view=False)
@@ -340,7 +339,7 @@ if __name__ == "__main__":
 
 
 
-        from  training.CH_training import process_pose
+        from  training.CasiaHand_training import process_pose
         while True:
 
             shifted_point = np.array([-268.7269, -616.4493, 400.9593]) / 1000
