@@ -300,10 +300,13 @@ class AbstractGraspAgentTesting:
             target_generated_pose = grasp_pose_PW[target_index]
 
             grasp_success, initial_collision, plan_found, grasped_obj, warning_flag = self.evaluate_grasp(
-                target_point, target_generated_pose, view=self.view_env, shake=self.shake)
+                target_point, target_generated_pose, view=False, shake=self.shake)
             print(f'{t}')
             if warning_flag : return None
             if  initial_collision: continue
+            if self.view_env:
+                grasp_success, initial_collision, plan_found, grasped_obj, warning_flag = self.evaluate_grasp(
+                    target_point, target_generated_pose, view=True, shake=self.shake)
             if grasp_success:
                 self.metric_dict['test_success'] += 1
             else:
