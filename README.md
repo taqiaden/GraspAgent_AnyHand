@@ -17,6 +17,9 @@ The repository includes trained models for five heterogeneous robotic hands:
 - Allegro Hand V4
 - Robotiq 2F85
 
+Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
+
+
 ## Checkpoints and Datasets
 Get the checkpoints and datasets from this [link](https://anonymous-hf.com/a/nlm8uiuqaius/). Copy all downloaded folders into the root of this repository (the same folder as this README.md), overwriting any existing files when prompted.
 
@@ -75,9 +78,6 @@ We run an example test for each of the five hands over 100 steps. At every step,
 <div align="center">
   <img src="images/test_screen_.jpg" alt="Live test metrics in terminal"/>
 </div>
-
-## Hand designs
-Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
 
 
 ## Final notes
