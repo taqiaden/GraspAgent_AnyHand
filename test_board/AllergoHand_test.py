@@ -25,6 +25,8 @@ def  run_test():
     test_module = TrainGraspGAN(args)
     test_module.initialize()
     hand_name = 'Allegro Hand V4'
+    # while True:
+    #     test_module.begin(iterations=1)
     i=0
     steps=args.steps
     with Live(generate_combined_table(test_module.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:

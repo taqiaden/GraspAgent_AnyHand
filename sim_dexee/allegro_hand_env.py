@@ -160,9 +160,12 @@ class AllegroHandEnv(MojocoMultiFingersEnv):
         # for i in range(70):
         #     mujoco.mj_step(self.m, self.d)
         #     if i==10:self.static_view(1000)
+        # self.static_view(1000)
 
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1
+
+
 
             for i in range(70,600):
                 step_start = time.time()

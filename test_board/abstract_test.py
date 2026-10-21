@@ -286,7 +286,6 @@ class AbstractGraspAgentTesting:
         n = int(min(self.max_n, avaliable_iterations))
 
         t = 0
-        print('test')
         while t < n:
             t += 1
             dist = MaskedCategorical(probs=selection_p, mask=selection_mask)
@@ -301,10 +300,10 @@ class AbstractGraspAgentTesting:
 
             grasp_success, initial_collision, plan_found, grasped_obj, warning_flag = self.evaluate_grasp(
                 target_point, target_generated_pose, view=False, shake=self.shake)
-            print(f'{t}')
             if warning_flag : return None
             if  initial_collision: continue
             if self.view_env:
+                print('grasp_success:', grasp_success,',  grasp_quality:', grasp_quality[target_index])
                 grasp_success, initial_collision, plan_found, grasped_obj, warning_flag = self.evaluate_grasp(
                     target_point, target_generated_pose, view=True, shake=self.shake)
             if grasp_success:

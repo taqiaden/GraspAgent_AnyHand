@@ -79,6 +79,10 @@ We run an example test for each of the five hands over 100 steps. At every step,
   <img src="images/test_screen_.jpg" alt="Live test metrics in terminal"/>
 </div>
 
+The figure below shows examples of pre-pose and post-pose along with the grasp success probability as predicted by the quality network.
+<div align="center">
+  <img src="images/examples.png" alt="Examples of pre-pose and post-pose along with grasp probability of success"/>
+</div>
 
 ## Final notes
 Objects used in Mujoco simulator are pre-processed using the Collision-Aware Approximate Convex Decomposition (CoACD) method. The processing method is available [here](./sim_dexee/utils/generate_mesh_xml.py)

@@ -178,6 +178,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         #     if i==10:self.static_view(1000)
 
 
+        # self.static_view(1000)
 
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1

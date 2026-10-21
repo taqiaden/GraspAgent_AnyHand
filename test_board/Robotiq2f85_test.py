@@ -27,6 +27,8 @@ def  run_test():
     test_module.initialize()
     hand_name = 'Robotiq 2F85'
     i=0
+    # while True:
+    #     test_module.begin(iterations=1)
     steps=args.steps
     with Live(generate_combined_table(test_module.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
         while True:

@@ -161,6 +161,7 @@ class R2F85Env(MojocoMultiFingersEnv):
         #     if i==10:self.static_view(1000)
 
 
+        # self.static_view(1000)
 
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = 1
@@ -173,7 +174,7 @@ class R2F85Env(MojocoMultiFingersEnv):
                 if i<200:  time.sleep(0.01)
 
                 if 200  == i:
-                    _, collide_with_floor = self.check_hand_contact(report=True)
+                    _, collide_with_floor = self.check_hand_contact(report=False)
 
                 if 200  < i < 400 :
                     self.d.mocap_pos[0] = self.d.mocap_pos[0] + delta
@@ -205,7 +206,7 @@ class R2F85Env(MojocoMultiFingersEnv):
 
         # writer.close()
         # print("Saved video to simulation.mp4")
-        self.check_hand_contact(report=True)
+        self.check_hand_contact(report=False)
                 # Rudimentary time keeping, will drift relative to wall clock.
                 # time_until_next_step = self.m.opt.timestep - (time.time() - step_start)
                 # if time_until_next_step > 0:
