@@ -8,6 +8,7 @@ from torch import nn
 import torch.nn.functional as F
 from Configurations.config import device
 from kinematic_utils.path_check import kinematic_checker
+from model.abstract_model import depth_normalization
 from utils.check_point_conventions import GANWrapper
 from utils.domain_randomization import add_reflective_blob_noise, add_depth_noise
 from utils.plot_utils import plot_distribution, plot_distribution_overlayed
@@ -360,56 +361,6 @@ class AbstractGraspAgentTesting:
                 else:
                     self.step()
 
-
-    def show_overlaid_graphs(self, iterations=5, load_from_dataset=True):
-
-        with torch.no_grad():
-
-            grasp_quality_data = []
-
-            for i in range(iterations):
-
-                self.sim_env.max_obj_per_scene = 10
-
-                if load_from_dataset:
-                    self.sim_env.reload()
-
-                else:
-                    self.sim_env.remove_objects(n=self.sim_env.max_obj_per_scene)
-
-                    self.sim_env.drop_new_obj(selected_index=None, stablize=True,
-                                              n=random.randint(5, self.sim_env.max_obj_per_scene))
-
-                '''get scene perception'''
-                depth, pc, floor_mask = self.sim_env.get_scene_preception(view=False)
-
-                floor_mask = torch.from_numpy(floor_mask).to(device)
-
-                depth = torch.from_numpy(depth).to(device)  # [600.600]
-
-                with torch.no_grad():
-                    self.gan.generator.eval()
-                    grasp_pose, grasp_quality_logits, features2, features3, grasp_collision_logits = self.gan.generator(
-                        depth[None, None, ...], detach_sampler=True, detach_quality=True, detach_collision=True)
-
-                    grasp_quality = logits_to_probs(grasp_quality_logits)
-
-                    # annealing_factor = (1 -     grasp_quality.detach()) #torch.ones_like(grasp_pose[:,0:1])
-                    # grasp_pose_ref = self.pose_interpolation(grasp_pose,
-                    #                                          annealing_factor=annealing_factor)
-                    # standarized_depth_ = depth_normalization(depth[None, None, ...])
-                    # gripper_pose_x = torch.cat([grasp_pose_ref, standarized_depth_], dim=1)
-                    # grasp_quality_logits = self.gan.generator.grasp_quality_(features, gripper_pose_x)
-                    # grasp_quality = logits_to_probs(grasp_quality_logits)
-
-                    grasp_quality_c = grasp_quality[0, 0].reshape(-1).clone().detach()
-                    grasp_quality_c = grasp_quality_c[~floor_mask]
-                    grasp_quality_data.append(grasp_quality_c.numpy())
-
-            if len(grasp_quality_data) == 1:
-                plot_distribution(grasp_quality_data[0])
-            else:
-                plot_distribution_overlayed(grasp_quality_data, name='Scene')
 
 
 

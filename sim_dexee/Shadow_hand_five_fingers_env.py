@@ -182,7 +182,7 @@ class ShadowHandEnv(MojocoMultiFingersEnv):
         #     mujoco.mj_step(self.m, self.d)
         #     if i==10:self.static_view(1000)
 
-        self.static_view(1000)
+        # self.static_view(1000)
 
 
         with mujoco.viewer.launch_passive(self.m, self.d) as viewer:

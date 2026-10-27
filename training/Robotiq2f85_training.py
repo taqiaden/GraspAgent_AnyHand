@@ -53,6 +53,7 @@ class TrainGraspGAN(AbstractGraspAgentTraining):
 
         self.sim_env = R2F85Env(root=os.getcwd() + "/sim_dexee/hands_and_objects/",max_obj_per_scene=10)
 
+
 def train_N_grasp_GAN(args,n=1):
     Train_grasp_GAN = TrainGraspGAN(args)
 
@@ -61,6 +62,8 @@ def train_N_grasp_GAN(args,n=1):
     for i in range(n):
         cuda_memory_report()
         Train_grasp_GAN.initialize()
+        # Train_grasp_GAN.show_overlaid_graphs()
+
         Train_grasp_GAN.begin(iterations=10)
 
 

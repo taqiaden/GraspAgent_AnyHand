@@ -3,7 +3,7 @@ from torch import nn
 from  model.SH_5F_model import SH_model_key, SH_G, SH_D
 from  sim_dexee.Shadow_hand_five_fingers_env import ShadowHandEnv
 from test_board.abstract_test import AbstractGraspAgentTesting
-from training.ShadoDextrousHand_training import process_pose
+from training.ShadowDexterousHand_training import process_pose
 from  training.sample_random_grasp import  generate_random_SH_5F_poses
 from utils. IO_utils import custom_print
 from utils.args import get_args, read_config
@@ -31,7 +31,6 @@ class TrainGraspGAN(AbstractGraspAgentTesting):
         # self.sim_env.plt_obj_dict_statistics()
 
 
-
 def  run_test():
     from rich.live import Live
     from utils.test_board import generate_combined_table
@@ -40,8 +39,8 @@ def  run_test():
     test_module.initialize()
     hand_name = 'Shadow Dexterous Hand'
     i=0
-    while True:
-        test_module.begin(iterations=1)
+    # while True:
+    #     test_module.begin(iterations=1)
     steps=args.steps
     with Live(generate_combined_table(test_module.metric_dict,i,steps,hand_name=hand_name), refresh_per_second=4, screen=True) as live:
         while True:

@@ -19,6 +19,7 @@ The repository includes trained models for five heterogeneous robotic hands:
 
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
 
+<video src="https://github.com/user-attachments/assets/d049c4a5-2e47-4df0-883f-0d1c3c5ff7c0" controls width="100%"></video>
 
 ## Checkpoints and Datasets
 Get the checkpoints and datasets from this [link](https://anonymous-hf.com/a/nlm8uiuqaius/). Copy all downloaded folders into the root of this repository (the same folder as this README.md), overwriting any existing files when prompted.
