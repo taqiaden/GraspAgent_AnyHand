@@ -18,7 +18,7 @@ The repository includes trained models for five heterogeneous robotic hands:
 - Robotiq 2F85
 
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
-
+https://github.com/user-attachments/assets/d049c4a5-2e47-4df0-883f-0d1c3c5ff7c0
 <video src="https://github.com/user-attachments/assets/d049c4a5-2e47-4df0-883f-0d1c3c5ff7c0" controls width="100%"></video>
 
 ## Checkpoints and Datasets
