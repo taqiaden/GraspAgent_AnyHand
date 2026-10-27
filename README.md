@@ -7,6 +7,9 @@
 </div>
 (A) The framework takes a robot hand as input. (B) The proposed learned components include neural networks used at inference (Sampler, safety and quality networks), and a critic network used only for training. (C) The engineering part for a given hand includes setting up the simulator and defining heuristic rules. (D) We propose an adversarial learning mechanism. (E) The framework outputs a grasp policy and a robust grasp pose dataset for the hand.
 
+## Demo video
+https://github.com/user-attachments/assets/d049c4a5-2e47-4df0-883f-0d1c3c5ff7c0
+
 ## Supported Robotic Hands
 
 The repository includes trained models for five heterogeneous robotic hands:
@@ -19,8 +22,6 @@ The repository includes trained models for five heterogeneous robotic hands:
 
 Except for CasiaHand which was designed in our Lab, all hands are brought from the open source repository [mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) with modification applied to each hand including changing the reference point and adding a mocap body.
 
-## Demo video
-https://github.com/user-attachments/assets/d049c4a5-2e47-4df0-883f-0d1c3c5ff7c0
 
 ## Checkpoints and Datasets
 Get the checkpoints and datasets from this [link](https://anonymous-hf.com/a/nlm8uiuqaius/). Copy all downloaded folders into the root of this repository (the same folder as this README.md), overwriting any existing files when prompted.
